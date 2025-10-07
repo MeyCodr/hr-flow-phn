@@ -1,15 +1,15 @@
 // src/app/page.tsx or Home.tsx
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "./api/auth/[...nextauth]/route";
-import Dashboard from "./component/ui/Dashboard";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import Dashboard from "@/app/component/ui/Dashboard";
 
-export default async function Home() {
+export default async function Forms() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
     redirect("/login");
   }
 
-  return <Dashboard/>;
+  return <Dashboard />;
 }
