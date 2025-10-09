@@ -6,7 +6,7 @@ import Navbar from "./Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 
-// Dummy components for tabs
+// Dummy tab components
 function DashboardTab() {
   return <div>Dashboard Content</div>;
 }
@@ -19,58 +19,56 @@ function ApprovalTab() {
 function ProfileTab() {
   return <div>Profile Content</div>;
 }
-export function SettingTab() {
+function SettingTab() {
   return <div>Setting Content</div>;
 }
 
 export default function Dashboard() {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
 
-  const getTabFromPath = () => {
-    if (pathname.includes("/profile")) return "profile";
-    if (pathname.includes("/setting")) return "setting";
-    if (pathname.includes("/form")) return "form";
-    if (pathname.includes("/approval")) return "approval";
-    return "dashboard";
-  };
-
-  const [activeTab, setActiveTab] = useState(getTabFromPath);
-
-  useEffect(() => {
-    const path = pathname.split("/").pop();
-    if (path && tabComponents[path]) {
-      setActiveTab(path);
-    }
-  }, [pathname]);
-
-  // Detect mobile screen
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  });
-
+  // map tab keys to urls
   const tabToUrl: Record<string, string> = {
     dashboard: "/",
-    form: "/dashboard/forms",
+    form: "/form",
     approval: "/approval",
     profile: "/profile",
     setting: "/setting",
   };
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-
-    const newUrl = tabToUrl[tab];
-
-   router.push(newUrl);
+  // derive tab name from current pathname
+  const getTabFromPath = (): string => {
+    if (pathname.startsWith("/form")) return "form";
+    if (pathname.startsWith("/approval")) return "approval";
+    if (pathname.startsWith("/profile")) return "profile";
+    if (pathname.startsWith("/setting")) return "setting";
+    return "dashboard";
   };
 
-  // Map of tab key → component
+  const [activeTab, setActiveTab] = useState(getTabFromPath);
+
+  // keep tab in sync with URL
+  useEffect(() => {
+    setActiveTab(getTabFromPath());
+  }, [pathname]);
+
+  // handle tab switching
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    router.push(tabToUrl[tab]); // ✅ client-side navigation
+  };
+
+  // detect mobile
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const tabComponents: Record<string, JSX.Element> = {
     dashboard: <DashboardTab />,
     form: <FormTab />,
@@ -81,16 +79,15 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-gray-100 relative overflow-hidden">
-      {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         isMobile={isMobile}
-        activeTab={activeTab}
-        onSelectTab={handleTabChange}
+        // activeTab={activeTab}
+        // onSelectTab={handleTabChange}
       />
 
-      {/* Overlay on mobile */}
+      {/* Overlay for mobile */}
       {isMobile && isSidebarOpen && (
         <div
           onClick={() => setIsSidebarOpen(false)}
@@ -103,16 +100,13 @@ export default function Dashboard() {
         transition={{ type: "spring", stiffness: 120, damping: 25 }}
         className="flex-1 flex flex-col relative z-10"
       >
-        {/* Navbar */}
         <Navbar
           pageName={activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-        //   isMobile={isMobile}
           isSidebarOpen={isSidebarOpen}
           toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           onSelectTab={handleTabChange}
         />
 
-        {/* Tab content with smooth fade transition */}
         <AnimatePresence mode="wait" initial={false}>
           <motion.main
             key={activeTab}

@@ -1,27 +1,147 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// schema.prisma
+datasource db {
+  provider = "mysql" // or postgresql
+  url      = env("DATABASE_URL")
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+model User {
+  id           Int      @id @default(autoincrement())
+  fullname     String
+  staffid      String   @unique
+  email        String   @unique
+  divisionId   Int?
+  departmentId Int?
+  section      String?
+  designation  String?
+  worklocation String?
+  role         Role     @default(STAFF)
+  password     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  division   Division?        @relation(fields: [divisionId], references: [id])
+  department Department?      @relation(fields: [departmentId], references: [id])
+  approvals  Approval[]
+  forms      FormSubmission[]
 }
 
-model User {
-  id           Int    @id @default(autoincrement())
-  fullname     String
-  staffid      String @unique
-  email        String @unique
-  division     String
-  department   String
-  section      String
-  designation  String
-  worklocation String
-  password     String
+model Division {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  departments      Department[]
+  users            User[]
+  ApprovalFlowStep ApprovalFlowStep[]
+}
+
+model Department {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  divisionId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  division         Division           @relation(fields: [divisionId], references: [id])
+  users            User[]
+  ApprovalFlowStep ApprovalFlowStep[]
+}
+
+model FormType {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // e.g. "Leave Request", "Manpower Requisition"
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  submissions FormSubmission[]
+  flowSteps   ApprovalFlowStep[]
+}
+
+model FormSubmission {
+  id          Int        @id @default(autoincrement())
+  formTypeId  Int
+  createdById Int
+  status      FormStatus @default(PENDING)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Store flexible form fields (e.g. reasons, dates, details)
+  formData Json
+
+  // Relations
+  formType    FormType         @relation(fields: [formTypeId], references: [id])
+  createdBy   User             @relation(fields: [createdById], references: [id])
+  approvals   Approval[]
+  attachments FileAttachment[]
+}
+
+model FileAttachment {
+  id               Int      @id @default(autoincrement())
+  formSubmissionId Int
+  fileName         String
+  filePath         String // stored path or URL
+  fileType         String? // MIME type (e.g. application/pdf, image/png)
+  uploadedAt       DateTime @default(now())
+
+  // Relation
+  formSubmission FormSubmission @relation(fields: [formSubmissionId], references: [id])
+}
+
+model ApprovalFlowStep {
+  id           Int      @id @default(autoincrement())
+  formTypeId   Int
+  order        Int // sequence of approval (1 = first approver)
+  role         Role // which role approves at this step
+  departmentId Int? // optional, link to Department table
+  divisionId   Int? // optional, link to Division table
+  createdAt    DateTime @default(now())
+
+  // Relations
+  formType   FormType    @relation(fields: [formTypeId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  division   Division?   @relation(fields: [divisionId], references: [id])
+}
+
+model Approval {
+  id           Int            @id @default(autoincrement())
+  submissionId Int
+  approverId   Int
+  status       ApprovalStatus @default(PENDING)
+  remarks      String?
+  approvedAt   DateTime?
+  stepOrder    Int // from ApprovalFlowStep.order
+
+  // Relations
+  submission FormSubmission @relation(fields: [submissionId], references: [id])
+  approver   User           @relation(fields: [approverId], references: [id])
+}
+
+enum Role {
+  STAFF
+  HEAD_OF_SECTION
+  HEAD_OF_DEPARTMENT
+  TOP_MANAGEMENT
+  ADMIN
+}
+
+enum FormStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

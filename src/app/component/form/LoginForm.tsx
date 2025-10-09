@@ -128,7 +128,7 @@ function LoginForm({ onLogin }: LoginFormProps) {
               <PrimaryButton
                 name="Sign in"
                 type="submit"
-                className="border w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer"
+                className="border w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer text-center"
               />
             </form>
 
