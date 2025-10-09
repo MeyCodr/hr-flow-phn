@@ -1,12 +1,16 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { SetStateAction, useState } from "react";
 import PrimaryButton from "../ui/PrimaryButton";
 import Label from "../ui/Label";
 import toast, { Toaster } from "react-hot-toast";
 import { Input } from "../ui/Input";
 import { useRouter } from "next/navigation";
+import Dropdown from "../ui/Dropdown";
+import { Department, Division, Section } from "@/app/types/types";
+import ComboBox from "../ui/ComboBox";
+import { workLocation } from "../../../../lib/data";
 
 export interface RegisterUser {
   designation: string;
@@ -17,14 +21,30 @@ export interface RegisterUser {
   division: string;
   department: string;
   section: string;
-  worklocation: string;
+  workLocation: string;
 }
 
 interface RegisterFormProps {
   onRegister: (data: RegisterUser) => void;
+  divisions: Division[];
+  departments: Department[];
+  sections: Section[];
+  setSelectedDivision: React.Dispatch<SetStateAction<string>>;
+  setSelectedDepartment: React.Dispatch<SetStateAction<string>>;
+  setSelectedSection: React.Dispatch<SetStateAction<string>>;
+  setSelectedWorkLocation: React.Dispatch<SetStateAction<string>>;
 }
 
-function RegisterForm({ onRegister }: RegisterFormProps) {
+function RegisterForm({
+  onRegister,
+  divisions,
+  departments,
+  sections,
+  setSelectedDivision,
+  setSelectedDepartment,
+  setSelectedSection,
+  setSelectedWorkLocation,
+}: RegisterFormProps) {
   const [data, setData] = useState<RegisterUser>({
     staffid: "",
     fullname: "",
@@ -34,7 +54,7 @@ function RegisterForm({ onRegister }: RegisterFormProps) {
     designation: "",
     division: "",
     section: "",
-    worklocation: "",
+    workLocation: "",
   });
 
   const router = useRouter();
@@ -82,12 +102,19 @@ function RegisterForm({ onRegister }: RegisterFormProps) {
       designation: "",
       division: "",
       section: "",
-      worklocation: "",
+      workLocation: "",
     });
   };
 
   const handleNavigateToLogin = () => {
     setTimeout(() => router.push("/login"), 400); // Wait for animation
+  };
+
+  const addDashOption = (menu: { id: number; name: string }[]) => {
+    if (!menu.some((item) => item.name === "-")) {
+      return [{ id: 0, name: "-" }, ...menu];
+    }
+    return menu;
   };
 
   return (
@@ -221,14 +248,22 @@ function RegisterForm({ onRegister }: RegisterFormProps) {
                     htmlFor="division"
                     className="block text-sm font-medium text-gray-900"
                   />
-                  <Input
-                    id="division"
-                    name="division"
-                    type="text"
-                    value={data.division}
-                    onChange={handleChange}
-                    placeholder="Choose division . . ."
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  <ComboBox
+                    menu={divisions}
+                    selectedValue={data.division}
+                    onSelect={(item) => {
+                      // if "-" selected, use "0"
+                      const value = item ? item.id.toString() : "0";
+                      setSelectedDivision(value);
+                      setSelectedDepartment("0");
+                      setSelectedSection("0");
+                      setData((prev) => ({
+                        ...prev,
+                        division: value,
+                        department: "0",
+                        section: "0",
+                      }));
+                    }}
                   />
                 </div>
                 <div className="col-span-2 flex flex-col space-y-2">
@@ -237,14 +272,19 @@ function RegisterForm({ onRegister }: RegisterFormProps) {
                     htmlFor="department"
                     className="block text-sm font-medium text-gray-900"
                   />
-                  <Input
-                    id="department"
-                    name="department"
-                    type="text"
-                    value={data.department}
-                    onChange={handleChange}
-                    placeholder="Choose department . . ."
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  <ComboBox
+                    menu={addDashOption(departments)}
+                    selectedValue={data.department}
+                    onSelect={(item) => {
+                      const value = item ? item.id.toString() : "0";
+                      setSelectedDepartment(value);
+                      setSelectedSection("0");
+                      setData((prev) => ({
+                        ...prev,
+                        department: value,
+                        section: "0",
+                      }));
+                    }}
                   />
                 </div>
                 <div className=" flex flex-col space-y-2">
@@ -253,30 +293,30 @@ function RegisterForm({ onRegister }: RegisterFormProps) {
                     htmlFor="section"
                     className="block text-sm font-medium text-gray-900"
                   />
-                  <Input
-                    id="section"
-                    name="section"
-                    type="text"
-                    value={data.section}
-                    onChange={handleChange}
-                    placeholder="Choose section . . ."
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  <ComboBox
+                    menu={addDashOption(sections)}
+                    selectedValue={data.section}
+                    onSelect={(item) => {
+                      const value = item ? item.id.toString() : "0";
+                      setSelectedSection(value);
+                      setData((prev) => ({ ...prev, section: value }));
+                    }}
                   />
                 </div>
                 <div className=" flex flex-col space-y-2">
                   <Label
                     name="Work Location"
-                    htmlFor="worklocation"
+                    htmlFor="workLocation "
                     className="block text-sm font-medium text-gray-900"
                   />
-                  <Input
-                    id="worklocation"
-                    name="worklocation"
-                    type="text"
-                    value={data.worklocation}
-                    onChange={handleChange}
-                    placeholder="Choose work location . . ."
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  <ComboBox
+                    menu={workLocation}
+                    selectedValue={data.workLocation}
+                    onSelect={(item) => {
+                      const value = item ? item.name : "";
+                      setSelectedWorkLocation(value);
+                      setData((prev) => ({ ...prev, workLocation: value }));
+                    }}
                   />
                 </div>
               </div>

@@ -1,6 +1,5 @@
-// schema.prisma
 datasource db {
-  provider = "mysql" // or postgresql
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -15,7 +14,7 @@ model User {
   email        String   @unique
   divisionId   Int?
   departmentId Int?
-  section      String?
+  sectionId    Int?
   designation  String?
   worklocation String?
   role         Role     @default(STAFF)
@@ -26,6 +25,7 @@ model User {
   // Relations
   division   Division?        @relation(fields: [divisionId], references: [id])
   department Department?      @relation(fields: [departmentId], references: [id])
+  section    Section?         @relation(fields: [sectionId], references: [id])
   approvals  Approval[]
   forms      FormSubmission[]
 }
@@ -51,7 +51,21 @@ model Department {
 
   // Relations
   division         Division           @relation(fields: [divisionId], references: [id])
+  sections         Section[]
   users            User[]
+  ApprovalFlowStep ApprovalFlowStep[]
+}
+
+model Section {
+  id           Int      @id @default(autoincrement())
+  name         String
+  departmentId Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  department Department @relation(fields: [departmentId], references: [id])
+  users      User[]
   ApprovalFlowStep ApprovalFlowStep[]
 }
 
@@ -103,12 +117,14 @@ model ApprovalFlowStep {
   role         Role // which role approves at this step
   departmentId Int? // optional, link to Department table
   divisionId   Int? // optional, link to Division table
+  sectionId    Int? // optional, link to Section table
   createdAt    DateTime @default(now())
 
   // Relations
   formType   FormType    @relation(fields: [formTypeId], references: [id])
   department Department? @relation(fields: [departmentId], references: [id])
   division   Division?   @relation(fields: [divisionId], references: [id])
+  section    Section?    @relation(fields: [sectionId], references: [id])
 }
 
 model Approval {
@@ -129,6 +145,7 @@ enum Role {
   STAFF
   HEAD_OF_SECTION
   HEAD_OF_DEPARTMENT
+  HEAD_OF_DIVISION
   TOP_MANAGEMENT
   ADMIN
 }

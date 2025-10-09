@@ -1,10 +1,11 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, MouseEventHandler } from "react";
 
 interface PrimaryButtonProps {
   type?: "submit" | "button" | "reset"; // optional, default to "button"
   className?: string;
   name: string;
   icon?: ReactNode;
+  onClick?: MouseEventHandler<HTMLButtonElement>; // <-- add this
 }
 
 function PrimaryButton({
@@ -12,9 +13,14 @@ function PrimaryButton({
   className = "",
   name,
   icon,
+  onClick, // <-- add this
 }: PrimaryButtonProps) {
   return (
-    <button type={type} className={`flex items-center gap-2 justify-center ${className}`}>
+    <button
+      type={type}
+      className={`flex items-center gap-2 justify-center ${className}`}
+      onClick={onClick} // <-- attach it
+    >
       {icon && <span>{icon}</span>}
       {name}
     </button>

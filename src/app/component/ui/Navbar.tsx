@@ -10,26 +10,30 @@ interface NavbarProps {
   toggleSidebar: () => void;
   isSidebarOpen: boolean;
   onSelectTab: (tab: string) => void;
+  isMobile: boolean;
 }
 
 export default function Navbar({
   pageName,
   toggleSidebar,
   isSidebarOpen,
-  onSelectTab
+  onSelectTab,
+  isMobile,
 }: NavbarProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
     <motion.header
-      initial={{ y: -50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 120, damping: 20 }}
-      className="w-full bg-indigo-800 shadow-md flex justify-between items-center px-6 py-4 font-poppins text-white"
+      initial={{ y: -50, opacity: 0, paddingLeft: 0 }}
+      animate={{
+        y: 0,
+        opacity: 1,
+        paddingLeft: !isMobile && isSidebarOpen ? 256 : !isMobile ? 69 : 0,
+      }}
+      transition={{ type: "spring", stiffness: 120, damping: 25 }}
+      className="fixed top-0 left-0 w-full bg-indigo-800 shadow-md flex justify-between items-center px-6 py-4 font-poppins text-white z-30"
     >
-      {/* Left: Menu + Page Name */}
-      <div className="flex items-center gap-4">
-        {/* Menu Icon (hamburger or close) */}
+      <div className="flex items-center gap-4 ml-4">
         <AnimatePresence mode="wait">
           <motion.button
             key={isSidebarOpen ? "close" : "menu"}
@@ -45,11 +49,11 @@ export default function Navbar({
           </motion.button>
         </AnimatePresence>
 
-        {/* Page Name */}
-        <h1 className="text-xl font-semibold">{pageName}</h1>
+        <h1 className="text-xl font-semibold whitespace-nowrap overflow-hidden">
+          {pageName}
+        </h1>
       </div>
 
-      {/* Right: Account */}
       <div className="relative">
         <motion.div
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -60,10 +64,12 @@ export default function Navbar({
           <FaUserCircle className="text-2xl text-gray-300 hover:text-white transition-colors" />
         </motion.div>
 
-        {/* Dropdown */}
         <AnimatePresence>
           {isDropdownOpen && (
-            <AccountDropdown onClose={() => setIsDropdownOpen(false)} onSelectTab={onSelectTab}/>
+            <AccountDropdown
+              onClose={() => setIsDropdownOpen(false)}
+              onSelectTab={onSelectTab}
+            />
           )}
         </AnimatePresence>
       </div>

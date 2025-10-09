@@ -7,11 +7,19 @@ import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import LoadingScreen from "../component/ui/LoadingScreen";
+import { Department, Division, Section } from "../types/types";
 
 export default function Register() {
   const router = useRouter();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
+  const [divisions, setDivisions] = useState<Division[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
+  const [selectedDivision, setSelectedDivision] = useState<string>("");
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  const [selectedSection, setSelectedSection] = useState<string>("");
+  const [selectedWorkLocation, setSelectedWorkLocation] = useState<string>("");
 
   useEffect(() => {
     if (!session) {
@@ -21,6 +29,45 @@ export default function Register() {
     router.push("/");
   }, [session]);
 
+  useEffect(() => {
+    axios
+      .get("/api/division")
+      .then((res) => {
+        setDivisions(res.data);
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (selectedDivision && selectedDivision !== "0") {
+      axios
+        .get(`/api/department?divisionId=${selectedDivision}`)
+        .then((res) => {
+          setDepartments(res.data);
+          setSections([]); // clear sections
+        })
+        .catch(console.error);
+    } else {
+      setDepartments([]);
+      setSections([]);
+    }
+
+    setSelectedDepartment("0");
+    setSelectedSection("0");
+  }, [selectedDivision]);
+
+  useEffect(() => {
+    if (selectedDepartment && selectedDepartment !== "0") {
+      axios
+        .get(`/api/section?departmentId=${selectedDepartment}`)
+        .then((res) => setSections(res.data))
+        .catch(console.error);
+    } else {
+      setSections([]);
+    }
+
+    setSelectedSection("0");
+  }, [selectedDepartment]);
   const handleSubmit = async (values: RegisterUser) => {
     console.log("values: ", values);
 
@@ -66,7 +113,16 @@ export default function Register() {
       <div className="text-sm">
         <Toaster position="top-center" />
       </div>
-      <RegisterForm onRegister={handleSubmit} />
+      <RegisterForm
+        onRegister={handleSubmit}
+        divisions={divisions}
+        departments={departments}
+        sections={sections}
+        setSelectedDivision={setSelectedDivision}
+        setSelectedDepartment={setSelectedDepartment}
+        setSelectedSection={setSelectedSection}
+        setSelectedWorkLocation={setSelectedWorkLocation}
+      />
       <LoadingScreen show={loading} />
     </div>
   );
