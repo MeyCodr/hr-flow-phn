@@ -7,6 +7,7 @@ export default async function Forms() {
       flowSteps: true,
     },
   });
+  console.log("forms: ", forms);
 
   return <HrFormsClient forms={forms} />;
 }

@@ -7,11 +7,23 @@ import PrimaryButton from "@/app/component/ui/PrimaryButton";
 import axios from "axios";
 import { Department, Division, Section } from "@/app/types/types";
 
+interface FlowStep {
+  id: number;
+  formTypeId: number;
+  order: number;
+  role: string;
+  departmentId: number | null;
+  divisionId: number | null;
+  sectionId: number | null;
+  createdAt: Date; // allow Date
+}
+
 interface FormType {
   id: number;
   name: string;
   description?: string | null;
-  flowSteps: any[];
+  createdAt: Date; // allow Date
+  flowSteps: FlowStep[];
 }
 
 export interface DynamicFormProps {
@@ -33,6 +45,7 @@ export default function HrFormsClient({ forms }: { forms: FormType[] }) {
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
   const [selectedSection, setSelectedSection] = useState<string>("");
   const [selectedWorkLocation, setSelectedWorkLocation] = useState<string>("");
+  const safeForms = forms ?? [];
 
   useEffect(() => {
     axios
@@ -122,14 +135,14 @@ export default function HrFormsClient({ forms }: { forms: FormType[] }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
-        {forms.map((item) => (
+        {safeForms.map((item) => (
           <Card
             key={item.id}
             formId={item.id}
             title={item.name}
             description={item.description ?? ""}
             approvals={item.flowSteps.length}
-            onClick={() => handleCardClick(item)} // dynamic SPA selection
+            onClick={() => handleCardClick(item)}
           />
         ))}
       </div>

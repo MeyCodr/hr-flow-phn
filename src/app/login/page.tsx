@@ -16,7 +16,7 @@ export default function Login() {
     if (!session) return;
     setLoading(true);
     router.push("/");
-  }, [session]);
+  }, [session, router]);
 
   const handleLogin = async (values: { staffid: string; password: string }) => {
     let toastId = "";
@@ -38,6 +38,7 @@ export default function Login() {
       }
     } catch (error) {
       toast.error("Something went wrong", { id: toastId });
+      console.log(error);
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         const getDivision = await prisma.division.findMany();
         return NextResponse.json(getDivision, { status: 200 });

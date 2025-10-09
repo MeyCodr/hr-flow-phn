@@ -27,7 +27,7 @@ export default function Register() {
     }
     setLoading(true);
     router.push("/");
-  }, [session]);
+  }, [session, router]);
 
   useEffect(() => {
     axios

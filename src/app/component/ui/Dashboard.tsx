@@ -101,6 +101,7 @@ export default function Dashboard() {
         className="flex-1 flex flex-col relative z-10"
       >
         <Navbar
+          isMobile={isMobile}
           pageName={activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
           isSidebarOpen={isSidebarOpen}
           toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}

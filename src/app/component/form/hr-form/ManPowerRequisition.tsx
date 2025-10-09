@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Dropdown from "../../ui/Dropdown";
 import { categoryManPower, workLocation } from "../../../../../lib/data";
 import { Input } from "../../ui/Input";

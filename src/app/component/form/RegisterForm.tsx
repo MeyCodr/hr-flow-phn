@@ -7,7 +7,6 @@ import Label from "../ui/Label";
 import toast, { Toaster } from "react-hot-toast";
 import { Input } from "../ui/Input";
 import { useRouter } from "next/navigation";
-import Dropdown from "../ui/Dropdown";
 import { Department, Division, Section } from "@/app/types/types";
 import ComboBox from "../ui/ComboBox";
 import { workLocation } from "../../../../lib/data";
