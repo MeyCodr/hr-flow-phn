@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, JSX } from "react";
+import { useState, useEffect, JSX, useCallback } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import { motion, AnimatePresence } from "framer-motion";
@@ -40,20 +40,20 @@ export default function Dashboard() {
   };
 
   // derive tab name from current pathname
-  const getTabFromPath = (): string => {
+  const getTabFromPath = useCallback((): string => {
     if (pathname.startsWith("/form")) return "form";
     if (pathname.startsWith("/approval")) return "approval";
     if (pathname.startsWith("/profile")) return "profile";
     if (pathname.startsWith("/setting")) return "setting";
     return "dashboard";
-  };
+  }, [pathname]);
 
   const [activeTab, setActiveTab] = useState(getTabFromPath);
 
   // keep tab in sync with URL
   useEffect(() => {
     setActiveTab(getTabFromPath());
-  }, [pathname]);
+  }, [pathname, getTabFromPath]);
 
   // handle tab switching
   const handleTabChange = (tab: string) => {

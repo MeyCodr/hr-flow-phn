@@ -6,6 +6,9 @@ import { HrFormComponents } from "../../../../../lib/hrformcomponents";
 import PrimaryButton from "@/app/component/ui/PrimaryButton";
 import axios from "axios";
 import { Department, Division, Section } from "@/app/types/types";
+import { IoReturnDownBack } from "react-icons/io5";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface FlowStep {
   id: number;
@@ -26,6 +29,12 @@ interface FormType {
   flowSteps: FlowStep[];
 }
 
+interface User {
+  staffid: string;
+  email: string;
+  name: string;
+}
+
 export interface DynamicFormProps {
   divisions: Division[];
   departments: Department[];
@@ -34,6 +43,8 @@ export interface DynamicFormProps {
   setSelectedDepartment: React.Dispatch<React.SetStateAction<string>>;
   setSelectedSection: React.Dispatch<React.SetStateAction<string>>;
   setSelectedWorkLocation: React.Dispatch<React.SetStateAction<string>>;
+  user: User | null;
+  onSubmitSuccess: () => void;
 }
 
 export default function HrFormsClient({ forms }: { forms: FormType[] }) {
@@ -45,7 +56,17 @@ export default function HrFormsClient({ forms }: { forms: FormType[] }) {
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
   const [selectedSection, setSelectedSection] = useState<string>("");
   const [selectedWorkLocation, setSelectedWorkLocation] = useState<string>("");
+  const [user, setUser] = useState<User | null>(null);
+  const { data: session } = useSession();
   const safeForms = forms ?? [];
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      const user = session.user;
+      setUser(user);
+    }
+  }, [session]);
 
   useEffect(() => {
     axios
@@ -93,10 +114,12 @@ export default function HrFormsClient({ forms }: { forms: FormType[] }) {
 
   const handleCardClick = (form: FormType) => {
     setSelectedFormName(sanitizeName(form.name));
+    router.push(`/dashboard/forms?id=${form.id}&name=${form.name}`);
   };
 
   const handleBackClick = () => {
     setSelectedFormName(null); // reset to show cards again
+    router.push(`/dashboard/forms`);
   };
 
   const DynamicFormComponent = selectedFormName
@@ -106,12 +129,15 @@ export default function HrFormsClient({ forms }: { forms: FormType[] }) {
   // If a form is selected, only render the form with a back button
   if (DynamicFormComponent) {
     return (
-      <div className="font-poppins w-full">
+      <div className="font-poppins w-full ">
         <PrimaryButton
           name="Back"
           type="button"
-          className="mb-6"
+          className="flex items-center gap-2 px-4 py-2 text-sm rounded-md font-medium text-gray-700
+                  bg-white border border-gray-300 shadow-xs hover:bg-gray-100 
+                  hover:shadow-md transition-all duration-200 active:scale-95 mb-6 cursor-pointer"
           onClick={handleBackClick}
+          icon={<IoReturnDownBack className="w-5 h-5" />}
         />
         <DynamicFormComponent
           divisions={divisions}
@@ -121,6 +147,8 @@ export default function HrFormsClient({ forms }: { forms: FormType[] }) {
           setSelectedDepartment={setSelectedDepartment}
           setSelectedSection={setSelectedSection}
           setSelectedWorkLocation={setSelectedWorkLocation}
+          user={user}
+          onSubmitSuccess={() => setSelectedFormName(null)}
         />
       </div>
     );

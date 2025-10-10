@@ -19,6 +19,8 @@ export async function POST(req: NextRequest) {
       section: body.section === 0 || body.section === "0" ? null : body.section,
     };
 
+    console.log("process body : ", processedBody);
+
     const { password, staffid, email, division, department, section, ...rest } =
       processedBody;
 

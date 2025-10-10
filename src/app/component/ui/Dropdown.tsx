@@ -14,16 +14,13 @@ export default function Dropdown({
   title,
   onSelect,
   className,
-  selected
+  selected,
 }: DropdownProps) {
   return (
     <Menu as="div" className={`relative inline-block  ${className}`}>
       <MenuButton className="inline-flex w-full justify-center items-center gap-x-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring-1 inset-ring-gray-300 hover:bg-gray-50">
-        {selected || title} {/* show selected or default */}
-        <FaChevronDown
-          aria-hidden="true"
-          className="-mr-1 size-4  text-black"
-        />
+        {selected || title}
+        <FaChevronDown aria-hidden="true" className="-mr-1 size-4 text-black" />
       </MenuButton>
 
       <MenuItems

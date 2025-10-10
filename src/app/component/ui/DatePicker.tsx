@@ -9,7 +9,7 @@ interface DatePickerProps {
   onChange: (value: DateValueType) => void;
   placeholder?: string;
   className?: string;
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 export default function DatePicker({
@@ -132,7 +132,7 @@ export default function DatePicker({
   const calendarDays = getDaysInMonth(currentMonth);
 
   return (
-    <div className={`flex flex-col w-full ${className}`} ref={calendarRef}>
+    <div className={`flex flex-col w-full `} ref={calendarRef}>
       <div className="relative w-full">
         <input
           type="text"
@@ -141,7 +141,7 @@ export default function DatePicker({
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className={className}
         />
         <button
           type="button"
@@ -157,6 +157,7 @@ export default function DatePicker({
             {/* Calendar Header */}
             <div className="flex items-center justify-between mb-4">
               <button
+                type="button"
                 onClick={() => navigateMonth("prev")}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -180,6 +181,7 @@ export default function DatePicker({
               </h3>
 
               <button
+                type="button"
                 onClick={() => navigateMonth("next")}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -220,6 +222,7 @@ export default function DatePicker({
 
                 return (
                   <button
+                    type="button"
                     key={index}
                     onClick={() => handleDateSelect(date)}
                     className={`
@@ -245,6 +248,7 @@ export default function DatePicker({
             {/* Quick Actions */}
             <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
               <button
+                type="button"
                 onClick={() => {
                   setSelectedDate(null);
                   onChange(null);
@@ -255,6 +259,7 @@ export default function DatePicker({
                 Clear
               </button>
               <button
+                type="button"
                 onClick={() => handleDateSelect(new Date())}
                 className="px-3 py-2 text-sm text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
               >
