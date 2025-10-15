@@ -18,8 +18,8 @@ export default function Register() {
   const [sections, setSections] = useState<Section[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
-  const [selectedSection, setSelectedSection] = useState<string>("");
-  const [selectedWorkLocation, setSelectedWorkLocation] = useState<string>("");
+  const [, setSelectedSection] = useState<string>("");
+  const [, setSelectedWorkLocation] = useState<string>("");
 
   useEffect(() => {
     if (!session) {

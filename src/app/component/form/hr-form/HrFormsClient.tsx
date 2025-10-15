@@ -5,7 +5,7 @@ import Card from "@/app/component/ui/Card";
 import { HrFormComponents } from "../../../../../lib/hrformcomponents";
 import PrimaryButton from "@/app/component/ui/PrimaryButton";
 import axios from "axios";
-import { Department, Division, Section } from "@/app/types/types";
+import { Department, Division, Section, User } from "@/app/types/types";
 import { IoReturnDownBack } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -29,12 +29,6 @@ interface FormType {
   flowSteps: FlowStep[];
 }
 
-interface User {
-  staffid: string;
-  email: string;
-  name: string;
-}
-
 export interface DynamicFormProps {
   divisions: Division[];
   departments: Department[];
@@ -45,17 +39,32 @@ export interface DynamicFormProps {
   setSelectedWorkLocation: React.Dispatch<React.SetStateAction<string>>;
   user: User | null;
   onSubmitSuccess: () => void;
+  formId: number | null;
 }
 
-export default function HrFormsClient({ forms }: { forms: FormType[] }) {
-  const [selectedFormName, setSelectedFormName] = useState<string | null>(null);
+export default function HrFormsClient({
+  forms,
+  selectedId,
+  selectedName,
+}: {
+  forms: FormType[];
+  selectedId: number | null;
+  selectedName: string | null;
+}) {
+  const [selectedFormName, setSelectedFormName] = useState<string | null>(
+    selectedName
+  );
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
-  const [selectedSection, setSelectedSection] = useState<string>("");
-  const [selectedWorkLocation, setSelectedWorkLocation] = useState<string>("");
+  const [, setSelectedSection] = useState<string>("");
+  const [, setSelectedWorkLocation] = useState<string>("");
+
+  const [selectedFormId, setSelectedFormId] = useState<number | null>(
+    selectedId
+  );
   const [user, setUser] = useState<User | null>(null);
   const { data: session } = useSession();
   const safeForms = forms ?? [];
@@ -67,6 +76,11 @@ export default function HrFormsClient({ forms }: { forms: FormType[] }) {
       setUser(user);
     }
   }, [session]);
+
+  useEffect(() => {
+    setSelectedFormId(selectedId);
+    setSelectedFormName(selectedName);
+  }, [selectedId, selectedName]);
 
   useEffect(() => {
     axios
@@ -113,12 +127,19 @@ export default function HrFormsClient({ forms }: { forms: FormType[] }) {
   }, [selectedDepartment]);
 
   const handleCardClick = (form: FormType) => {
-    setSelectedFormName(sanitizeName(form.name));
-    router.push(`/dashboard/forms?id=${form.id}&name=${form.name}`);
+    const sanitized = sanitizeName(form.name);
+
+    // ✅ Immediately update state before navigation
+    setSelectedFormName(sanitized);
+    setSelectedFormId(form.id);
+
+    // ✅ Use replace to avoid extra history entries (optional)
+    router.replace(`/dashboard/forms?id=${form.id}&name=${sanitized}`);
   };
 
   const handleBackClick = () => {
     setSelectedFormName(null); // reset to show cards again
+    setSelectedFormId(null);
     router.push(`/dashboard/forms`);
   };
 
@@ -134,12 +155,13 @@ export default function HrFormsClient({ forms }: { forms: FormType[] }) {
           name="Back"
           type="button"
           className="flex items-center gap-2 px-4 py-2 text-sm rounded-md font-medium text-gray-700
-                  bg-white border border-gray-300 shadow-xs hover:bg-gray-100 
-                  hover:shadow-md transition-all duration-200 active:scale-95 mb-6 cursor-pointer"
+                    bg-white border border-gray-300 shadow-xs hover:bg-gray-100 
+                    hover:shadow-md transition-all duration-200 active:scale-95 mb-6 cursor-pointer"
           onClick={handleBackClick}
           icon={<IoReturnDownBack className="w-5 h-5" />}
         />
         <DynamicFormComponent
+          formId={selectedFormId}
           divisions={divisions}
           departments={departments}
           sections={sections}

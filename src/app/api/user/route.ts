@@ -62,6 +62,10 @@ export async function POST(req: NextRequest) {
     const departmentId = department ? Number(department) : null;
     const sectionId = section ? Number(section) : null;
 
+    console.log("divisionId: ", divisionId);
+    console.log("departmentId: ", departmentId);
+    console.log("sectionId: ", sectionId);
+
     const createUser = await prisma.user.create({
       data: {
         password: hashedPassword,

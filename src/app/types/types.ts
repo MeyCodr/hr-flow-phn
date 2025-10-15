@@ -56,4 +56,32 @@ export interface ManPowerTypes {
   reviewedBy: string;
   verifiedBy: string;
   approvedby: string;
+  fileAttachment?: File | null;
+}
+
+export interface UserInfo {
+  departmentId: number;
+  divisionId: number;
+  role: string;
+  sectionId: number;
+  workLocation: string;
+}
+
+export interface fullUserInfo {
+  staffid: string;
+  email: string;
+  fullname: string;
+  password: string;
+  designation: string;
+  departmentId: number;
+  divisionId: number;
+  role: string;
+  sectionId: number;
+  workLocation: string;
+}
+
+export interface User {
+  staffid: string;
+  email: string;
+  name: string;
 }

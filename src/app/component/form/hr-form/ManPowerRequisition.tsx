@@ -7,14 +7,15 @@ import { Input } from "../../ui/Input";
 import Label from "../../ui/Label";
 import DatePicker, { DateValueType } from "../../ui/DatePicker";
 import ComboBox from "../../ui/ComboBox";
-import { DynamicFormProps } from "@/app/dashboard/forms/hr-forms/page";
-import { ManPowerTypes } from "@/app/types/types";
+import { DynamicFormProps } from "./HrFormsClient";
+import { ManPowerTypes, UserInfo } from "@/app/types/types";
 import CheckBox from "../../ui/CheckBox";
 import PrimaryButton from "../../ui/PrimaryButton";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import LoadingScreen from "../../ui/LoadingScreen";
 import { useRouter } from "next/navigation";
+import { TextArea } from "../../ui/TextArea";
 
 export default function ManPower({
   divisions,
@@ -26,6 +27,7 @@ export default function ManPower({
   setSelectedWorkLocation,
   user,
   onSubmitSuccess,
+  formId,
 }: DynamicFormProps) {
   const [data, setData] = useState<ManPowerTypes>({
     category: null,
@@ -63,18 +65,77 @@ export default function ManPower({
     reviewedBy: "",
     verifiedBy: "",
     approvedby: "",
+    fileAttachment: null,
   });
-  const [formId, setFormId] = useState<Number>(0);
+  // const [formId, setFormId] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const [errors, setErrors] = useState<{ category?: string }>({});
+  const [userInfo, setUserInfo] = useState<UserInfo>();
+  const [file, setFile] = useState<File | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
-    const url = new URLSearchParams(window.location.search);
-    const formId = url.get("id");
-    if (formId) setFormId(Number(formId));
-  });
+    if (!user) {
+      return;
+    }
+    const staffid = user.staffid;
+    console.log("staffid: ", staffid);
+
+    if (!staffid) {
+      return;
+    }
+
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(`/api/user/${staffid}`);
+        console.log("res: ", res.data.data);
+        const userInfo = res.data.data;
+        setUserInfo(userInfo);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error fetching user:", error.message);
+        } else {
+          console.error("Unknown error fetching user:", error);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [user]);
+
+  useEffect(() => {
+    if (!userInfo) return;
+
+    setData((prev) => ({
+      ...prev,
+      division: userInfo.divisionId ? userInfo.divisionId.toString() : "",
+      department: userInfo.departmentId ? userInfo.departmentId.toString() : "",
+      section: userInfo.sectionId ? userInfo.sectionId.toString() : "",
+      workLocation: userInfo.workLocation.toString() || "",
+    }));
+
+    if (userInfo.divisionId)
+      setSelectedDivision(userInfo.divisionId.toString());
+    if (userInfo.departmentId)
+      setSelectedDepartment(userInfo.departmentId.toString());
+    if (userInfo.sectionId) setSelectedSection(userInfo.sectionId.toString());
+    if (userInfo.workLocation)
+      setSelectedWorkLocation(userInfo.workLocation.toString());
+  }, [
+    userInfo,
+    setSelectedDivision,
+    setSelectedDepartment,
+    setSelectedSection,
+    setSelectedWorkLocation,
+  ]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
   };
@@ -86,33 +147,55 @@ export default function ManPower({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("formid: ", formId);
+    if (!formId) {
+      return;
+    }
+
+    const newErrors: { category?: string } = {};
 
     if (!data.category) {
+      newErrors.category = "Category is required";
       toast.error("Category is required!");
-      return; // stop submission
     }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) return; // stop submission
+
     setLoading(true);
-    const payload = { formId, user, ...data };
+    const formData = new FormData();
+    formData.append("formId", formId.toString());
+    formData.append("user", JSON.stringify(user));
+    formData.append("data", JSON.stringify(data));
+    if (file) {
+      formData.append("fileAttachment", file);
+    }
+    console.log("data: ", data);
     const toastId = "";
+
     try {
-      await axios
-        .post(`/api/form`, payload)
-        .then((res) => {
-          console.log("res: ", res);
-          toast.success("Form submitted successfully!", { toasterId: toastId });
-          router.replace("/dashboard/forms");
-          if (onSubmitSuccess) onSubmitSuccess();
-        })
-        .catch(function (error) {
-          toast.error(
-            error.response?.data?.error ||
-              error.message ||
-              "Something went wrong",
-            { toasterId: toastId }
-          );
-        });
+      await axios.post(`/api/form`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      toast.success("Form submitted successfully!", { toasterId: toastId });
+      setTimeout(() => {
+        router.replace("/dashboard/forms");
+        onSubmitSuccess?.();
+      }, 1200);
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.error ||
+            error.message ||
+            "Something went wrong",
+          { toasterId: toastId }
+        );
+      } else if (error instanceof Error) {
+        toast.error(error.message, { toasterId: toastId });
+      } else {
+        toast.error("An unexpected error occurred", { toasterId: toastId });
+      }
     } finally {
       setLoading(false);
     }
@@ -145,15 +228,23 @@ export default function ManPower({
         </div>
         <div className="grid grid-cols-1 gap-6 my-10 md:my-0">
           <div className="flex justify-end">
-            <Dropdown
-              title="Category"
-              menu={categoryManPower}
-              className="w-40"
-              selected={data.category?.name} // string | undefined
-              onSelect={(item) =>
-                setData((prev) => ({ ...prev, category: item }))
-              }
-            />
+            <div className="flex flex-col">
+              <Dropdown
+                title="Category"
+                menu={categoryManPower}
+                className={`w-40 ${
+                  errors.category ? "border border-red-500 rounded-md" : ""
+                }`}
+                selected={data.category?.name}
+                onSelect={(item) => {
+                  setData((prev) => ({ ...prev, category: item }));
+                  setErrors((prev) => ({ ...prev, category: undefined })); // clear error
+                }}
+              />
+              {errors.category && (
+                <p className="text-xs text-red-600 mt-1">{errors.category}</p>
+              )}
+            </div>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-y-6">
@@ -244,6 +335,7 @@ export default function ManPower({
                   value={data.reportingTo}
                   onChange={handleChange}
                   placeholder="Reporting To"
+                  required
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -260,6 +352,7 @@ export default function ManPower({
                   value={data.noRequested}
                   onChange={handleChange}
                   placeholder="No Requested"
+                  required
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -280,6 +373,7 @@ export default function ManPower({
                     value={data.currentHeadCount}
                     onChange={handleChange}
                     placeholder="Current Headcount"
+                    required
                     className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
@@ -298,6 +392,7 @@ export default function ManPower({
                     value={data.approvedRequirement}
                     onChange={handleChange}
                     placeholder="Approved Requirement"
+                    required
                     className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
@@ -325,7 +420,7 @@ export default function ManPower({
                   htmlFor=""
                   className="block text-sm font-medium text-gray-900"
                 />
-                <div className="grid grid-cols-3 gap-x-4">
+                <div className="flex items-center gap-x-4">
                   <div className="flex items-center gap-x-2">
                     <CheckBox
                       checked={data.workStation === "Yes"}
@@ -366,7 +461,7 @@ export default function ManPower({
                   htmlFor=""
                   className="block text-sm font-medium text-gray-900"
                 />
-                <div className="grid grid-cols-3 gap-x-4">
+                <div className="flex items-center gap-x-4">
                   <div className="flex items-center gap-x-2">
                     <CheckBox
                       checked={data.employmentType === "Permanent"}
@@ -420,6 +515,7 @@ export default function ManPower({
                   value={data.approvedAmp}
                   onChange={handleChange}
                   placeholder="Approved AMP"
+                  required
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -435,12 +531,11 @@ export default function ManPower({
                 htmlFor="keyRequirement"
                 className="block text-sm font-medium text-gray-900"
               />
-              <Input
+              <TextArea
                 id="keyRequirement"
                 name="keyRequirement"
-                type="text"
                 value={data.keyRequirement}
-                onChange={handleChange}
+                onChange={handleTextAreaChange}
                 placeholder="Key Requirement"
                 className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
@@ -451,13 +546,12 @@ export default function ManPower({
                 htmlFor="keyResponsibilities"
                 className="block text-sm font-medium text-gray-900"
               />
-              <Input
-                id="keyResponsibilities"
+              <TextArea
+                id="keyRequirement"
                 name="keyResponsibilities"
-                type="text"
                 value={data.keyResponsibilities}
-                onChange={handleChange}
-                placeholder="Key Responsibilies"
+                onChange={handleTextAreaChange}
+                placeholder="Key Responsibilities"
                 className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -520,6 +614,7 @@ export default function ManPower({
                         value={data.incumbentName}
                         onChange={handleChange}
                         placeholder="Incumbent Name"
+                        required
                         disabled={data.selectedOption !== "replacement"} // only editable if Replacement is selected
                         className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
@@ -590,6 +685,7 @@ export default function ManPower({
                         value={data.productionVolumeIncrease}
                         onChange={handleChange}
                         placeholder="Production Volume Increase (Item)"
+                        required
                         disabled={data.selectedOption !== "additional"}
                         className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
@@ -612,6 +708,7 @@ export default function ManPower({
                         value={data.newProject}
                         onChange={handleChange}
                         placeholder="New Project"
+                        required
                         disabled={data.selectedOption !== "additional"}
                         className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
@@ -634,6 +731,7 @@ export default function ManPower({
                         value={data.machineFaulty}
                         onChange={handleChange}
                         placeholder="Machine Faulty"
+                        required
                         disabled={data.selectedOption !== "additional"}
                         className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
@@ -656,6 +754,7 @@ export default function ManPower({
                         value={data.other}
                         onChange={handleChange}
                         placeholder="Other"
+                        required
                         disabled={data.selectedOption !== "additional"}
                         className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
@@ -667,6 +766,42 @@ export default function ManPower({
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <div className="w-full flex flex-col space-y-2 mt-4 mb-6">
+                <Label
+                  name="File Attachment"
+                  htmlFor="fileAttachment"
+                  className="block text-sm font-medium text-gray-700"
+                />
+
+                <label
+                  htmlFor="fileAttachment"
+                  className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 shadow-sm transition hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
+                >
+                  <span className="truncate">
+                    {file ? file.name : "Choose a file or drag & drop"}
+                  </span>
+                  <span className="ml-2 rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white">
+                    Browse
+                  </span>
+                  <input
+                    id="fileAttachment"
+                    type="file"
+                    name="fileAttachment"
+                    className="hidden"
+                    onChange={(e) => {
+                      const selectedFile = e.target.files?.[0] || null;
+                      setFile(selectedFile);
+                    }}
+                  />
+                </label>
+
+                {file && (
+                  <div className="mt-1 w-full rounded-lg bg-gray-50 p-3 text-sm text-gray-700 border border-gray-200">
+                    📎 <strong>Selected:</strong> {file.name}
+                  </div>
+                )}
               </div>
             </div>
           </div>

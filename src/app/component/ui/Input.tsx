@@ -5,7 +5,7 @@ interface InputProps {
   name: string;
   type: string;
   placeholder: string;
-  className: string;
+  className?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
@@ -17,7 +17,7 @@ function Input({
   name,
   type,
   placeholder,
-  className,
+  className = "",
   value,
   onChange,
   required,
@@ -29,12 +29,16 @@ function Input({
       name={name}
       type={type}
       placeholder={placeholder}
-      className={className}
+      className={`border rounded-md px-3 py-2 w-full 
+        ${
+          disabled ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"
+        } 
+        ${className}`}
       value={value}
       onChange={onChange}
       required={required}
       disabled={disabled}
-    ></input>
+    />
   );
 }
 

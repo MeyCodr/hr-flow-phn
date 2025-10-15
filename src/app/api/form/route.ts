@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
+import fs from "fs/promises";
+import path from "path";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { user, category, formId, ...rest } = body;
+    const formData = await req.formData();
 
+    const file = formData.get("fileAttachment") as File | null;
+    const user = JSON.parse(formData.get("user") as string);
+    const formId = Number(formData.get("formId"));
+    const data = JSON.parse(formData.get("data") as string);
+
+    console.log("file: ", file);
+
+    console.log("formId: ", formId);
+
+    // ✅ Validate user
     if (!user) {
       return NextResponse.json(
         { error: "User session is missing" },
@@ -14,7 +25,6 @@ export async function POST(req: NextRequest) {
     }
 
     const staffid = user.staffid;
-
     if (!staffid) {
       return NextResponse.json(
         { error: "Staff id is missing" },
@@ -23,39 +33,67 @@ export async function POST(req: NextRequest) {
     }
 
     const findUser = await prisma.user.findUnique({
-      where: {
-        staffid: staffid.toString(),
-      },
+      where: { staffid: staffid.toString() },
     });
 
     if (!findUser) {
       return NextResponse.json(
         { error: "User does not exist" },
+        { status: 404 }
+      );
+    }
+
+    const formType = await prisma.formType.findUnique({
+      where: { id: formId },
+    });
+
+    if (!formType) {
+      return NextResponse.json(
+        { error: `Invalid form type ID: ${formId}` },
         { status: 400 }
       );
     }
 
-    const createFormRecord = await prisma.formSubmission.create({
+    // ✅ Create Form Submission
+    const formSubmission = await prisma.formSubmission.create({
       data: {
         formTypeId: formId,
         createdById: findUser.id,
         status: "PENDING",
-        formData: rest,
+        formData: data, // ✅ store your form data JSON
       },
     });
 
-    if (!createFormRecord) {
-      return NextResponse.json(
-        { error: "Unable to create form record" },
-        { status: 400 }
-      );
+    // ✅ Handle file upload (optional)
+    if (file) {
+      const uploadDir = path.join(process.cwd(), "public/uploads");
+      await fs.mkdir(uploadDir, { recursive: true });
+
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = path.join(uploadDir, fileName);
+
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      await fs.writeFile(filePath, buffer);
+
+      // Save file metadata in FileAttachment table
+      await prisma.fileAttachment.create({
+        data: {
+          formSubmissionId: formSubmission.id,
+          fileName: fileName,
+          filePath: `/uploads/${fileName}`, // relative public path
+          fileType: file.type || "unknown",
+        },
+      });
     }
 
     return NextResponse.json(
-      { message: "Record has been created", data: createFormRecord },
+      { message: "Record has been created successfully", data: formSubmission },
       { status: 200 }
     );
   } catch (error) {
+    console.error("Error creating form record:", error);
     return NextResponse.json({ error: error }, { status: 500 });
   }
 }
