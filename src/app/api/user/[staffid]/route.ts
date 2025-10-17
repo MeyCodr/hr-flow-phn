@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { hash } from "bcrypt";
+import { getToken } from "next-auth/jwt";
 
 export async function GET(
   req: NextRequest,
@@ -44,45 +45,89 @@ export async function PUT(
 ) {
   try {
     const { staffid } = await context.params;
+    const body = await req.json();
+
     const {
-      password,
-      staffId,
-      email,
       fullname,
+      staffid: newStaffId,
+      email,
       designation,
+      workLocation,
       division,
       department,
       section,
-    } = await req.json();
+      role,
+      password,
+    } = body;
 
-    if (!staffid) {
+    const token = await getToken({ req });
+    if (!token?.staffid)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const currentUser = await prisma.user.findUnique({
+      where: { staffid: token.staffid },
+      select: { role: true },
+    });
+
+    if (!currentUser)
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    const isAdmin = currentUser.role === "ADMIN";
+
+    // 🛡️ Regular user can only update their own profile
+    if (!isAdmin && token.staffid !== staffid) {
       return NextResponse.json(
-        { error: "Staff id is missing" },
-        { status: 400 }
+        { error: "Forbidden: cannot update other users" },
+        { status: 403 }
       );
     }
 
-    const hashedPassword = password ? await hash(password, 12) : undefined;
+    // 🧱 Prepare update data
+    const updateData: any = {
+      fullname,
+      staffid: newStaffId,
+      email,
+      designation,
+      workLocation,
+    };
 
-    const updateUser = await prisma.user.update({
+    // Convert if division/department/section are objects or ids
+    if (division) {
+      updateData.divisionId =
+        typeof division === "object" ? division.id : Number(division);
+    }
+    if (department) {
+      updateData.departmentId =
+        typeof department === "object" ? department.id : Number(department);
+    }
+    if (section) {
+      updateData.sectionId =
+        typeof section === "object" ? section.id : Number(section);
+    }
+
+    // 🧂 Only admin can update role
+    if (isAdmin && role) {
+      updateData.role = role;
+    }
+
+    // 🧂 Update password if provided
+    if (password && !password.startsWith("$2b$")) {
+      // hash only if not already hashed
+      updateData.password = await hash(password, 12);
+    }
+
+    // 🛠️ Perform update
+    const updatedUser = await prisma.user.update({
       where: { staffid },
-      data: {
-        staffid: staffId,
-        email,
-        fullname,
-        designation,
-        divisionId: Number(division),
-        departmentId: Number(department),
-        sectionId: Number(section),
-        ...(hashedPassword && { password: hashedPassword }),
-      },
+      data: updateData,
     });
 
     return NextResponse.json(
-      { message: "Successfully updated", data: updateUser },
+      { message: "Successfully updated", data: updatedUser },
       { status: 200 }
     );
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }

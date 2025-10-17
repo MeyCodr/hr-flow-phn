@@ -8,6 +8,7 @@ import { FaRegUser, FaWpforms } from "react-icons/fa";
 import { IoSettingsSharp } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { MdOutlineApproval } from "react-icons/md";
+import { RiAdminLine } from "react-icons/ri";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -50,6 +51,11 @@ export default function Sidebar({
       name: "Setting",
       path: "/dashboard/setting",
       icon: <IoSettingsSharp className="w-5 h-5" />,
+    },
+    {
+      name: "Admin",
+      path: "/dashboard/admin",
+      icon: <RiAdminLine className="w-5 h-5" />,
     },
   ];
 

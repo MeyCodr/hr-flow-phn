@@ -12,6 +12,7 @@ import axios from "axios";
 import { fullUserInfo } from "@/app/types/types";
 import LoadingScreen from "../ui/LoadingScreen";
 import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 function FormInfo({
   divisions,
@@ -36,6 +37,7 @@ function FormInfo({
   });
   const [userInfo, setUserInfo] = useState<fullUserInfo>();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!user) {
@@ -119,6 +121,10 @@ function FormInfo({
       const res = await axios.put(`/api/user/${data.staffid}`, data);
       if (res.status === 200) {
         toast.success("Information has been updated", { id: toastId });
+
+        // ✅ manually re-fetch the updated user info
+        const updatedRes = await axios.get(`/api/user/${data.staffid}`);
+        setUserInfo(updatedRes.data.data);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {

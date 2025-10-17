@@ -18,8 +18,8 @@ export default function DisplayProfile({ userProfile }: ProfileComponentProps) {
       </div>
 
       {/* Info */}
-      <div className="grid grid-cols-1 gap-y-4 text-center my-4 w-full">
-        <div>
+      <div className="grid grid-cols-1 gap-y-4 my-4 w-full">
+        <div className=" text-center">
           <p className="text-xl font-semibold">{userProfile?.fullname}</p>
           <p className="text-indigo-800 font-light text-sm">
             {(userProfile?.designation ?? "").toUpperCase()}

@@ -14,3 +14,12 @@ export const categoryManPower = [
   { id: 2, name: "Additional" },
   { id: 3, name: "Temporary" },
 ];
+
+export const roles = [
+  { id: "STAFF", name: "Staff" },
+  { id: "HEAD_OF_SECTION", name: "Head of Section" },
+  { id: "HEAD_OF_DEPARTMENT", name: "Head of Department" },
+  { id: "HEAD_OF_DIVISION", name: "Head of Division" },
+  { id: "TOP_MANAGEMENT", name: "Top Management" },
+  { id: "ADMIN", name: "Admin" },
+];

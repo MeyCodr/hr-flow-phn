@@ -66,6 +66,7 @@ export default function ManPower({
     verifiedBy: "",
     approvedby: "",
     fileAttachment: null,
+    remarks: "",
   });
   // const [formId, setFormId] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -112,7 +113,7 @@ export default function ManPower({
       division: userInfo.divisionId ? userInfo.divisionId.toString() : "",
       department: userInfo.departmentId ? userInfo.departmentId.toString() : "",
       section: userInfo.sectionId ? userInfo.sectionId.toString() : "",
-      workLocation: userInfo.workLocation.toString() || "",
+      workLocation: userInfo.workLocation ? userInfo.workLocation.toString() : "",
     }));
 
     if (userInfo.divisionId)
@@ -803,6 +804,21 @@ export default function ManPower({
                   </div>
                 )}
               </div>
+               <div className="flex-1 flex flex-col space-y-2 mb-6">
+              <Label
+                name="Remarks"
+                htmlFor="remarks"
+                className="block text-sm font-medium text-gray-900"
+              />
+              <TextArea
+                id="remarks"
+                name="remarks"
+                value={data.remarks}
+                onChange={handleTextAreaChange}
+                placeholder="Remarks"
+                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
             </div>
           </div>
         </div>

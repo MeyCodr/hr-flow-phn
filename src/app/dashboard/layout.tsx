@@ -37,7 +37,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100 relative overflow-hidden">
+    <div className="flex min-h-screen bg-gray-100 relative overflow-y-hidden">
       <Sidebar
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}

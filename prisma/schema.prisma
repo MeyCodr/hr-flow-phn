@@ -161,4 +161,5 @@ enum ApprovalStatus {
   PENDING
   APPROVED
   REJECTED
+  WAITING
 }

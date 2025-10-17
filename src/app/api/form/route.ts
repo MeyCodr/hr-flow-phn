@@ -88,6 +88,55 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const approvalFlowSteps = await prisma.approvalFlowStep.findMany({
+      where: { formTypeId: formId },
+      orderBy: { order: "asc" },
+    });
+
+    if (approvalFlowSteps.length === 0) {
+      console.warn(`⚠️ No approval flow steps found for formTypeId: ${formId}`);
+    }
+
+    for (const step of approvalFlowSteps) {
+      // Find approvers matching the step config
+      const approvers = await prisma.user.findMany({
+        where: {
+          role: step.role,
+          ...(step.departmentId && { departmentId: step.departmentId }),
+          ...(step.divisionId && { divisionId: step.divisionId }),
+          ...(step.sectionId && { sectionId: step.sectionId }),
+        },
+      });
+
+      if (approvers.length === 0) {
+        console.warn(
+          `⚠️ No approvers found for role ${step.role} in step ${step.order}`
+        );
+        continue;
+      }
+
+      // ✅ Create approvals for all approvers in this step
+      await Promise.all(
+        approvers.map((approver) =>
+          prisma.approval.create({
+            data: {
+              submissionId: formSubmission.id,
+              approverId: approver.id,
+              stepOrder: step.order,
+              status: step.order === 1 ? "PENDING" : "WAITING", // Only step 1 active
+            },
+          })
+        )
+      );
+    }
+
+    const createdApprovals = await prisma.approval.findMany({
+      where: { submissionId: formSubmission.id },
+      include: { approver: true },
+    });
+
+    console.log("✅ Created approvals:", createdApprovals);
+
     return NextResponse.json(
       { message: "Record has been created successfully", data: formSubmission },
       { status: 200 }

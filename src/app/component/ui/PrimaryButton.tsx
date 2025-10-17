@@ -6,6 +6,7 @@ interface PrimaryButtonProps {
   name: string;
   icon?: ReactNode;
   onClick?: MouseEventHandler<HTMLButtonElement>; // <-- add this
+  disabled?: boolean;
 }
 
 function PrimaryButton({
@@ -13,13 +14,15 @@ function PrimaryButton({
   className = "",
   name,
   icon,
-  onClick, // <-- add this
+  onClick, 
+  disabled = false,
 }: PrimaryButtonProps) {
   return (
     <button
       type={type}
       className={`flex items-center gap-2 justify-center ${className}`}
-      onClick={onClick} // <-- attach it
+      onClick={onClick}
+      disabled={disabled}
     >
       {icon && <span>{icon}</span>}
       {name}

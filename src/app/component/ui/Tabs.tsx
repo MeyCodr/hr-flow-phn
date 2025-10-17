@@ -1,0 +1,62 @@
+"use client";
+
+import React from "react";
+import { TabGroup, TabList, TabPanels, TabPanel, Tab } from "@headlessui/react";
+import { motion } from "framer-motion";
+import clsx from "clsx";
+
+export interface TabItem {
+  name: string;
+  content: React.ReactNode;
+}
+
+interface TabsProps {
+  tabs: TabItem[];
+  defaultIndex?: number;
+}
+
+export default function Tabs({ tabs, defaultIndex = 0 }: TabsProps) {
+  return (
+    <div className="w-full">
+      <TabGroup defaultIndex={defaultIndex}>
+        <TabList className="relative flex justify-start gap-2 bg-indigo-100/60 rounded-full p-2 w-fit">
+          {tabs.map((tab) => (
+            <Tab key={tab.name} className="relative focus:outline-none">
+              {({ selected }) => (
+                <div className="relative">
+                  {selected && (
+                    <motion.div
+                      layoutId="active-pill"
+                      className="absolute -inset-1 bg-indigo-600 rounded-full shadow-md"
+                      transition={{
+                        type: "spring",
+                        duration: 0.4,
+                        bounce: 0.25,
+                      }}
+                    />
+                  )}
+                  <span
+                    className={clsx(
+                      "relative z-10 px-6 py-3 text-sm font-semibold transition-colors duration-200 cursor-pointer select-none",
+                      selected
+                        ? "text-white"
+                        : "text-indigo-700 hover:text-indigo-900"
+                    )}
+                  >
+                    {tab.name}
+                  </span>
+                </div>
+              )}
+            </Tab>
+          ))}
+        </TabList>
+
+        <TabPanels className="mt-6 overflow-visible">
+          {tabs.map((tab) => (
+            <TabPanel key={tab.name}>{tab.content}</TabPanel>
+          ))}
+        </TabPanels>
+      </TabGroup>
+    </div>
+  );
+}

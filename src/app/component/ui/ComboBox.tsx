@@ -10,8 +10,8 @@ import { useState, useRef, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 
 interface ComboBoxProps {
-  menu: { id: number; name: string }[];
-  onSelect?: (item: { id: number; name: string } | null) => void;
+  menu: { id: string | number; name: string }[];
+  onSelect?: (item: { id: string | number; name: string } | null) => void;
   selectedValue?: string | null;
 }
 
@@ -62,14 +62,8 @@ export default function ComboBox({
   };
 
   const displayValue = (val: string) => {
-    if (!val && selectedValue === "" && menu.some((i) => i.name === "-")) {
-      return "-";
-    }
-    if (menu.some((i) => i.id.toString() === val)) {
-      const item = menu.find((i) => i.id.toString() === val);
-      return item ? item.name : "";
-    }
-    return val;
+    const item = menu.find((i) => i.id.toString() === val);
+    return item ? item.name : val;
   };
 
   return (

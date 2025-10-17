@@ -90,3 +90,18 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const users = await prisma.user.findMany({
+      include: {
+        division: true,
+        department: true,
+        section: true,
+      },
+    });
+    return NextResponse.json(users);
+  } catch (error) {
+    return NextResponse.json({ error: error }, { status: 500 });
+  }
+}

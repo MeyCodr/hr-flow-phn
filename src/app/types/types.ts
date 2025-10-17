@@ -57,6 +57,7 @@ export interface ManPowerTypes {
   verifiedBy: string;
   approvedby: string;
   fileAttachment?: File | null;
+  remarks: string;
 }
 
 export interface UserInfo {
@@ -84,4 +85,17 @@ export interface User {
   staffid: string;
   email: string;
   name: string;
+}
+
+export interface UserType {
+  id: number;
+  fullname: string;
+  staffid: string;
+  email: string;
+  division?: Division | null;
+  department?: Department | null;
+  section?: Section | null;
+  designation?: string | null;
+  workLocation?: string | null;
+  role: string;
 }
