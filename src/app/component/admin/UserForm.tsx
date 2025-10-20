@@ -8,6 +8,7 @@ import PrimaryButton from "../ui/PrimaryButton";
 import { IoReturnDownBack } from "react-icons/io5";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import { Role } from "@prisma/client";
 
 interface UserFormProps {
   user: UserType;
@@ -250,7 +251,7 @@ function UserForm({
             onSelect={(item) => {
               setData((prev) => ({
                 ...prev,
-                role: item?.id as any, // cast to Role type
+                role: item?.id as Role, // cast to Role type
               }));
             }}
           />

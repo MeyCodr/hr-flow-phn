@@ -12,7 +12,6 @@ import axios from "axios";
 import { fullUserInfo } from "@/app/types/types";
 import LoadingScreen from "../ui/LoadingScreen";
 import toast, { Toaster } from "react-hot-toast";
-import { useRouter } from "next/navigation";
 
 function FormInfo({
   divisions,
@@ -37,7 +36,6 @@ function FormInfo({
   });
   const [userInfo, setUserInfo] = useState<fullUserInfo>();
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     if (!user) {

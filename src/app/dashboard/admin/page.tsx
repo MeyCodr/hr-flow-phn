@@ -11,6 +11,17 @@ export default async function Admin() {
     },
   });
 
+  const formType = await prisma.formType.findMany({
+    include: {
+      flowSteps:true,
+    }
+  });
+
+  const approvalFlow = await prisma.approvalFlowStep.findMany();
+
+
+  console.log("approval flow: ", approvalFlow);
+  console.log("form type: ", formType);
   console.log("suer listing: ", userListing);
 
   return (
@@ -20,7 +31,7 @@ export default async function Admin() {
         <p className="text-indigo-800">Manage admin site and approver level</p>
       </div>
 
-      <AdminComponent userListing={userListing}/>
+      <AdminComponent userListing={userListing} formType={formType} approvalStep={approvalFlow}/>
     </div>
   );
 }

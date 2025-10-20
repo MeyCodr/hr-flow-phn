@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { hash } from "bcrypt";
 import { getToken } from "next-auth/jwt";
+import { User } from "@prisma/client";
 
 export async function GET(
   req: NextRequest,
@@ -83,7 +84,7 @@ export async function PUT(
     }
 
     // 🧱 Prepare update data
-    const updateData: any = {
+    const updateData: Partial<User> = {
       fullname,
       staffid: newStaffId,
       email,

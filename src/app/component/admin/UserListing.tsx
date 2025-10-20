@@ -61,18 +61,18 @@ export default function UserListing({
 
           {/* ✅ Scrollable table */}
           <div className="w-full overflow-x-auto">
-            <table className="min-w-[1200px] w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden">
+            <table className="min-w-[1200px] w-full text-xs text-left border border-gray-300 rounded-lg overflow-hidden">
               <thead>
                 <tr className="bg-indigo-600 text-white">
                   <th className="px-4 py-3 font-semibold">No</th>
                   <th className="px-4 py-3 font-semibold">Full Name</th>
-                  <th className="px-4 py-3 font-semibold">Staff ID</th>
+                  <th className="px-4 py-3 font-semibold text-nowrap">Staff ID</th>
                   <th className="px-4 py-3 font-semibold">Email</th>
                   <th className="px-4 py-3 font-semibold">Division</th>
                   <th className="px-4 py-3 font-semibold">Department</th>
                   <th className="px-4 py-3 font-semibold">Section</th>
                   <th className="px-4 py-3 font-semibold">Designation</th>
-                  <th className="px-4 py-3 font-semibold">Work Location</th>
+                  <th className="px-4 py-3 font-semibold text-nowrap">Work Location</th>
                   <th className="px-4 py-3 font-semibold">Role</th>
                 </tr>
               </thead>

@@ -3,8 +3,31 @@
 import BannerCard from "../ui/BannerCard";
 import Tabs, { TabItem } from "../ui/Tabs";
 
+interface User {
+  fullname: string;
+}
+
+interface FormType {
+  name: string;
+}
+
+interface Submission {
+  createdBy: User;
+  formType: FormType;
+  createdAt: string | Date;
+}
+
+interface Approval {
+  id: number;
+  remarks?: string | null;
+  currentLevel: number;
+  totalLevel: number;
+  activeLevel: number;
+  submission: Submission;
+}
+
 interface ApprovalComponentProps {
-  pendingApprovals: any[];
+  pendingApprovals: Approval[];
 }
 
 export default function ApprovalComponent({
