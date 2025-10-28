@@ -9,7 +9,7 @@ interface PendingContentProps {
   userPendingForms: SelfForm[];
   user: UserType;
   onActionComplete?: () => void;
-  onViewForm: (formId: number) => void;
+  onViewForm: (formId: number, formName: string) => void;
 }
 
 // Define a union type for items in the paginated list
@@ -48,7 +48,9 @@ export default function PendingContent({
         if (item.type === "approval") {
           const approval = item.data;
           const submission = approval.submission;
-          const remarks = submission.formData?.remarks;
+          const remarks =
+            (submission.formData as { remarks?: string } | null)?.remarks ||
+            "No remarks yet";
 
           return (
             <BannerCard
@@ -58,14 +60,16 @@ export default function PendingContent({
               title={submission.formType.name}
               name={submission.createdBy.fullname}
               createddate={new Date(submission.createdAt).toLocaleDateString()}
-              remarks={remarks || "No remarks yet"}
+              remarks={remarks}
               currentLevel={approval.currentLevel}
               totalLevel={approval.totalLevel}
               activeLevel={approval.activeLevel}
               roles={user.role}
               status={approval.status}
               onActionComplete={onActionComplete}
-              onClick={() => onViewForm(submission.id)}
+              onClick={() =>
+                onViewForm(submission.id, submission.formType.name)
+              }
             />
           );
         } else {
@@ -84,7 +88,7 @@ export default function PendingContent({
               activeLevel={form.activeLevel ?? 0}
               roles={user.role}
               status={form.status}
-              onClick={() => onViewForm(form.id)}
+              onClick={() => onViewForm(form.id, form.formType.name)}
             />
           );
         }

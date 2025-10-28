@@ -5,7 +5,7 @@ import { SelfForm, UserType } from "@/app/types/types";
 interface SubmissionContentProps {
   formsWithLevels: SelfForm[];
   user: UserType;
-  onViewForm: (formId: number) => void; 
+  onViewForm: (formId: number, formName: string) => void; 
 }
 
 export default function SubmissionContent({
@@ -30,7 +30,7 @@ export default function SubmissionContent({
             activeLevel={form.activeLevel}
             roles={user.role}
             status={form.status}
-            onClick={() => onViewForm(form.id)}
+            onClick={() => onViewForm(form.id, form.formType.name)}
           />
         ))}
       </div>

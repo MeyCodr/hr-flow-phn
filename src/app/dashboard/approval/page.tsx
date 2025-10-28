@@ -85,6 +85,8 @@ export default async function Approval() {
         : form.formData,
   }));
 
+  console.log("self fomrs: ", selfForms);
+
   return (
     <div className="w-full font-poppins">
       <div>

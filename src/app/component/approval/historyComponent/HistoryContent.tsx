@@ -7,7 +7,7 @@ interface HistoryContentProps {
   approvalsHistory: Approval[];
   userFormsHistory: SelfForm[];
   user: UserType;
-  onViewForm: (formId: number) => void;
+  onViewForm: (formId: number, formName: string) => void;
 }
 
 export default function HistoryContent({
@@ -30,13 +30,18 @@ export default function HistoryContent({
               title={submission.formType.name}
               name={submission.createdBy.fullname}
               createddate={new Date(submission.createdAt).toLocaleDateString()}
-              remarks={submission.formData?.remarks || "No remarks"}
+              remarks={
+                (submission.formData as { remarks?: string } | null)?.remarks ||
+                "No remarks"
+              }
               currentLevel={approval.currentLevel}
               totalLevel={approval.totalLevel}
               activeLevel={approval.activeLevel}
               roles={user.role}
               status={approval.status}
-              onClick={() => onViewForm(submission.id)}
+              onClick={() =>
+                onViewForm(submission.id, submission.formType.name)
+              }
             />
           );
         })}
@@ -55,7 +60,7 @@ export default function HistoryContent({
             activeLevel={form.activeLevel}
             roles={user.role}
             status={form.status}
-            onClick={() => onViewForm(form.id)}
+            onClick={() => onViewForm(form.id, form.formType.name)}
           />
         ))}
       </div>

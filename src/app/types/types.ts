@@ -85,6 +85,7 @@ export interface UserInfo {
   role: string;
   sectionId: number;
   workLocation: string;
+  designation?: string
 }
 
 export interface fullUserInfo {

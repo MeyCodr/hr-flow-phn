@@ -1,6 +1,6 @@
 "use client";
 
-import { fullUserInfo, SelfForm, UserType } from "@/app/types/types";
+import { SelfForm, UserType } from "@/app/types/types";
 import Tabs, { TabItem } from "../ui/Tabs";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -10,6 +10,7 @@ import HistoryContent from "./historyComponent/HistoryContent";
 import ViewSubmission, {
   SelfFormData,
 } from "./submissionComponent/ViewSubmission";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface User {
   fullname: string;
@@ -22,7 +23,7 @@ interface Submission {
   id: number;
   createdBy: User;
   formType: FormType;
-  formData: Record<string, any> | null; // ✅ for JSON fields
+  formData: Record<string, unknown> | null;
   createdAt: string | Date;
 }
 
@@ -61,7 +62,19 @@ export default function ApprovalComponent({
   const [viewedFormData, setViewedFormData] = useState<SelfFormData | null>(
     null
   );
-  const [approvalData, setApprovalData] = useState<fullUserInfo>();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const id = searchParams.get("id");
+
+    if (!id && pathname === "/dashboard/approval") {
+      // Reset when no query params present (sidebar click)
+      setIsViewing(false);
+      setViewedFormData(null);
+    }
+  }, [pathname, searchParams]);
 
   const refreshData = async () => {
     const res = await axios.get("/api/approval-form/fetch");
@@ -114,7 +127,7 @@ export default function ApprovalComponent({
       approval.status === "APPROVED" || approval.status === "REJECTED"
   );
 
-  const handleViewForm = async (formId: number) => {
+  const handleViewForm = async (formId: number, formName: string) => {
     setIsViewing(true);
     try {
       const [formRes, approvalRes] = await Promise.all([
@@ -128,6 +141,7 @@ export default function ApprovalComponent({
 
       console.log("Form data:", formData);
       console.log("Approvals with names:", approvalsWithNames);
+      router.replace(`/dashboard/approval?id=${formId}&name=${formName}`);
 
       setViewedFormData({
         ...formData,
@@ -141,6 +155,7 @@ export default function ApprovalComponent({
   const handleBack = () => {
     setIsViewing(false);
     setViewedFormData(null);
+    router.push(`/dashboard/approval`);
   };
 
   if (isViewing && viewedFormData) {

@@ -92,6 +92,10 @@ export default function ManPower({
         const res = await axios.get(`/api/user/${staffid}`);
         console.log("res: ", res.data.data);
         const userInfo = res.data.data;
+        setData((prev) => ({
+          ...prev,
+          designation: userInfo.designation,
+        }));
         setUserInfo(userInfo);
       } catch (error) {
         if (error instanceof Error) {
@@ -113,7 +117,9 @@ export default function ManPower({
       division: userInfo.divisionId ? userInfo.divisionId.toString() : "",
       department: userInfo.departmentId ? userInfo.departmentId.toString() : "",
       section: userInfo.sectionId ? userInfo.sectionId.toString() : "",
-      workLocation: userInfo.workLocation ? userInfo.workLocation.toString() : "",
+      workLocation: userInfo.workLocation
+        ? userInfo.workLocation.toString()
+        : "",
     }));
 
     if (userInfo.divisionId)
@@ -376,7 +382,7 @@ export default function ManPower({
                     onChange={handleChange}
                     placeholder="Current Headcount"
                     required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <span className="text-gray-500 mt-6">/</span>{" "}
@@ -395,7 +401,7 @@ export default function ManPower({
                     onChange={handleChange}
                     placeholder="Approved Requirement"
                     required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -506,6 +512,23 @@ export default function ManPower({
               </div>
               <div className="flex flex-col space-y-2">
                 <Label
+                  name="Manpower Plan"
+                  htmlFor="manpowerPlan"
+                  className="block text-sm font-medium text-gray-900"
+                />
+                <Input
+                  id="manpowerPlan"
+                  name="manpowerPlan"
+                  type="text"
+                  value={data.manpowerPlan}
+                  onChange={handleChange}
+                  placeholder="Manpower Plan"
+                  required
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <div className="flex flex-col space-y-2">
+                <Label
                   name="Approved AMP"
                   htmlFor="approvedAmp"
                   className="block text-sm font-medium text-gray-900"
@@ -539,7 +562,7 @@ export default function ManPower({
                 value={data.keyRequirement}
                 onChange={handleTextAreaChange}
                 placeholder="Key Requirement"
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <div className="flex-1 flex flex-col space-y-2">
@@ -554,7 +577,7 @@ export default function ManPower({
                 value={data.keyResponsibilities}
                 onChange={handleTextAreaChange}
                 placeholder="Key Responsibilities"
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <div className="flex-1 flex flex-col space-y-2">
@@ -805,21 +828,21 @@ export default function ManPower({
                   </div>
                 )}
               </div>
-               <div className="flex-1 flex flex-col space-y-2 mb-6">
-              <Label
-                name="Remarks"
-                htmlFor="remarks"
-                className="block text-sm font-medium text-gray-900"
-              />
-              <TextArea
-                id="remarks"
-                name="remarks"
-                value={data.remarks}
-                onChange={handleTextAreaChange}
-                placeholder="Remarks"
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+              <div className="flex-1 flex flex-col space-y-2 mb-6">
+                <Label
+                  name="Remarks"
+                  htmlFor="remarks"
+                  className="block text-sm font-medium text-gray-900"
+                />
+                <TextArea
+                  id="remarks"
+                  name="remarks"
+                  value={data.remarks}
+                  onChange={handleTextAreaChange}
+                  placeholder="Remarks"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
             </div>
           </div>
         </div>

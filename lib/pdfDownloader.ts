@@ -1,8 +1,11 @@
+import { ManPowerTypes } from "@/app/types/types";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import autoTable, { RowInput } from "jspdf-autotable";
+
+
 
 export interface FormPDFData {
-  formData: Record<string, any>;
+  formData: ManPowerTypes;
   departmentName: string;
   divisionName: string;
   sectionName: string;
@@ -14,10 +17,11 @@ export interface FormPDFData {
 }
 
 const logoUrl = "/company-logo-phn.png";
-const loadImage = async (url: string) => {
+
+const loadImage = async (url: string): Promise<string> => {
   const res = await fetch(url);
   const blob = await res.blob();
-  return new Promise<string>((resolve) => {
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => resolve(reader.result as string);
     reader.readAsDataURL(blob);
@@ -31,26 +35,26 @@ export const downloadFormPDF = async (data: FormPDFData) => {
   const logoBase64 = await loadImage(logoUrl);
   const doc = new jsPDF();
 
- const pageWidth = doc.internal.pageSize.getWidth();
-const logoWidth = 40;
-const logoHeight = 30;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const logoWidth = 30;
+  const logoHeight = 20;
 
-// Center logo horizontally
-const logoX = (pageWidth - logoWidth) / 2;
-const logoY = 10; // keep some top margin
+  // Center logo horizontally
+  const logoX = (pageWidth - logoWidth) / 2;
+  const logoY = 10;
 
-doc.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
+  doc.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
 
-// Title (centered below logo)
-doc.setFontSize(14);
-const titleX = pageWidth / 2;
-const titleY = logoY + logoHeight + 5; // add small margin below logo
-doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
+  // Title (centered below logo)
+  doc.setFontSize(14);
+  const titleX = pageWidth / 2;
+  const titleY = logoY + logoHeight + 5;
+  doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
 
   doc.setFontSize(10);
 
-  // Prepare 4-column table data
-  const tableData: any[][] = [
+  // Define table rows properly
+  const tableData: RowInput[] = [
     [
       "Date of Submission",
       formData.createddate || "-",
@@ -85,7 +89,7 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
       "Reporting To",
       formData.reportingTo || "-",
       "Category",
-      formData.category || "-",
+      formData.category?.name || "-",
     ],
     [
       "No Requested",
@@ -101,8 +105,7 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
       },
       {
         content:
-          ` ${formData.currentHeadCount}/${formData.approvedRequirement}` ||
-          "-",
+          `${formData.currentHeadCount}/${formData.approvedRequirement}` || "-",
         colSpan: 2,
       },
     ],
@@ -114,13 +117,7 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
         styles: { fontStyle: "bold" },
       },
     ],
-    [
-      {
-        content: `${formData.keyRequirement}` || "-",
-        colSpan: 4,
-        styles: { fontStyle: "normal" },
-      },
-    ],
+    [{ content: `${formData.keyRequirement}` || "-", colSpan: 4 }],
     [
       {
         content:
@@ -129,13 +126,7 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
         styles: { fontStyle: "bold" },
       },
     ],
-    [
-      {
-        content: `${formData.keyResponsibilities}` || "-",
-        colSpan: 4,
-        styles: { fontStyle: "normal" },
-      },
-    ],
+    [{ content: `${formData.keyResponsibilities}` || "-", colSpan: 4 }],
     [
       {
         content: "3) Reason of Requisition (Please tick (/) where applicable)",
@@ -150,7 +141,6 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
             ? "[X] Replacement (Please provide copy of resignation details for replacement hiring)"
             : "[ ] Replacement (Please provide copy of resignation details for replacement hiring)",
         colSpan: 2,
-        styles: { fontStyle: "normal" },
       },
       {
         content:
@@ -158,7 +148,6 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
             ? "[X] Additional (Please provide justification for additional manpower request)"
             : "[ ] Additional (Please provide justification for additional manpower request)",
         colSpan: 2,
-        styles: { fontStyle: "normal" },
       },
     ],
     [
@@ -174,18 +163,11 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
       `${formData.newProject}` || "-",
     ],
     [
-      {
-        content: "",
-        colSpan: 2,
-        rowSpan: 2,
-      },
+      { content: "", colSpan: 2, rowSpan: 2 },
       "Machine Faulty",
       `${formData.machineFaulty}` || "-",
     ],
-    [
-      "Other",
-      `${formData.other}` || "-",
-    ],
+    ["Other", `${formData.other}` || "-"],
   ];
 
   autoTable(doc, {
@@ -199,10 +181,13 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
     },
   });
 
-  // Created By info
-  const finalY = (doc as any).lastAutoTable.finalY || 45;
+  // Get Y position of last table
+  const finalY =
+    (doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable
+      ?.finalY || 45;
 
-  const approveData: any[][] = [
+  // Approval table
+  const approveData: RowInput[] = [
     [
       "Requested by:",
       "Recommended by:",
@@ -218,18 +203,18 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
       "Chief Executive Officer",
     ],
     [
-      `Date: ${formData.dateRequested || "-"}`,
-      `Date: ${formData.dateRecommended || "-"}`,
-      `Date: ${formData.dateReviewed || "-"}`,
-      `Date: ${formData.dateVerified || "-"}`,
-      `Date: ${formData.approvedby || "-"}`,
+      `Date: ${formData.dateRequested || ""}`,
+      `Date: ${formData.dateRecommended || ""}`,
+      `Date: ${formData.dateReviewed || ""}`,
+      `Date: ${formData.dateVerified || ""}`,
+      `Date: ${formData.approvedby || ""}`,
     ],
   ];
 
   const pageWidth1 = doc.internal.pageSize.getWidth();
-  const margin = 14; // same as your startX
+  const margin = 14;
   const usableWidth = pageWidth1 - margin * 2;
-  const colWidth = usableWidth / 5; // 5 equal columns
+  const colWidth = usableWidth / 5;
 
   autoTable(doc, {
     startY: finalY,
@@ -250,19 +235,6 @@ doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });
       }
     },
   });
-
-  // Footer
-  const pageCount = doc.internal.pages.length - 1;
-  doc.setFontSize(8);
-
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.text(
-      `Page ${i} of ${pageCount}`,
-      doc.internal.pageSize.getWidth() - 20,
-      doc.internal.pageSize.getHeight() - 10
-    );
-  }
 
   doc.save(`ManPowerRequisition_${createdBy.staffid}.pdf`);
 };

@@ -6,6 +6,8 @@ export default async function Forms(props: {
 }) {
   // ✅ Await searchParams first
   const searchParams = await props.searchParams;
+  console.log("search params: ", searchParams);
+
 
   const forms = await prisma.formType.findMany({
     include: { flowSteps: true },

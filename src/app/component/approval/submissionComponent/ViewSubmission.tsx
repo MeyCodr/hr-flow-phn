@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PrimaryButton from "../../ui/PrimaryButton";
 import { IoReturnDownBack } from "react-icons/io5";
 import ManPowerRequisitionView from "../../form/hr-form/view/ManPowerRequisitionView";
@@ -16,9 +16,9 @@ import { Approval } from "../ApprovalComponent";
 import ActionModal from "../../ui/ActionModal";
 import Label from "../../ui/Label";
 import { TextArea } from "../../ui/TextArea";
-import html2pdf from "html2pdf.js";
-import ManpowerPDFTemplate from "@/htmltemplate/ManpowerPDF";
 import { downloadFormPDF } from "../../../../../lib/pdfDownloader";
+import { MdOutlineFileDownload } from "react-icons/md";
+import LoadingScreen from "../../ui/LoadingScreen";
 
 export interface SelfFormData {
   id: number;
@@ -72,11 +72,7 @@ export default function ViewSubmission({
     null
   );
   const [userSession, setUserSession] = useState<fullUserInfo>();
-  const [data, setData] = useState({
-    remarks: "",
-  });
   const [loading, setLoading] = useState(false);
-  const pdfRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (session) {
@@ -183,31 +179,6 @@ export default function ViewSubmission({
     }
   };
 
-  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleDownloadPDF = async () => {
-    if (!pdfRef.current) return;
-
-    const html2pdf = (await import("html2pdf.js")).default;
-
-    html2pdf()
-      .set({
-        margin: 10,
-        filename: `ManPowerRequisition_${selfForm.createdBy.staffid}.pdf`,
-        html2canvas: { scale: 5 },
-        jsPDF: {
-          orientation: "portrait",
-          unit: "mm",
-          format: "a4",
-        },
-      })
-      .from(pdfRef.current)
-      .save();
-  };
-
   if (!selfForm) {
     return (
       <p className="text-center text-sm text-gray-500 py-6">
@@ -220,6 +191,7 @@ export default function ViewSubmission({
 
   return (
     <>
+      <LoadingScreen show={loading} />
       <div className="bg-white my-6 p-6 rounded-lg border border-gray-300 shadow-xs">
         {/* Header */}
         <div className="mb-4">
@@ -251,6 +223,8 @@ export default function ViewSubmission({
                 createdBy: selfForm.createdBy,
               })
             }
+            className="bg-purple-700 text-white px-3 py-2 text-xs rounded-sm hover:bg-purple-900 cursor-pointer duration-200 transition-all ease-in-out"
+            icon={<MdOutlineFileDownload className="w-5 h-5" />}
           />
         </div>
 
