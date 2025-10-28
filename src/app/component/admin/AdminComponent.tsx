@@ -21,7 +21,7 @@ interface AdminComponentProps {
 export default function AdminComponent({
   userListing,
   formType,
-  approvalStep
+  approvalStep,
 }: AdminComponentProps) {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -60,13 +60,21 @@ export default function AdminComponent({
     }
   }, [selectedDepartment]);
 
-  console.log("approvalStep2: ", approvalStep);
-
   const categories: TabItem[] = [
     { name: "Form Create", content: <FormTypeComponent formType={formType} /> },
     {
       name: "Approval Flow",
-      content: <ApprovalFlow approvalStep={approvalStep}/> ,
+      content: (
+        <ApprovalFlow
+          approvalStep={approvalStep}
+          formType={formType}
+          divisions={divisions}
+          departments={departments}
+          sections={sections}
+          setSelectedDivision={setSelectedDivision}
+          setSelectedDepartment={setSelectedDepartment}
+        />
+      ),
     },
     {
       name: "User Listing",

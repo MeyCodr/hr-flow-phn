@@ -20,6 +20,25 @@ export interface categoryManPower {
   name: string;
 }
 
+export interface FormType {
+  id: number;
+  name: string;
+  description: string | null;
+  createdAt: Date;
+  flowSteps?: FlowStep[];
+}
+
+export interface FlowStep {
+  id: number;
+  formTypeId: number;
+  order: number;
+  role: string;
+  departmentId: number | null;
+  divisionId: number | null;
+  sectionId: number | null;
+  createdAt: string;
+}
+
 export interface ManPowerTypes {
   category: categoryManPower | null;
   createddate: DateValueType;
@@ -69,6 +88,7 @@ export interface UserInfo {
 }
 
 export interface fullUserInfo {
+  id: number;
   staffid: string;
   email: string;
   fullname: string;
@@ -98,4 +118,35 @@ export interface UserType {
   designation?: string | null;
   workLocation?: string | null;
   role: string;
+}
+
+export interface FormData {
+  [key: string]: string | number | boolean | null | string[] | number[];
+}
+
+export interface SelfForm {
+  id: number;
+  formTypeId: number;
+  createdById: number;
+  status: string;
+  totalLevel?: number;
+  currentLevel?: number;
+  activeLevel?: number;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  formData: FormData | null; // ✅ allows null, matches Prisma JsonValue
+  formType: {
+    id: number;
+    name: string;
+    description?: string | null;
+    createdAt: string | Date;
+  };
+  approvals?: {
+    id: number;
+    formSubmissionId: number;
+    approverId: number;
+    stepOrder: number;
+    status: string;
+    remarks?: string | null;
+  }[];
 }

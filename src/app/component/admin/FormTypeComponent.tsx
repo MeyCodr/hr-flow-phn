@@ -15,6 +15,7 @@ export default function FormTypeComponent({
   const [isAdding, setIsAdding] = useState(false);
   const [forms, setForms] = useState<FormType[]>(formType);
   const [loading, setLoading] = useState(false);
+  const [selectedFormType, setSelectedFormType] = useState<FormType | null>(null);
 
   const handleAddForm = () => setIsAdding(true);
   const handleBack = () => setIsAdding(false);
@@ -38,20 +39,25 @@ export default function FormTypeComponent({
     fetchFormType();
   }, []);
 
+  const handleRowClick = (formType: FormType) => {
+    setIsAdding(true);
+    setSelectedFormType(formType);
+  }
+
   return (
     <div className="p-6 w-full bg-white rounded-lg border border-gray-300">
       {!isAdding ? (
         <>
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h2 className="text-2xl font-semibold text-gray-800">
+              <h2 className="text-xl font-semibold text-gray-800">
                 Form Type
               </h2>
             </div>
 
             <button
               onClick={handleAddForm}
-              className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+              className="bg-indigo-800 text-white text-xs px-4 py-2 rounded-sm hover:bg-indigo-700 transition cursor-pointer"
             >
               + Add Form
             </button>
@@ -65,7 +71,7 @@ export default function FormTypeComponent({
             <div className="w-full overflow-x-auto">
               <table className="min-w-[500px] w-full text-xs text-left border border-gray-300 rounded-lg overflow-hidden">
                 <thead>
-                  <tr className="bg-indigo-600 text-white">
+                  <tr className="bg-indigo-800 text-white">
                     <th className="px-4 py-3 font-semibold">No</th>
                     <th className="px-4 py-3 font-semibold">Name</th>
                     <th className="px-4 py-3 font-semibold">Description</th>
@@ -79,6 +85,7 @@ export default function FormTypeComponent({
                       <tr
                         key={item.id}
                         className="hover:bg-indigo-50 transition cursor-pointer"
+                        onClick={() => handleRowClick(item)}
                       >
                         <td className="px-4 py-3 font-medium text-gray-700">
                           {i + 1}
@@ -124,7 +131,7 @@ export default function FormTypeComponent({
         </>
       ) : (
         // ✅ When saved, re-fetch fresh list
-        <FormTypeForm onBack={handleBack} onSuccess={fetchFormType} />
+        <FormTypeForm onBack={handleBack} onSuccess={fetchFormType} selectedFormType={selectedFormType}/>
       )}
     </div>
   );

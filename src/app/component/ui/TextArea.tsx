@@ -7,6 +7,7 @@ interface TextAreaProps {
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder: string;
   className?: string;
+  disabled?: boolean; // ✅ add disabled prop
 }
 
 function TextArea({
@@ -16,6 +17,7 @@ function TextArea({
   onChange,
   placeholder,
   className,
+  disabled = false, // default to false
 }: TextAreaProps) {
   return (
     <Textarea
@@ -24,7 +26,10 @@ function TextArea({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className={className}
+      disabled={disabled} // ✅ apply disabled
+      className={`${className} ${
+        disabled ? "bg-gray-200 text-gray-400 cursor-not-allowed" : ""
+      }`}
     ></Textarea>
   );
 }

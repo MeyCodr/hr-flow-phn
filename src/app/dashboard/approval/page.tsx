@@ -22,6 +22,7 @@ export default async function Approval() {
   const pendingApprovals = await prisma.approval.findMany({
     where: {
       approverId: user.id,
+      // status: "PENDING"
     },
     include: {
       submission: {
@@ -43,19 +44,46 @@ export default async function Approval() {
     const allSteps = approval.submission.approvals;
     const totalLevel = allSteps.length;
 
-    // Find the lowest stepOrder still pending — that’s the current active approver
     const activeApproval = allSteps.find((a) => a.status === "PENDING");
     const activeLevel = activeApproval ? activeApproval.stepOrder : totalLevel;
+
+    // ✅ Normalize formData so it’s always an object
+    const normalizedFormData =
+      typeof approval.submission.formData === "string"
+        ? JSON.parse(approval.submission.formData)
+        : approval.submission.formData ?? null;
 
     return {
       ...approval,
       totalLevel,
       currentLevel: approval.stepOrder,
       activeLevel,
+      submission: {
+        ...approval.submission,
+        formData: normalizedFormData, // ✅ fix type mismatch
+      },
     };
   });
 
-  console.log("approval: ", approvalsWithLevels);
+  const selfFormsRaw = await prisma.formSubmission.findMany({
+    where: {
+      createdById: user.id,
+    },
+    include: {
+      formType: true, // ✅ include related form type
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const selfForms = selfFormsRaw.map((form) => ({
+    ...form,
+    formData:
+      typeof form.formData === "string"
+        ? JSON.parse(form.formData)
+        : form.formData,
+  }));
 
   return (
     <div className="w-full font-poppins">
@@ -66,7 +94,11 @@ export default async function Approval() {
         </p>
       </div>
 
-      <ApprovalComponent pendingApprovals={approvalsWithLevels} />
+      <ApprovalComponent
+        pendingApprovals={approvalsWithLevels}
+        selfForms={selfForms}
+        user={user}
+      />
     </div>
   );
 }

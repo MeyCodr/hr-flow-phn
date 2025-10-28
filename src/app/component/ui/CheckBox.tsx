@@ -3,22 +3,30 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface CheckBoxProps {
   checked: boolean;
-  onChange: (value: boolean) => void;
+  onChange?: (value: boolean) => void;
+  className?: string;
+  disabled?: boolean;
 }
 
-export default function CheckBox({ checked, onChange }: CheckBoxProps) {
+export default function CheckBox({
+  checked,
+  onChange,
+  className,
+  disabled,
+}: CheckBoxProps) {
   return (
     <Checkbox
       checked={checked}
-      onChange={onChange}
-      className={`relative flex items-center justify-center w-6 h-6 rounded-md border-2 cursor-pointer 
-        transition-colors duration-200
+      onChange={disabled ? () => {} : onChange} // ✅ prevent changes if disabled
+      className={`relative flex items-center justify-center w-4 h-4 border-2 cursor-pointer 
+        transition-colors duration-200 ${className}
         ${
           checked
             ? "bg-indigo-800 border-indigo-800"
             : "bg-white border-gray-300"
         }
-        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1`}
+        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1
+        ${disabled ? "cursor-not-allowed opacity-70" : ""}`}
     >
       <AnimatePresence>
         {checked && (

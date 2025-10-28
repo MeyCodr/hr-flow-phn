@@ -57,10 +57,10 @@ export default function AccountDropdown({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="absolute right-0 top-12 w-52 bg-white border border-gray-200 shadow-md rounded-lg text-black font-poppins z-50"
+        className="absolute right-0 top-12 w-52 bg-white border border-gray-300 shadow-md rounded-lg text-black font-poppins z-50"
       >
         <div className="flex flex-col">
-          <div className="border-b border-gray-200 px-4 py-3 font-medium text-gray-700">
+          <div className="border-b border-gray-300 px-4 text-sm py-3 font-medium text-gray-700">
             My Account
           </div>
           <button className={buttonLink} onClick={() => handleTab("profile")}>
@@ -70,7 +70,7 @@ export default function AccountDropdown({
             <FaCog /> Settings
           </button>
           <button
-            className={`${buttonLink} border-t border-gray-200 text-red-500`}
+            className={`${buttonLink} border-t border-gray-300 text-red-500`}
             onClick={handleSignOut}
           >
             <FaSignOutAlt /> Logout

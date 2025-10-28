@@ -60,7 +60,7 @@ export default function DisplayProfile({ userProfile }: ProfileComponentProps) {
         {/* Always visible small camera icon badge */}
         <div
           onClick={handleClick}
-          className="absolute bottom-1 right-1 bg-indigo-600 rounded-full p-2 cursor-pointer shadow-md hover:bg-indigo-700 transition"
+          className="absolute bottom-1 right-1 bg-indigo-800 rounded-full p-2 cursor-pointer shadow-md hover:bg-indigo-700 transition"
         >
           <LuCamera className="text-white w-4 h-4" />
         </div>

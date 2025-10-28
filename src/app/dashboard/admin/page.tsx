@@ -17,7 +17,14 @@ export default async function Admin() {
     }
   });
 
-  const approvalFlow = await prisma.approvalFlowStep.findMany();
+  const approvalFlow = await prisma.approvalFlowStep.findMany({
+    include: {
+      formType: true,
+      division: true,
+      department: true,
+      section: true,
+    }
+  });
 
 
   console.log("approval flow: ", approvalFlow);

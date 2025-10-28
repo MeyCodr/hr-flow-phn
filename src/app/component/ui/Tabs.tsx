@@ -1,6 +1,5 @@
 "use client";
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TabGroup, TabList, TabPanels, TabPanel, Tab } from "@headlessui/react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
@@ -16,6 +15,13 @@ interface TabsProps {
 }
 
 export default function Tabs({ tabs, defaultIndex = 0 }: TabsProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  // Avoid SSR/CSR mismatch by delaying render until after hydration
+  if (!mounted) return null;
+
   return (
     <div className="w-full">
       <TabGroup defaultIndex={defaultIndex}>
@@ -27,7 +33,7 @@ export default function Tabs({ tabs, defaultIndex = 0 }: TabsProps) {
                   {selected && (
                     <motion.div
                       layoutId="active-pill"
-                      className="absolute -inset-1 bg-indigo-600 rounded-full shadow-md"
+                      className="absolute -inset-1 bg-indigo-800 rounded-full shadow-md"
                       transition={{
                         type: "spring",
                         duration: 0.4,
@@ -37,7 +43,7 @@ export default function Tabs({ tabs, defaultIndex = 0 }: TabsProps) {
                   )}
                   <span
                     className={clsx(
-                      "relative z-10 px-6 py-3 text-sm font-semibold transition-colors duration-200 cursor-pointer select-none",
+                      "relative z-10 px-6 py-3 text-xs font-semibold transition-colors duration-200 cursor-pointer select-none",
                       selected
                         ? "text-white"
                         : "text-indigo-700 hover:text-indigo-900"

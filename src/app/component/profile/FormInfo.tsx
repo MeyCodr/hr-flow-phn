@@ -165,7 +165,7 @@ function FormInfo({
               onChange={handleChange}
               placeholder="Staff ID"
               disabled
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -183,7 +183,7 @@ function FormInfo({
               value={data.email}
               onChange={handleChange}
               placeholder="@phn.com.my"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -201,7 +201,7 @@ function FormInfo({
               value={data.fullname}
               onChange={handleChange}
               placeholder="Full Name"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -219,7 +219,7 @@ function FormInfo({
               value={data.password}
               onChange={handleChange}
               placeholder="Password"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -237,7 +237,7 @@ function FormInfo({
               value={data.designation}
               onChange={handleChange}
               placeholder="Designation"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -324,7 +324,7 @@ function FormInfo({
         <PrimaryButton
           name="Save Changes"
           type="submit"
-          className="border px-6 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer"
+          className="border px-6 py-2 text-xs bg-indigo-800 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer"
         />
       </form>
     </>

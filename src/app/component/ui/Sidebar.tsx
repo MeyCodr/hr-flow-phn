@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { FaRegUser, FaWpforms } from "react-icons/fa";
-import { IoSettingsSharp } from "react-icons/io5";
-import { LuLayoutDashboard } from "react-icons/lu";
-import { MdOutlineApproval } from "react-icons/md";
-import { RiAdminLine } from "react-icons/ri";
+import { CiSettings, CiUser } from "react-icons/ci";
+import { PiFlowArrowThin } from "react-icons/pi";
+import { IoDocumentsOutline } from "react-icons/io5";
+import { PiChalkboardSimpleLight } from "react-icons/pi";
+import { CiLock } from "react-icons/ci";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -30,32 +30,32 @@ export default function Sidebar({
     {
       name: "Dashboard",
       path: "/dashboard",
-      icon: <LuLayoutDashboard className="w-5 h-5" />,
+      icon: <PiChalkboardSimpleLight  className="w-5 h-5" />,
     },
     {
       name: "Form",
       path: "/dashboard/forms",
-      icon: <FaWpforms className="w-5 h-5" />,
+      icon: <IoDocumentsOutline className="w-5 h-5" />,
     },
     {
       name: "Approval",
       path: "/dashboard/approval",
-      icon: <MdOutlineApproval className="w-5 h-5" />,
+      icon: <PiFlowArrowThin className="w-5 h-5" />,
     },
     {
       name: "Profile",
       path: "/dashboard/profile",
-      icon: <FaRegUser className="w-5 h-5" />,
+      icon: <CiUser  className="w-5 h-5" />,
     },
     {
       name: "Setting",
       path: "/dashboard/setting",
-      icon: <IoSettingsSharp className="w-5 h-5" />,
+      icon: <CiSettings  className="w-5 h-5" />,
     },
     {
       name: "Admin",
       path: "/dashboard/admin",
-      icon: <RiAdminLine className="w-5 h-5" />,
+      icon: <CiLock className="w-5 h-5" />,
     },
   ];
 
@@ -101,7 +101,7 @@ export default function Sidebar({
               key={item.path}
               href={item.path}
               onClick={() => isMobile && toggleSidebar()}
-              className={`flex items-center gap-2 p-2 rounded transition-all ${
+              className={`flex items-center gap-2 p-2 text-sm rounded transition-all ${
                 active ? "bg-purple-700 font-semibold" : "hover:bg-purple-600"
               }`}
             >

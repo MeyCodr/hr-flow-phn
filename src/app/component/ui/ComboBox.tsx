@@ -13,24 +13,26 @@ interface ComboBoxProps {
   menu: { id: string | number; name: string }[];
   onSelect?: (item: { id: string | number; name: string } | null) => void;
   selectedValue?: string | null;
+  disabled?: boolean;
 }
 
 export default function ComboBox({
   menu,
   onSelect,
   selectedValue,
+  disabled = false,
 }: ComboBoxProps) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const comboRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
 
-  // ✅ Safe hydration fix — run after first render
+  // Safe hydration fix
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // ✅ Close when clicking outside
+  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -52,6 +54,7 @@ export default function ComboBox({
         );
 
   const handleSelect = (value: string | null) => {
+    if (disabled) return;
     setOpen(false);
     if (value === null) {
       onSelect?.(null);
@@ -68,34 +71,47 @@ export default function ComboBox({
 
   return (
     <div className="w-full relative" ref={comboRef}>
-      {/* ✅ render nothing visually until client mounts */}
       {!mounted ? (
-        <div className="w-full h-10 border border-gray-200 rounded-md bg-gray-50 animate-pulse"></div>
+        <div className="w-full h-10 border border-gray-300 rounded-md bg-gray-50 animate-pulse"></div>
       ) : (
-        <Combobox value={selectedValue || ""} onChange={handleSelect}>
+        <Combobox
+          value={selectedValue || ""}
+          onChange={handleSelect}
+          disabled={disabled}
+        >
           <div className="relative">
             <ComboboxInput
               placeholder="Select an option"
               displayValue={displayValue}
               onChange={(event) => setQuery(event.target.value)}
-              onClick={() => setOpen((prev) => !prev)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+              onClick={() => !disabled && setOpen((prev) => !prev)}
+              className={`w-full rounded-md border px-3 py-2 pr-10 text-xs outline-none transition duration-150 ease-in-out
+                ${
+                  disabled
+                    ? "bg-gray-200 cursor-not-allowed border-gray-300 text-black"
+                    : "bg-white border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                }`}
             />
             <FaChevronDown
-              className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer transition-transform duration-200 ${
-                open ? "rotate-180" : "rotate-0"
-              }`}
-              onClick={() => setOpen((prev) => !prev)}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer transition-transform duration-200
+                ${open && !disabled ? "rotate-180" : "rotate-0"}
+                ${
+                  disabled
+                    ? "cursor-not-allowed text-gray-400"
+                    : "text-gray-400 hover:text-gray-600"
+                }
+              `}
+              onClick={() => !disabled && setOpen((prev) => !prev)}
             />
           </div>
 
-          {open && (
+          {open && !disabled && (
             <ComboboxOptions
               static
-              className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 focus:outline-none"
+              className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-300 bg-white py-1 focus:outline-none"
             >
               {filteredMenu.length === 0 ? (
-                <div className="px-3 py-2 text-gray-500 text-sm">
+                <div className="px-3 py-2 text-gray-500 text-xs">
                   No results found
                 </div>
               ) : (
@@ -103,7 +119,7 @@ export default function ComboBox({
                   <ComboboxOption
                     key={item.id}
                     value={item.name}
-                    className="cursor-pointer select-none px-3 py-2 text-sm text-gray-700 data-[focus]:bg-indigo-100"
+                    className="cursor-pointer select-none px-3 py-2 text-xs text-gray-700 data-[focus]:bg-indigo-100"
                   >
                     {item.name}
                   </ComboboxOption>

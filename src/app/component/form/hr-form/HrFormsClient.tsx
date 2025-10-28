@@ -38,7 +38,7 @@ export interface DynamicFormProps {
   setSelectedSection: React.Dispatch<React.SetStateAction<string>>;
   setSelectedWorkLocation: React.Dispatch<React.SetStateAction<string>>;
   user: User | null;
-  onSubmitSuccess: () => void;
+  onSubmitSuccess?: () => void;
   formId: number | null;
 }
 
@@ -154,7 +154,7 @@ export default function HrFormsClient({
         <PrimaryButton
           name="Back"
           type="button"
-          className="flex items-center gap-2 px-4 py-2 text-sm rounded-md font-medium text-gray-700
+          className="flex items-center gap-2 px-4 py-2 text-xs rounded-md font-medium text-gray-700
                     bg-white border border-gray-300 shadow-xs hover:bg-gray-100 
                     hover:shadow-md transition-all duration-200 active:scale-95 mb-6 cursor-pointer"
           onClick={handleBackClick}

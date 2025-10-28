@@ -170,6 +170,7 @@ export default function ManPower({
     formData.append("user", JSON.stringify(user));
     formData.append("data", JSON.stringify(data));
     if (file) {
+      console.log("file attachement: ", file);
       formData.append("fileAttachment", file);
     }
     console.log("data: ", data);
@@ -211,7 +212,7 @@ export default function ManPower({
 
   return (
     <>
-      <div className="text-sm">
+      <div className="text-xs">
         <Toaster position="top-right" />
       </div>
 
@@ -258,7 +259,7 @@ export default function ManPower({
                 <DatePicker
                   value={data.createddate}
                   onChange={handleDateChange("createddate")}
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -337,7 +338,7 @@ export default function ManPower({
                   onChange={handleChange}
                   placeholder="Reporting To"
                   required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -354,7 +355,7 @@ export default function ManPower({
                   onChange={handleChange}
                   placeholder="No Requested"
                   required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>
@@ -375,7 +376,7 @@ export default function ManPower({
                     onChange={handleChange}
                     placeholder="Current Headcount"
                     required
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <span className="text-gray-500 mt-6">/</span>{" "}
@@ -394,7 +395,7 @@ export default function ManPower({
                     onChange={handleChange}
                     placeholder="Approved Requirement"
                     required
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -517,7 +518,7 @@ export default function ManPower({
                   onChange={handleChange}
                   placeholder="Approved AMP"
                   required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>
@@ -538,7 +539,7 @@ export default function ManPower({
                 value={data.keyRequirement}
                 onChange={handleTextAreaChange}
                 placeholder="Key Requirement"
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <div className="flex-1 flex flex-col space-y-2">
@@ -553,7 +554,7 @@ export default function ManPower({
                 value={data.keyResponsibilities}
                 onChange={handleTextAreaChange}
                 placeholder="Key Responsibilities"
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <div className="flex-1 flex flex-col space-y-2">
@@ -617,10 +618,10 @@ export default function ManPower({
                         placeholder="Incumbent Name"
                         required
                         disabled={data.selectedOption !== "replacement"} // only editable if Replacement is selected
-                        className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
+                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
                                   data.selectedOption !== "replacement"
-                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                     : "bg-white text-gray-900 border-gray-300"
                                 }`}
                       />
@@ -635,10 +636,10 @@ export default function ManPower({
                         value={data.lastWorkingDay}
                         onChange={handleDateChange("lastWorkingDay")}
                         disabled={data.selectedOption !== "replacement"}
-                        className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
+                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
                                   data.selectedOption !== "replacement"
-                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                     : "bg-white text-gray-900 border-gray-300"
                                 }`}
                       />
@@ -688,10 +689,10 @@ export default function ManPower({
                         placeholder="Production Volume Increase (Item)"
                         required
                         disabled={data.selectedOption !== "additional"}
-                        className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
+                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
                                   data.selectedOption !== "additional"
-                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                     : "bg-white text-gray-900 border-gray-300"
                                 }`}
                       />
@@ -711,10 +712,10 @@ export default function ManPower({
                         placeholder="New Project"
                         required
                         disabled={data.selectedOption !== "additional"}
-                        className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
+                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
                                   data.selectedOption !== "additional"
-                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                     : "bg-white text-gray-900 border-gray-300"
                                 }`}
                       />
@@ -734,10 +735,10 @@ export default function ManPower({
                         placeholder="Machine Faulty"
                         required
                         disabled={data.selectedOption !== "additional"}
-                        className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
+                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
                                   data.selectedOption !== "additional"
-                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                     : "bg-white text-gray-900 border-gray-300"
                                 }`}
                       />
@@ -757,10 +758,10 @@ export default function ManPower({
                         placeholder="Other"
                         required
                         disabled={data.selectedOption !== "additional"}
-                        className={`w-full border rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
+                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
                                   data.selectedOption !== "additional"
-                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                     : "bg-white text-gray-900 border-gray-300"
                                 }`}
                       />
@@ -778,12 +779,12 @@ export default function ManPower({
 
                 <label
                   htmlFor="fileAttachment"
-                  className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 shadow-sm transition hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
+                  className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-3 text-xs text-gray-600  transition hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
                 >
                   <span className="truncate">
                     {file ? file.name : "Choose a file or drag & drop"}
                   </span>
-                  <span className="ml-2 rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white">
+                  <span className="ml-2 rounded bg-indigo-800 px-3 py-1 text-xs font-medium text-white">
                     Browse
                   </span>
                   <input
@@ -799,7 +800,7 @@ export default function ManPower({
                 </label>
 
                 {file && (
-                  <div className="mt-1 w-full rounded-lg bg-gray-50 p-3 text-sm text-gray-700 border border-gray-200">
+                  <div className="mt-1 w-full rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300">
                     📎 <strong>Selected:</strong> {file.name}
                   </div>
                 )}
@@ -816,7 +817,7 @@ export default function ManPower({
                 value={data.remarks}
                 onChange={handleTextAreaChange}
                 placeholder="Remarks"
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             </div>
@@ -827,7 +828,7 @@ export default function ManPower({
           <PrimaryButton
             name="Submit"
             type="submit"
-            className="border min-w-3xs  py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer text-center"
+            className="border px-10  py-2 bg-indigo-800 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer text-xs text-center"
           />
         </div>
       </form>

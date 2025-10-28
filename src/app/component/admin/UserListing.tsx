@@ -27,6 +27,7 @@ export default function UserListing({
   );
 
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleRowClick = (user: UserType) => {
     setSelectedUser(user); // show form for this user
@@ -37,9 +38,16 @@ export default function UserListing({
   };
 
   const fetchUsers = async () => {
-    const res = await axios.get("/api/user");
-    const data = res.data;
-    setUsers(Array.isArray(data) ? data : []);
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/user");
+      const data = res.data;
+      setUsers(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -55,82 +63,94 @@ export default function UserListing({
     <div className="p-6 w-full bg-white rounded-lg border border-gray-300">
       {!selectedUser ? (
         <>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
             User Listing
           </h2>
 
           {/* ✅ Scrollable table */}
-          <div className="w-full overflow-x-auto">
-            <table className="min-w-[1200px] w-full text-xs text-left border border-gray-300 rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-indigo-600 text-white">
-                  <th className="px-4 py-3 font-semibold">No</th>
-                  <th className="px-4 py-3 font-semibold">Full Name</th>
-                  <th className="px-4 py-3 font-semibold text-nowrap">Staff ID</th>
-                  <th className="px-4 py-3 font-semibold">Email</th>
-                  <th className="px-4 py-3 font-semibold">Division</th>
-                  <th className="px-4 py-3 font-semibold">Department</th>
-                  <th className="px-4 py-3 font-semibold">Section</th>
-                  <th className="px-4 py-3 font-semibold">Designation</th>
-                  <th className="px-4 py-3 font-semibold text-nowrap">Work Location</th>
-                  <th className="px-4 py-3 font-semibold">Role</th>
-                </tr>
-              </thead>
+          {loading ? (
+            <p className="text-center text-sm text-gray-500 py-6">
+              Loading latest user listing ...
+            </p>
+          ) : (
+            <>
+              <div className="w-full overflow-x-auto">
+                <table className="min-w-[1200px] w-full text-xs text-left border border-gray-300 rounded-lg overflow-hidden">
+                  <thead>
+                    <tr className="bg-indigo-800 text-white">
+                      <th className="px-4 py-3 font-semibold">No</th>
+                      <th className="px-4 py-3 font-semibold">Full Name</th>
+                      <th className="px-4 py-3 font-semibold text-nowrap">
+                        Staff ID
+                      </th>
+                      <th className="px-4 py-3 font-semibold">Email</th>
+                      <th className="px-4 py-3 font-semibold">Division</th>
+                      <th className="px-4 py-3 font-semibold">Department</th>
+                      <th className="px-4 py-3 font-semibold">Section</th>
+                      <th className="px-4 py-3 font-semibold">Designation</th>
+                      <th className="px-4 py-3 font-semibold text-nowrap">
+                        Work Location
+                      </th>
+                      <th className="px-4 py-3 font-semibold">Role</th>
+                    </tr>
+                  </thead>
 
-              <tbody className="divide-y divide-gray-200">
-                {users.map((user, i) => (
-                  <tr
-                    key={i}
-                    onClick={() => handleRowClick(user)}
-                    className="hover:bg-indigo-50 transition cursor-pointer"
-                  >
-                    <td className="px-4 py-3 font-medium text-gray-700">
-                      {i + 1}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {user.fullname}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {user.staffid}
-                    </td>
-                    <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">
-                      {user.email}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {user.division?.name || "-"}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {user.department?.name || "-"}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {user.section?.name || "-"}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {user.designation}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {user.workLocation}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          user.role === "Admin"
-                            ? "bg-indigo-100 text-indigo-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
+                  <tbody className="divide-y divide-gray-200">
+                    {users.map((user, i) => (
+                      <tr
+                        key={i}
+                        onClick={() => handleRowClick(user)}
+                        className="hover:bg-indigo-50 transition cursor-pointer"
                       >
-                        {user.role}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        <td className="px-4 py-3 font-medium text-gray-700">
+                          {i + 1}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {user.fullname}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {user.staffid}
+                        </td>
+                        <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">
+                          {user.email}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {user.division?.name || "-"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {user.department?.name || "-"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {user.section?.name || "-"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {user.designation}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {user.workLocation}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              user.role === "Admin"
+                                ? "bg-indigo-100 text-indigo-700"
+                                : "bg-gray-100 text-gray-700"
+                            }`}
+                          >
+                            {user.role}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-          <p className="text-xs text-gray-500 mt-3 text-center sm:hidden">
-            👉 Swipe left/right to view more columns
-          </p>
+              <p className="text-xs text-gray-500 mt-3 text-center sm:hidden">
+                👉 Swipe left/right to view more columns
+              </p>
+            </>
+          )}
         </>
       ) : (
         <UserForm

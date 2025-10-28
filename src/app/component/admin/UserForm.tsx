@@ -72,15 +72,17 @@ function UserForm({
 
   return (
     <div className="space-y-4">
-      <Toaster position="top-right" />
+      <div className="text-sm">
+        <Toaster position="top-right" />
+      </div>
       <PrimaryButton
         name="Back to list"
         icon={<IoReturnDownBack className="w-5 h-5" />}
         onClick={onBack}
-        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium cursor-pointer"
+        className="text-indigo-800 hover:text-indigo-800 text-xs font-medium cursor-pointer"
       />
 
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">
         Edit User: {data.fullname ?? ""} ({data.staffid ?? ""})
       </h2>
 
@@ -99,7 +101,7 @@ function UserForm({
             onChange={handleChange}
             placeholder="Full Name"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
@@ -117,7 +119,7 @@ function UserForm({
             onChange={handleChange}
             placeholder="Email"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
@@ -135,7 +137,7 @@ function UserForm({
             onChange={handleChange}
             placeholder="Staff Id"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
         <div className={styleLink}>
@@ -236,7 +238,7 @@ function UserForm({
             onChange={handleChange}
             placeholder="Designation"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
         <div className={styleLink}>
@@ -260,7 +262,7 @@ function UserForm({
           <PrimaryButton
             name="Save Changes"
             type="submit"
-            className="bg-indigo-600 max-w-3xs flex text-sm cursor-pointer text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+            className="bg-indigo-800 max-w-3xs flex text-xs cursor-pointer text-white px-4 py-2 rounded-md hover:bg-indigo-700"
           />
         </div>
       </form>

@@ -1,7 +1,15 @@
 "use client";
 
-import BannerCard from "../ui/BannerCard";
+import { fullUserInfo, SelfForm, UserType } from "@/app/types/types";
 import Tabs, { TabItem } from "../ui/Tabs";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import PendingContent from "./pendingComponent/PendingContent";
+import SubmissionContent from "./submissionComponent/SubmissionContent";
+import HistoryContent from "./historyComponent/HistoryContent";
+import ViewSubmission, {
+  SelfFormData,
+} from "./submissionComponent/ViewSubmission";
 
 interface User {
   fullname: string;
@@ -10,56 +18,175 @@ interface User {
 interface FormType {
   name: string;
 }
-
 interface Submission {
+  id: number;
   createdBy: User;
   formType: FormType;
+  formData: Record<string, any> | null; // ✅ for JSON fields
   createdAt: string | Date;
 }
 
-interface Approval {
+export interface Approval {
   id: number;
   remarks?: string | null;
   currentLevel: number;
   totalLevel: number;
   activeLevel: number;
   submission: Submission;
+  approverId: number;
+  status: string;
+  approver?: {
+    email: string;
+    fullname: string;
+    id: number;
+    staffid: string;
+  };
+  approvedAt?: Date | null;
 }
 
 interface ApprovalComponentProps {
   pendingApprovals: Approval[];
+  selfForms: SelfForm[];
+  user: UserType;
 }
 
 export default function ApprovalComponent({
   pendingApprovals,
+  selfForms,
+  user,
 }: ApprovalComponentProps) {
-  const pendingContent =
-    pendingApprovals.length > 0 ? (
-      <div className="flex flex-col gap-4">
-        {pendingApprovals.map((approval) => {
-          const submission = approval.submission;
-          return (
-            <BannerCard
-              key={approval.id}
-              profileImg={""}
-              title={submission.formType.name}
-              name={submission.createdBy.fullname}
-              createddate={new Date(submission.createdAt).toLocaleDateString()}
-              remarks={approval.remarks || "No remarks yet"}
-              currentLevel={approval.currentLevel}
-              totalLevel={approval.totalLevel}
-              activeLevel={approval.activeLevel}
-            />
-          );
-        })}
-      </div>
-    ) : (
-      <p className="text-gray-600">No pending approvals found.</p>
+  const [approvals, setApprovals] = useState(pendingApprovals);
+  const [forms, setForms] = useState(selfForms);
+  const [isViewing, setIsViewing] = useState(false);
+  const [viewedFormData, setViewedFormData] = useState<SelfFormData | null>(
+    null
+  );
+  const [approvalData, setApprovalData] = useState<fullUserInfo>();
+
+  const refreshData = async () => {
+    const res = await axios.get("/api/approval-form/fetch");
+    console.log("res.data: ", res.data);
+    if (res.data) {
+      setApprovals(res.data.pendingApprovals);
+      setForms(
+        res.data.selfForms.map((form: SelfForm) => ({
+          ...form,
+          approvals: form.approvals || [], // make sure approvals are included
+        }))
+      );
+    }
+  };
+
+  useEffect(() => {
+    refreshData();
+  }, []);
+
+  const formsWithLevels = forms.map((form) => {
+    const approvals = form.approvals || []; // make sure approvals are included in your fetch
+    const totalLevel = approvals.length;
+
+    type ApprovalStep = NonNullable<SelfForm["approvals"]>[number];
+    // Find the current active approval (lowest stepOrder still pending)
+    const activeApproval = approvals.find(
+      (a: ApprovalStep) => a.status === "PENDING"
     );
+    const activeLevel = activeApproval ? activeApproval.stepOrder : totalLevel;
+
+    return {
+      ...form,
+      totalLevel,
+      currentLevel: activeLevel || 0, // show current level
+      activeLevel,
+    };
+  });
+
+  // Only user’s own PENDING forms
+  const userPendingForms = formsWithLevels.filter(
+    (form) => form.status === "PENDING"
+  );
+
+  const userFormsHistory = formsWithLevels.filter(
+    (form) => form.status === "APPROVED" || form.status === "REJECTED"
+  );
+
+  const approvalsHistory = approvals.filter(
+    (approval) =>
+      approval.status === "APPROVED" || approval.status === "REJECTED"
+  );
+
+  const handleViewForm = async (formId: number) => {
+    setIsViewing(true);
+    try {
+      const [formRes, approvalRes] = await Promise.all([
+        axios.get(`/api/form/${formId}`),
+        axios.get(`/api/get-approval/${formId}`),
+      ]);
+
+      const formData = formRes.data;
+      const approvalsWithNames = approvalRes.data.approvals;
+      console.log("approvalsssss: ", approvalRes);
+
+      console.log("Form data:", formData);
+      console.log("Approvals with names:", approvalsWithNames);
+
+      setViewedFormData({
+        ...formData,
+        approvals: approvalsWithNames,
+      });
+    } catch (error) {
+      console.error("Error fetching form details:", error);
+    }
+  };
+
+  const handleBack = () => {
+    setIsViewing(false);
+    setViewedFormData(null);
+  };
+
+  if (isViewing && viewedFormData) {
+    return (
+      <ViewSubmission
+        selfForm={viewedFormData}
+        onBack={handleBack}
+        onActionComplete={refreshData}
+      />
+    );
+  }
 
   const categories: TabItem[] = [
-    { name: "Pending", content: pendingContent },
-    { name: "History", content: <p>History goes here</p> },
+    {
+      name: "Pending",
+      content: (
+        <PendingContent
+          approvals={approvals}
+          userPendingForms={userPendingForms}
+          user={user}
+          onActionComplete={refreshData}
+          onViewForm={handleViewForm}
+        />
+      ),
+    },
+    {
+      name: "Submissions",
+      content: (
+        <SubmissionContent
+          formsWithLevels={formsWithLevels}
+          user={user}
+          onViewForm={handleViewForm}
+        />
+      ),
+    },
+    {
+      name: "History",
+      content: (
+        <HistoryContent
+          approvalsHistory={approvalsHistory}
+          userFormsHistory={userFormsHistory}
+          user={user}
+          onViewForm={handleViewForm}
+        />
+      ),
+    },
   ];
 
   return (

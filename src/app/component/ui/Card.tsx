@@ -20,7 +20,7 @@ export default function Card({
   return (
     <div
       onClick={onClick}
-      className="group w-full bg-white border border-gray-200 rounded-xl p-5 py-6 shadow-xs hover:scale-105 cursor-pointer ease-in-out duration-300 transition-all hover:shadow-lg"
+      className="group w-full bg-white border border-gray-300 rounded-xl p-5 py-6 shadow-xs hover:scale-105 cursor-pointer ease-in-out duration-300 transition-all hover:shadow-lg"
     >
       <FiUserPlus className="w-12 h-12 rounded-xl bg-purple-200 text-indigo-800 p-3 group-hover:scale-105 ease-in-out duration-300 transition-all" />
 

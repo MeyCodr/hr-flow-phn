@@ -60,7 +60,7 @@ export default function Navbar({
           whileHover={{ scale: 1.05, backgroundColor: "#ffffff20" }}
           className="flex items-center gap-2 cursor-pointer p-1 rounded transition-colors"
         >
-          <span className="hidden sm:inline">Account</span>
+          <span className="hidden sm:inline text-sm">Account</span>
           <FaUserCircle className="text-2xl text-gray-300 hover:text-white transition-colors" />
         </motion.div>
 
