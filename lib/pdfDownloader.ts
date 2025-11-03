@@ -1,11 +1,11 @@
-import { ManPowerTypes } from "@/app/types/types";
+import { ApprovalUser, ManPowerTypes } from "@/app/types/types";
+import { Prisma } from "@prisma/client";
 import jsPDF from "jspdf";
 import autoTable, { RowInput } from "jspdf-autotable";
 
-
-
 export interface FormPDFData {
-  formData: ManPowerTypes;
+  // formData: ManPowerTypes;
+    formData: Prisma.JsonValue | null;
   departmentName: string;
   divisionName: string;
   sectionName: string;
@@ -14,6 +14,7 @@ export interface FormPDFData {
     staffid: string;
     email: string;
   };
+  approvals: ApprovalUser[];
 }
 
 const logoUrl = "/company-logo-phn.png";
@@ -29,8 +30,40 @@ const loadImage = async (url: string): Promise<string> => {
 };
 
 export const downloadFormPDF = async (data: FormPDFData) => {
-  const { formData, departmentName, divisionName, sectionName, createdBy } =
-    data;
+  const {
+    formData,
+    departmentName,
+    divisionName,
+    sectionName,
+    createdBy,
+    approvals,
+  } = data;
+  console.log("approvals pdf: ", approvals);
+  console.log("department: ", departmentName);
+  console.log("division: ", divisionName);
+  console.log("section: ", sectionName);
+
+  // Initialize an array of empty strings for 5 columns
+  const approverNames: string[] = new Array(5).fill("");
+
+  // Fill approverNames based on stepOrder
+  approvals.forEach((a) => {
+    const index = a.stepOrder - 1; // stepOrder starts at 1
+    if (index >= 0 && index < 5) {
+      approverNames[index] = a.approver?.name || "-";
+    }
+  });
+
+  // Similarly for dates
+  const approverDates: string[] = new Array(5).fill("");
+  approvals.forEach((a) => {
+    const index = a.stepOrder - 1;
+    if (index >= 0 && index < 5) {
+      approverDates[index] = a.approvedAt
+        ? new Date(a.approvedAt).toLocaleDateString("en-GB")
+        : "";
+    }
+  });
 
   const logoBase64 = await loadImage(logoUrl);
   const doc = new jsPDF();
@@ -53,60 +86,62 @@ export const downloadFormPDF = async (data: FormPDFData) => {
 
   doc.setFontSize(10);
 
+  const parsedFormData = formData as unknown as ManPowerTypes | null;
+
+
   // Define table rows properly
   const tableData: RowInput[] = [
     [
       "Date of Submission",
-      formData.createddate || "-",
+      parsedFormData?.createddate || "-",
       "Work Location",
-      formData.workLocation || "-",
+      parsedFormData?.workLocation || "-",
     ],
     [
       "Division",
       divisionName || "-",
       "Workstation Availability",
-      formData.workStation || "-",
+      parsedFormData?.workStation || "-",
     ],
     [
       "Department",
       departmentName || "-",
       "Employment Type",
-      formData.employmentType || "-",
+      parsedFormData?.employmentType || "-",
     ],
     [
       "Section",
       sectionName || "-",
       "Manpower Plan",
-      formData.manpowerPlan || "-",
+      parsedFormData?.manpowerPlan || "-",
     ],
     [
       "Designation",
-      formData.designation || "-",
+      parsedFormData?.designation || "-",
       "Approved AMP",
-      formData.approvedAmp || "-",
+      parsedFormData?.approvedAmp || "-",
     ],
     [
       "Reporting To",
-      formData.reportingTo || "-",
+      parsedFormData?.reportingTo || "-",
       "Category",
-      formData.category?.name || "-",
+      parsedFormData?.category?.name || "-",
     ],
     [
       "No Requested",
-      formData.noRequested || "-",
+      parsedFormData?.noRequested || "-",
       "Employment Type",
-      formData.employmentType || "-",
+      parsedFormData?.employmentType || "-",
     ],
     [
       {
         content: "Current Headcount vs Approved Requirement",
-        colSpan: 2,
+        colSpan: 3,
         styles: { fontStyle: "bold" },
       },
       {
         content:
-          `${formData.currentHeadCount}/${formData.approvedRequirement}` || "-",
-        colSpan: 2,
+          `${parsedFormData?.currentHeadCount}/${parsedFormData?.approvedRequirement}` || "-",
       },
     ],
     [
@@ -117,7 +152,13 @@ export const downloadFormPDF = async (data: FormPDFData) => {
         styles: { fontStyle: "bold" },
       },
     ],
-    [{ content: `${formData.keyRequirement}` || "-", colSpan: 4 }],
+    [
+      {
+        content: `${parsedFormData?.keyRequirement}` || "-",
+        colSpan: 4,
+        styles: { fontStyle: "normal" },
+      },
+    ],
     [
       {
         content:
@@ -126,7 +167,13 @@ export const downloadFormPDF = async (data: FormPDFData) => {
         styles: { fontStyle: "bold" },
       },
     ],
-    [{ content: `${formData.keyResponsibilities}` || "-", colSpan: 4 }],
+    [
+      {
+        content: `${parsedFormData?.keyResponsibilities}` || "-",
+        colSpan: 4,
+        styles: { fontStyle: "normal" },
+      },
+    ],
     [
       {
         content: "3) Reason of Requisition (Please tick (/) where applicable)",
@@ -137,14 +184,14 @@ export const downloadFormPDF = async (data: FormPDFData) => {
     [
       {
         content:
-          formData.selectedOption === "replacement"
+          parsedFormData?.selectedOption === "replacement"
             ? "[X] Replacement (Please provide copy of resignation details for replacement hiring)"
             : "[ ] Replacement (Please provide copy of resignation details for replacement hiring)",
         colSpan: 2,
       },
       {
         content:
-          formData.selectedOption === "additional"
+          parsedFormData?.selectedOption === "additional"
             ? "[X] Additional (Please provide justification for additional manpower request)"
             : "[ ] Additional (Please provide justification for additional manpower request)",
         colSpan: 2,
@@ -152,29 +199,29 @@ export const downloadFormPDF = async (data: FormPDFData) => {
     ],
     [
       "Incumbent Name",
-      `${formData.incumbentName}` || "-",
+      `${parsedFormData?.incumbentName}` || "-",
       "Production Volume Increase (Item)",
-      `${formData.productionVolumeIncrease}` || "-",
+      `${parsedFormData?.productionVolumeIncrease}` || "-",
     ],
     [
       "Last Working Day",
-      `${formData.lastWorkingDay}` || "-",
+      `${parsedFormData?.lastWorkingDay}` || "-",
       "New Project",
-      `${formData.newProject}` || "-",
+      `${parsedFormData?.newProject}` || "-",
     ],
     [
       { content: "", colSpan: 2, rowSpan: 2 },
       "Machine Faulty",
-      `${formData.machineFaulty}` || "-",
+      `${parsedFormData?.machineFaulty}` || "-",
     ],
-    ["Other", `${formData.other}` || "-"],
+    ["Other", `${parsedFormData?.other}` || "-"],
   ];
 
   autoTable(doc, {
     startY: 40,
     body: tableData,
     theme: "grid",
-    styles: { fontSize: 9, cellPadding: 3 },
+    styles: { fontSize: 7, cellPadding: 3 },
     columnStyles: {
       0: { fontStyle: "bold" },
       2: { fontStyle: "bold" },
@@ -195,6 +242,7 @@ export const downloadFormPDF = async (data: FormPDFData) => {
       "Verified by:",
       "Approved by:",
     ],
+    approverNames,
     [
       "Head Section/Department",
       "Head Division",
@@ -202,13 +250,7 @@ export const downloadFormPDF = async (data: FormPDFData) => {
       "Head Human Capital & ESG/Culture & Talent Management",
       "Chief Executive Officer",
     ],
-    [
-      `Date: ${formData.dateRequested || ""}`,
-      `Date: ${formData.dateRecommended || ""}`,
-      `Date: ${formData.dateReviewed || ""}`,
-      `Date: ${formData.dateVerified || ""}`,
-      `Date: ${formData.approvedby || ""}`,
-    ],
+    approverDates.map((d) => `Date: ${d}`),
   ];
 
   const pageWidth1 = doc.internal.pageSize.getWidth();
@@ -220,7 +262,7 @@ export const downloadFormPDF = async (data: FormPDFData) => {
     startY: finalY,
     body: approveData,
     theme: "grid",
-    styles: { fontSize: 9, cellPadding: 3, halign: "center", valign: "middle" },
+    styles: { fontSize: 7, cellPadding: 3, halign: "center", valign: "middle" },
     columnStyles: {
       0: { cellWidth: colWidth },
       1: { cellWidth: colWidth },
@@ -231,7 +273,7 @@ export const downloadFormPDF = async (data: FormPDFData) => {
     didParseCell: (data) => {
       if (data.row.index === 1) {
         data.cell.styles.minCellHeight = 30;
-        data.cell.styles.valign = "bottom";
+        data.cell.styles.valign = "middle";
       }
     },
   });

@@ -12,6 +12,7 @@ import axios from "axios";
 import { fullUserInfo } from "@/app/types/types";
 import LoadingScreen from "../ui/LoadingScreen";
 import toast, { Toaster } from "react-hot-toast";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 
 function FormInfo({
   divisions,
@@ -36,6 +37,7 @@ function FormInfo({
   });
   const [userInfo, setUserInfo] = useState<fullUserInfo>();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -161,7 +163,7 @@ function FormInfo({
               id="staffid"
               name="staffid"
               type="text"
-              value={data.staffid}
+              value={data.staffid.toUpperCase()}
               onChange={handleChange}
               placeholder="Staff ID"
               disabled
@@ -198,7 +200,7 @@ function FormInfo({
               id="fullname"
               name="fullname"
               type="text"
-              value={data.fullname}
+              value={data.fullname.toUpperCase()}
               onChange={handleChange}
               placeholder="Full Name"
               className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -206,7 +208,7 @@ function FormInfo({
           </div>
 
           {/* Password */}
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-2 relative">
             <Label
               name="Password"
               htmlFor="password"
@@ -215,12 +217,23 @@ function FormInfo({
             <Input
               id="password"
               name="password"
-              type="password"
+              type={showPassword ? `text` : "password"}
               value={data.password}
               onChange={handleChange}
               placeholder="Password"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-md py-2 pl-3 pr-10 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+            >
+              {showPassword ? (
+                <IoEyeOffOutline size={18} />
+              ) : (
+                <IoEyeOutline size={18} />
+              )}
+            </button>
           </div>
 
           {/* Designation */}
@@ -234,7 +247,7 @@ function FormInfo({
               id="designation"
               name="designation"
               type="text"
-              value={data.designation}
+              value={data.designation.toUpperCase()}
               onChange={handleChange}
               placeholder="Designation"
               className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"

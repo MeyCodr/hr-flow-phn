@@ -1,25 +1,26 @@
 "use client";
 
-import { SelfForm, UserType } from "@/app/types/types";
+import { SelfForm, SelfFormData, UserType } from "@/app/types/types";
 import Tabs, { TabItem } from "../ui/Tabs";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PendingContent from "./pendingComponent/PendingContent";
 import SubmissionContent from "./submissionComponent/SubmissionContent";
 import HistoryContent from "./historyComponent/HistoryContent";
-import ViewSubmission, {
-  SelfFormData,
-} from "./submissionComponent/ViewSubmission";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import ViewSubmission from "../form/ViewSubmission";
 
 interface User {
   fullname: string;
+  staffid: string;
+  attachment?: string | null;
 }
 
 interface FormType {
   name: string;
 }
-interface Submission {
+export interface Submission {
   id: number;
   createdBy: User;
   formType: FormType;
@@ -33,9 +34,9 @@ export interface Approval {
   currentLevel: number;
   totalLevel: number;
   activeLevel: number;
-  submission: Submission;
   approverId: number;
   status: string;
+  submission?: Submission;
   approver?: {
     email: string;
     fullname: string;
@@ -43,6 +44,7 @@ export interface Approval {
     staffid: string;
   };
   approvedAt?: Date | null;
+  attachment?: string | null;
 }
 
 interface ApprovalComponentProps {
@@ -68,23 +70,28 @@ export default function ApprovalComponent({
 
   useEffect(() => {
     const id = searchParams.get("id");
-
     if (!id && pathname === "/dashboard/approval") {
-      // Reset when no query params present (sidebar click)
       setIsViewing(false);
       setViewedFormData(null);
     }
   }, [pathname, searchParams]);
 
+  useEffect(() => {
+    const id = searchParams.get("id");
+    const name = searchParams.get("name");
+    if (id && name && (!viewedFormData || viewedFormData.id !== Number(id))) {
+      handleViewForm(Number(id), name);
+    }
+  }, [searchParams]);
+
   const refreshData = async () => {
     const res = await axios.get("/api/approval-form/fetch");
-    console.log("res.data: ", res.data);
     if (res.data) {
       setApprovals(res.data.pendingApprovals);
       setForms(
         res.data.selfForms.map((form: SelfForm) => ({
           ...form,
-          approvals: form.approvals || [], // make sure approvals are included
+          approvals: form.approvals || [],
         }))
       );
     }
@@ -94,39 +101,6 @@ export default function ApprovalComponent({
     refreshData();
   }, []);
 
-  const formsWithLevels = forms.map((form) => {
-    const approvals = form.approvals || []; // make sure approvals are included in your fetch
-    const totalLevel = approvals.length;
-
-    type ApprovalStep = NonNullable<SelfForm["approvals"]>[number];
-    // Find the current active approval (lowest stepOrder still pending)
-    const activeApproval = approvals.find(
-      (a: ApprovalStep) => a.status === "PENDING"
-    );
-    const activeLevel = activeApproval ? activeApproval.stepOrder : totalLevel;
-
-    return {
-      ...form,
-      totalLevel,
-      currentLevel: activeLevel || 0, // show current level
-      activeLevel,
-    };
-  });
-
-  // Only user’s own PENDING forms
-  const userPendingForms = formsWithLevels.filter(
-    (form) => form.status === "PENDING"
-  );
-
-  const userFormsHistory = formsWithLevels.filter(
-    (form) => form.status === "APPROVED" || form.status === "REJECTED"
-  );
-
-  const approvalsHistory = approvals.filter(
-    (approval) =>
-      approval.status === "APPROVED" || approval.status === "REJECTED"
-  );
-
   const handleViewForm = async (formId: number, formName: string) => {
     setIsViewing(true);
     try {
@@ -134,21 +108,14 @@ export default function ApprovalComponent({
         axios.get(`/api/form/${formId}`),
         axios.get(`/api/get-approval/${formId}`),
       ]);
-
       const formData = formRes.data;
       const approvalsWithNames = approvalRes.data.approvals;
-      console.log("approvalsssss: ", approvalRes);
 
-      console.log("Form data:", formData);
-      console.log("Approvals with names:", approvalsWithNames);
       router.replace(`/dashboard/approval?id=${formId}&name=${formName}`);
 
-      setViewedFormData({
-        ...formData,
-        approvals: approvalsWithNames,
-      });
+      setViewedFormData({ ...formData, approvals: approvalsWithNames });
     } catch (error) {
-      console.error("Error fetching form details:", error);
+      console.error(error);
     }
   };
 
@@ -158,15 +125,40 @@ export default function ApprovalComponent({
     router.push(`/dashboard/approval`);
   };
 
-  if (isViewing && viewedFormData) {
-    return (
-      <ViewSubmission
-        selfForm={viewedFormData}
-        onBack={handleBack}
-        onActionComplete={refreshData}
-      />
-    );
-  }
+  const contentVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
+  };
+
+  const formVariants: Variants = {
+    hidden: { opacity: 0, x: 50 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+    exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: "easeIn" } },
+  };
+
+  // Process forms with levels
+  const formsWithLevels = forms.map((form) => {
+    const approvalsList = form.approvals || [];
+    const totalLevel = approvalsList.length;
+    const activeApproval = approvalsList.find((a) => a.status === "PENDING");
+    const activeLevel = activeApproval ? activeApproval.stepOrder : totalLevel;
+    return { ...form, totalLevel, currentLevel: activeLevel || 0, activeLevel };
+  });
+
+  const userPendingForms = formsWithLevels.filter(
+    (f) => f.status === "PENDING"
+  );
+  const userFormsHistory = formsWithLevels.filter(
+    (f) => f.status === "APPROVED" || f.status === "REJECTED"
+  );
+  const approvalsHistory = approvals.filter(
+    (a) => a.status === "APPROVED" || a.status === "REJECTED"
+  );
 
   const categories: TabItem[] = [
     {
@@ -205,10 +197,36 @@ export default function ApprovalComponent({
   ];
 
   return (
-    <div className="flex my-6">
-      <div className="w-full max-w-6xl">
-        <Tabs tabs={categories} />
-      </div>
+    <div className="flex my-6 w-full max-w-6xl">
+      <AnimatePresence mode="wait">
+        {isViewing && viewedFormData ? (
+          <motion.div
+            key="viewing"
+            variants={formVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="w-full"
+          >
+            <ViewSubmission
+              selfForm={viewedFormData}
+              onBack={handleBack}
+              onActionComplete={refreshData}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="tabs"
+            variants={contentVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="w-full"
+          >
+            <Tabs tabs={categories} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

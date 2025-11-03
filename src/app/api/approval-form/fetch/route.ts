@@ -25,7 +25,7 @@ export async function GET() {
       include: {
         submission: {
           include: {
-            createdBy: { select: { fullname: true } },
+            createdBy: true,
             formType: { select: { name: true } },
             approvals: { orderBy: { stepOrder: "asc" } },
           },

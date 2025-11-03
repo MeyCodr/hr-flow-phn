@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import PrimaryButton from "../ui/PrimaryButton";
+import PrimaryButton from "../../ui/PrimaryButton";
 import { IoReturnDownBack } from "react-icons/io5";
-import Label from "../ui/Label";
-import { Input } from "../ui/Input";
-import ComboBox from "../ui/ComboBox";
+import Label from "../../ui/Label";
+import { Input } from "../../ui/Input";
+import ComboBox from "../../ui/ComboBox";
 import { Department, Division, FormType, Section } from "@/app/types/types";
-import { roles } from "../../../../lib/data";
+import { roles } from "../../../../../lib/data";
 import { Role } from "@prisma/client";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";

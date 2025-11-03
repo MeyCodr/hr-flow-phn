@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import PrimaryButton from "../ui/PrimaryButton";
+import PrimaryButton from "../../ui/PrimaryButton";
 import { IoReturnDownBack } from "react-icons/io5";
-import Label from "../ui/Label";
-import { Input } from "../ui/Input";
+import Label from "../../ui/Label";
+import { Input } from "../../ui/Input";
 import axios from "axios";
 import { FormType } from "@prisma/client";
 import toast, { Toaster } from "react-hot-toast";

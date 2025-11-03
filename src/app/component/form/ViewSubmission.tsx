@@ -1,54 +1,35 @@
 import React, { useEffect, useState } from "react";
-import PrimaryButton from "../../ui/PrimaryButton";
+
 import { IoReturnDownBack } from "react-icons/io5";
-import ManPowerRequisitionView from "../../form/hr-form/view/ManPowerRequisitionView";
+
 import {
+  ApprovalUser,
   Department,
   Division,
   fullUserInfo,
-  ManPowerTypes,
   Section,
+  SelfFormData,
   User,
 } from "@/app/types/types";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { Approval } from "../ApprovalComponent";
-import ActionModal from "../../ui/ActionModal";
-import Label from "../../ui/Label";
-import { TextArea } from "../../ui/TextArea";
-import { downloadFormPDF } from "../../../../../lib/pdfDownloader";
-import { MdOutlineFileDownload } from "react-icons/md";
-import LoadingScreen from "../../ui/LoadingScreen";
 
-export interface SelfFormData {
-  id: number;
-  formType: {
-    name: string;
-  };
-  approvals: Approval[];
-  createdBy: {
-    staffid: string;
-    email: string;
-    fullname: string;
-  };
-  departmentName: string;
-  divisionName: string;
-  sectionName: string;
-  formData: ManPowerTypes;
-  createdAt: string | Date;
-  status: string;
-  attachments: {
-    fileName: string;
-    filePath: string;
-    fileType: string;
-    formSubmissionId: number;
-    id: number;
-    uploadedAt: Date;
-  }[];
-}
+import { Prisma } from "@prisma/client";
+import { Approval } from "../approval/ApprovalComponent";
+import { getFormRemarks } from "../../../../lib/utils";
+import LoadingScreen from "../ui/LoadingScreen";
+import PrimaryButton from "../ui/PrimaryButton";
+import { downloadFormPDF } from "../../../../lib/pdfDownloader";
+import { MdOutlineFileDownload } from "react-icons/md";
+import ManPowerRequisitionView from "./hr-form/view/ManPowerRequisitionView";
+import ActionModal from "../ui/ActionModal";
+import Label from "../ui/Label";
+import { TextArea } from "../ui/TextArea";
+
+
 
 interface ViewSubmissionProps {
-  onBack: () => void;
+  onBack?: () => void;
   selfForm: SelfFormData;
   onActionComplete?: () => void;
 }
@@ -159,12 +140,13 @@ export default function ViewSubmission({
 
   const performApproval = async () => {
     if (!actionType) return;
+    const remarks = selfForm.formData;
     setLoading(true);
     try {
       await axios.post("/api/approval-form/action", {
         approvalId: nextApproval?.id,
         action: actionType,
-        remarks: selfForm.formData.remarks,
+        remarks: getFormRemarks(remarks),
       });
       if (onActionComplete) await onActionComplete();
       if (onBack) await onBack();
@@ -178,6 +160,25 @@ export default function ViewSubmission({
       setActionType(null);
     }
   };
+
+  const mappedApprovals: ApprovalUser[] = selfForm.approvals.map(
+    (a, index) => ({
+      id: a.id,
+      submissionId: selfForm.id,
+      approverId: a.approverId,
+      status: a.status as "PENDING" | "APPROVED" | "REJECTED" | "WAITING",
+      stepOrder: index + 1, // or use real stepOrder if available
+      remarks: a.remarks || null,
+      approvedAt: a.approvedAt || null,
+      approver: a.approver
+        ? {
+            staffid: a.approver.staffid,
+            email: a.approver.email,
+            name: a.approver.fullname,
+          }
+        : undefined,
+    })
+  );
 
   if (!selfForm) {
     return (
@@ -217,10 +218,11 @@ export default function ViewSubmission({
             onClick={() =>
               downloadFormPDF({
                 formData: selfForm.formData,
-                departmentName: selfForm.departmentName,
-                divisionName: selfForm.divisionName,
-                sectionName: selfForm.sectionName,
+                departmentName: selfForm.departmentName ?? "",
+                divisionName: selfForm.divisionName ?? "",
+                sectionName: selfForm.sectionName ?? "",
                 createdBy: selfForm.createdBy,
+                approvals: mappedApprovals,
               })
             }
             className="bg-purple-700 text-white px-3 py-2 text-xs rounded-sm hover:bg-purple-900 cursor-pointer duration-200 transition-all ease-in-out"

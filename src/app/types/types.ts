@@ -1,4 +1,6 @@
+import { Prisma } from "@prisma/client";
 import { DateValueType } from "../component/ui/DatePicker";
+import { Approval } from "../component/approval/ApprovalComponent";
 
 export interface Division {
   id: number;
@@ -85,7 +87,7 @@ export interface UserInfo {
   role: string;
   sectionId: number;
   workLocation: string;
-  designation?: string
+  designation?: string;
 }
 
 export interface fullUserInfo {
@@ -119,6 +121,7 @@ export interface UserType {
   designation?: string | null;
   workLocation?: string | null;
   role: string;
+  attachment?: string | null;
 }
 
 export interface FormData {
@@ -149,5 +152,65 @@ export interface SelfForm {
     stepOrder: number;
     status: string;
     remarks?: string | null;
+  }[];
+}
+
+export interface ApprovalUser {
+  id: number;
+  submissionId: number;
+  approverId: number;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "WAITING";
+  remarks?: string | null;
+  approvedAt?: string | Date | null;
+  stepOrder: number;
+  approver?: User;
+}
+
+export interface FormSubmissionType {
+  id: number;
+  formTypeId: number;
+  formType: FormType;
+  createdBy: UserType;
+  status: string;
+  formData: Prisma.JsonValue | null;
+  // attachments?: string | null;
+  approvals: Approval[];
+  createdAt: string | Date;
+  attachments: {
+    fileName: string;
+    filePath: string;
+    fileType: string;
+    formSubmissionId: number;
+    id: number;
+    uploadedAt: Date;
+  }[];
+}
+
+
+export interface SelfFormData {
+  id: number;
+  formType: {
+    name: string;
+  };
+  approvals: Approval[];
+  createdBy: {
+    staffid: string;
+    email: string;
+    fullname: string;
+  };
+  departmentName?: string;
+  divisionName?: string;
+  sectionName?: string;
+  // formData: ManPowerTypes;
+  formData: Prisma.JsonValue | null;
+  createdAt: string | Date;
+  status: string;
+  attachments: {
+    fileName: string;
+    filePath: string;
+    fileType: string;
+    formSubmissionId: number;
+    id: number;
+    uploadedAt: Date;
   }[];
 }

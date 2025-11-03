@@ -19,6 +19,7 @@ model User {
   workLocation String?
   role         Role     @default(STAFF)
   password     String
+  attachment   String?  // ✅ Profile picture (file path or URL)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

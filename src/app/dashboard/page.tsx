@@ -27,5 +27,5 @@ export default async function DashboardPage() {
 
   console.log("Pending Forms Count:", countPendingForms);
 
-  return <DashboardComponent countPendingForms={countPendingForms} countApprovedForms={countApprovedForms} totalForms={totalForms} totalMembers={totalMembers}/>;
+  return <DashboardComponent countPendingForms={countPendingForms} countApprovedForms={countApprovedForms} totalForms={totalForms} totalMembers={totalMembers} userSession={session}/>;
 }

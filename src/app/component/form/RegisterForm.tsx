@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Department, Division, Section } from "@/app/types/types";
 import ComboBox from "../ui/ComboBox";
 import { workLocation } from "../../../../lib/data";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 
 export interface RegisterUser {
   designation: string;
@@ -55,6 +56,7 @@ function RegisterForm({
     section: "",
     workLocation: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -161,10 +163,10 @@ function RegisterForm({
                     id="staffid"
                     name="staffid"
                     type="text"
-                    value={data.staffid}
+                    value={data.staffid.toUpperCase()}
                     onChange={handleChange}
                     placeholder="Staff ID"
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -182,7 +184,7 @@ function RegisterForm({
                     value={data.email}
                     onChange={handleChange}
                     placeholder="@phn.com.my"
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -197,15 +199,15 @@ function RegisterForm({
                     id="fullname"
                     name="fullname"
                     type="text"
-                    value={data.fullname}
+                    value={data.fullname.toUpperCase()}
                     onChange={handleChange}
                     placeholder="Full Name"
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
                 {/* Password */}
-                <div className="flex flex-col space-y-2">
+                <div className="flex flex-col space-y-2 relative">
                   <Label
                     name="Password"
                     htmlFor="password"
@@ -214,12 +216,23 @@ function RegisterForm({
                   <Input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={data.password}
                     onChange={handleChange}
                     placeholder="Password"
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <IoEyeOffOutline size={18} />
+                    ) : (
+                      <IoEyeOutline size={18} />
+                    )}
+                  </button>
                 </div>
 
                 {/* Designation */}
@@ -233,10 +246,10 @@ function RegisterForm({
                     id="designation"
                     name="designation"
                     type="text"
-                    value={data.designation}
+                    value={data.designation.toUpperCase()}
                     onChange={handleChange}
                     placeholder="Designation"
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -323,7 +336,7 @@ function RegisterForm({
               <PrimaryButton
                 name="Sign up"
                 type="submit"
-                className="border w-full py-2 bg-indigo-800 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer"
+                className="border w-full py-2 text-sm bg-indigo-800 text-white rounded-sm hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer"
               />
             </form>
 

@@ -3,6 +3,8 @@ import { prisma } from "../../../../../lib/prisma";
 import { hash } from "bcrypt";
 import { getToken } from "next-auth/jwt";
 import { User } from "@prisma/client";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
 
 export async function GET(
   req: NextRequest,
@@ -129,6 +131,50 @@ export async function PUT(
     );
   } catch (error) {
     console.error(error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
+  }
+}
+
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ staffid: string }> }
+) {
+  try {
+    const { staffid } = await context.params;
+
+    // Read the form data (for file uploads)
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
+
+    if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
+
+    // Save file to /public/uploads/profile/
+    const uploadDir = path.join(process.cwd(), "public", "uploads", "profile");
+    await mkdir(uploadDir, { recursive: true });
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const fileName = `${staffid}_${Date.now()}_${file.name}`;
+    const filePath = path.join(uploadDir, fileName);
+
+    await writeFile(filePath, buffer);
+
+    // Save relative path in DB
+    const dbPath = `/uploads/profile/${fileName}`;
+
+    await prisma.user.update({
+      where: { staffid }, // ✅ staffid is a string now
+      data: { attachment: dbPath },
+    });
+
+    return NextResponse.json({
+      message: "Profile image uploaded successfully",
+      path: dbPath,
+    });
+  } catch (error) {
+    console.error("Upload error:", error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }

@@ -28,6 +28,8 @@ export default function PendingContent({
     (approval) => approval.status === "PENDING"
   );
 
+  console.log("user data: ", user);
+
   const pendingItems: PendingItem[] = [
     ...pendingApprovals.map((approval) => ({
       type: "approval" as const,
@@ -43,11 +45,13 @@ export default function PendingContent({
   return (
     <PaginatedList
       items={pendingItems}
-      pageSize={5}
+      pageSize={10}
       renderItem={(item) => {
+        console.log("item: ", item);
         if (item.type === "approval") {
           const approval = item.data;
           const submission = approval.submission;
+          console.log("submissino: ", submission);
           const remarks =
             (submission.formData as { remarks?: string } | null)?.remarks ||
             "No remarks yet";
@@ -56,7 +60,7 @@ export default function PendingContent({
             <BannerCard
               key={`approval-${approval.id}`}
               approvalId={approval.id}
-              profileImg={""}
+              profileImg={submission.createdBy.attachment || ""}
               title={submission.formType.name}
               name={submission.createdBy.fullname}
               createddate={new Date(submission.createdAt).toLocaleDateString()}
@@ -74,11 +78,11 @@ export default function PendingContent({
           );
         } else {
           const form = item.data;
-
+            console.log("form under:", form);
           return (
             <BannerCard
               key={`form-${form.id}`}
-              profileImg={""}
+              profileImg={user.attachment || ""}
               title={form.formType.name}
               name={"You"}
               createddate={new Date(form.createdAt).toLocaleDateString()}

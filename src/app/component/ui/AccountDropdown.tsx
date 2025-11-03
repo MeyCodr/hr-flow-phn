@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { FaUser, FaCog, FaSignOutAlt } from "react-icons/fa";
+import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
 import LoadingScreen from "./LoadingScreen";
@@ -66,9 +66,9 @@ export default function AccountDropdown({
           <button className={buttonLink} onClick={() => handleTab("profile")}>
             <FaUser /> Profile
           </button>
-          <button className={buttonLink} onClick={() => handleTab("setting")}>
+          {/* <button className={buttonLink} onClick={() => handleTab("setting")}>
             <FaCog /> Settings
-          </button>
+          </button> */}
           <button
             className={`${buttonLink} border-t border-gray-300 text-red-500`}
             onClick={handleSignOut}

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{subject}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      /* Reset styles for better cross-client consistency */
+      body, table, td, p {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      img {
+        border: 0;
+        outline: none;
+        text-decoration: none;
+      }
+
+      table {
+        border-collapse: collapse;
+      }
+
+      /* Container styles */
+      .email-wrapper {
+        width: 100%;
+        background-color: #f8f9fa;
+        padding: 20px 0;
+      }
+
+      .email-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+
+      /* Header */
+      .header {
+        background-color: #004aad;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      /* Content */
+      .content {
+        padding: 25px;
+        color: #333333;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .content h2 {
+        color: #004aad;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      /* Details Table */
+      .details {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      .details td {
+        padding: 8px 10px;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: top;
+      }
+
+      .details .label {
+        font-weight: bold;
+        color: #555555;
+        width: 35%;
+      }
+
+      /* Button (Outlook-safe using VML fallback) */
+      .btn {
+        background-color: #004aad;
+        color: #ffffff !important;
+        text-decoration: none;
+        padding: 10px 18px;
+        display: inline-block;
+        border-radius: 5px;
+        font-weight: 600;
+        margin-top: 15px;
+      }
+
+      /* Footer */
+      .footer {
+        background-color: #f0f0f0;
+        color: #555555;
+        padding: 15px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      /* Fixes for mobile */
+      @media only screen and (max-width: 600px) {
+        .content {
+          padding: 15px;
+        }
+        .header {
+          font-size: 18px;
+        }
+        .btn {
+          display: block;
+          width: 100%;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body style="background-color: #f8f9fa; margin: 0; padding: 0;">
+    <center class="email-wrapper">
+      <table role="presentation" class="email-container">
+        <tr>
+          <td class="header">
+            {{#if isApprover}}
+              Action Required: New Request Pending Your Approval
+            {{else}}
+              Your Request Has Been Sent for Approval
+            {{/if}}
+          </td>
+        </tr>
+
+        <tr>
+          <td class="content">
+            <p>Dear {{recipientName}},</p>
+
+            <p>
+              {{#if isApprover}}
+                You have a new request pending your approval.
+              {{else}}
+                Your request has been submitted successfully and is pending approval.
+              {{/if}}
+            </p>
+
+            <h2>Request Details</h2>
+
+            <table class="details" role="presentation">
+              <tr>
+                <td class="label">Request Title:</td>
+                <td>{{formTitle}}</td>
+              </tr>
+              <tr>
+                <td class="label">Submitted By:</td>
+                <td>{{requestorName}} ({{requestorStaffId}})</td>
+              </tr>
+              <tr>
+                <td class="label">Department:</td>
+                <td>{{department}}</td>
+              </tr>
+              <tr>
+                <td class="label">Submission Date:</td>
+                <td>{{submittedAt}}</td>
+              </tr>
+              <tr>
+                <td class="label">Current Status:</td>
+                <td>{{status}}</td>
+              </tr>
+            </table>
+
+            {{#if isApprover}}
+              <p>You may review and take action on the request using the link below:</p>
+              <!-- Outlook VML button -->
+              <!--[if mso]>
+                <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{{approvalLink}}" style="height:40px;v-text-anchor:middle;width:180px;" arcsize="10%" stroke="f" fillcolor="#004AAD">
+                  <w:anchorlock/>
+                  <center style="color:#ffffff;font-family:Arial, sans-serif;font-size:14px;font-weight:bold;">Review & Approve</center>
+                </v:roundrect>
+              <![endif]-->
+              <!--[if !mso]><!-- -->
+                <a href="{{approvalLink}}" class="btn">Review & Approve</a>
+              <!--<![endif]-->
+            {{else}}
+              <p>You can check your request status here:</p>
+              <!--[if mso]>
+                <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{{requestLink}}" style="height:40px;v-text-anchor:middle;width:160px;" arcsize="10%" stroke="f" fillcolor="#004AAD">
+                  <w:anchorlock/>
+                  <center style="color:#ffffff;font-family:Arial, sans-serif;font-size:14px;font-weight:bold;">View Request</center>
+                </v:roundrect>
+              <![endif]-->
+              <!--[if !mso]><!-- -->
+                <a href="{{requestLink}}" class="btn">View Request</a>
+              <!--<![endif]-->
+            {{/if}}
+
+            <p style="margin-top: 20px;">Thank you,<br />PHN Automation System</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="footer">
+            This is an automated message. Please do not reply to this email.
+          </td>
+        </tr>
+      </table>
+    </center>
+  </body>
+</html>

@@ -66,7 +66,7 @@ export default async function ProfilePage() {
           Manage your personal information and view your activity
         </p>
       </div>
-      <ProfileComponent userProfile={getUser} stats={stats} />
+      <ProfileComponent userProfile={getUser} stats={stats}/>
     </div>
   );
 }

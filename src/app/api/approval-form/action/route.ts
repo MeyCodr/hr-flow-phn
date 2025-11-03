@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
+import { transporter } from "../../../../../lib/emailService";
+
+const emailFrom = process.env.EMAIL;
+const webLink = process.env.NEXTAUTH_URL;
 
 export async function POST(req: NextRequest) {
   try {
     const { approvalId, action, remarks } = await req.json();
-    console.log("approvalId: ", approvalId);
-    console.log("action: ", action);
 
     if (!approvalId || !action)
       return NextResponse.json(
@@ -13,18 +15,21 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
 
-    // 1️⃣ Find the approval record
+    // 1️⃣ Find approval + submission + user + all approvals
     const approval = await prisma.approval.findUnique({
       where: { id: Number(approvalId) },
       include: {
+        approver: true, // to get approver name/email
         submission: {
-          include: { approvals: true },
+          include: {
+            approvals: {
+              include: { approver: true },
+            },
+            createdBy: true, // assuming relation to User
+          },
         },
       },
     });
-
-    console.log("approval: ", approval);
-    
 
     if (!approval)
       return NextResponse.json(
@@ -32,9 +37,35 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       );
 
-    const submissionId = approval.submissionId;
-    console.log("submissionId: ", submissionId);
+    const submission = approval.submission;
+    const submissionId = submission.id;
+    const requestor = submission.createdBy;
 
+    const formType = await prisma.formType.findUnique({
+      where: {
+        id: Number(submission.formTypeId),
+      },
+    });
+
+    if (!formType) {
+      return NextResponse.json(
+        { error: "Form type not found" },
+        { status: 400 }
+      );
+    }
+
+    const findDepartment = await prisma.department.findUnique({
+      where: {
+        id: Number(requestor.departmentId),
+      },
+    });
+
+    if (!findDepartment) {
+      return NextResponse.json(
+        { error: "Department not found" },
+        { status: 400 }
+      );
+    }
 
     // 2️⃣ Update current approval
     await prisma.approval.update({
@@ -46,48 +77,94 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log("1");
+    // 3️⃣ Handle next step
+    const nextStep = submission.approvals.find(
+      (a) => a.stepOrder === approval.stepOrder + 1
+    );
 
-
-    // 3️⃣ Handle next steps
     if (action === "approve") {
-      // find next step
-      const nextStep = approval.submission.approvals.find(
-        (a) => a.stepOrder === approval.stepOrder + 1
-      );
-
       if (nextStep) {
-        // set next step to PENDING
+        // Next approver pending
         await prisma.approval.updateMany({
-          where: {
-            submissionId,
-            stepOrder: approval.stepOrder + 1,
-          },
+          where: { submissionId, stepOrder: approval.stepOrder + 1 },
           data: { status: "PENDING" },
         });
+
+        const mailOptions = {
+          from: emailFrom,
+          to: nextStep.approver.email,
+          subject: "Action Required: Request Pending Your Approval",
+          template: "nextApproval",
+          context: {
+            nextApproverName: nextStep.approver.fullname,
+            previousApproverName: approval.approver.fullname,
+            formTitle: formType.name,
+            requestorName: requestor.fullname,
+            requestorStaffId: requestor.staffid,
+            department: findDepartment.name,
+            submittedAt: submission.createdAt.toLocaleString(),
+            status: "Pending Approval",
+            approvalLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
+          },
+        };
+
+        await transporter.sendMail(mailOptions);
       } else {
-        // no more steps → mark form as fully approved
+        // ✅ Final approval
         await prisma.formSubmission.update({
           where: { id: submissionId },
           data: { status: "APPROVED" },
         });
+
+        const mailOptions = {
+          from: emailFrom,
+          to: requestor.email,
+          subject: "Your Request Has Been Approved",
+          template: "finalApproval",
+          context: {
+            status: "APPROVED",
+            formTitle: formType.name,
+            requestorName: requestor.fullname,
+            requestorStaffId: requestor.staffid,
+            submittedAt: submission.createdAt.toLocaleString(),
+            department: findDepartment.name,
+            finalApproverName: "amir",
+            requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
+          },
+        };
+
+        await transporter.sendMail(mailOptions);
       }
     } else {
-      // ❌ Rejected → mark form as REJECTED immediately
+      // ❌ Rejected
       await prisma.formSubmission.update({
         where: { id: submissionId },
         data: { status: "REJECTED" },
       });
-    console.log("2");
 
-      // Also update all remaining approvals to REJECTED
       await prisma.approval.updateMany({
-        where: {
-          submissionId,
-          stepOrder: { gt: approval.stepOrder },
-        },
+        where: { submissionId, stepOrder: { gt: approval.stepOrder } },
         data: { status: "REJECTED" },
       });
+
+      const mailOptions = {
+        from: emailFrom,
+        to: requestor.email,
+        subject: "Your Request Has Been Rejected",
+        template: "rejectRequest",
+        context: {
+          status: "REJECTED",
+          formTitle: formType.name,
+          requestorName: requestor.fullname,
+          requestorStaffId: requestor.staffid,
+          submittedAt: submission.createdAt.toLocaleString(),
+          department: findDepartment.name,
+          rejectedBy: "amir",
+          requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
+        },
+      };
+
+      await transporter.sendMail(mailOptions);
     }
 
     return NextResponse.json({ message: "Action processed successfully" });

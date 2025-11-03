@@ -7,6 +7,7 @@ import PrimaryButton from "../ui/PrimaryButton";
 import toast, { Toaster } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 
 interface userData {
   staffid: string;
@@ -19,6 +20,7 @@ interface LoginFormProps {
 
 function LoginForm({ onLogin }: LoginFormProps) {
   const [data, setData] = useState<userData>({ staffid: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,6 +93,7 @@ function LoginForm({ onLogin }: LoginFormProps) {
 
             {/* Form */}
             <form className="mt-10 space-y-6" onSubmit={onSubmit}>
+              {/* Staff ID */}
               <div className="flex flex-col space-y-2">
                 <Label
                   name="Staff Id"
@@ -101,14 +104,15 @@ function LoginForm({ onLogin }: LoginFormProps) {
                   id="staffid"
                   name="staffid"
                   type="text"
-                  value={data.staffid}
+                  value={data.staffid.toUpperCase()}
                   onChange={handleChange}
                   placeholder="Staff ID"
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
-              <div className="flex flex-col space-y-2">
+              {/* Password with Toggle */}
+              <div className="flex flex-col space-y-2 relative">
                 <Label
                   name="Password"
                   htmlFor="password"
@@ -117,12 +121,24 @@ function LoginForm({ onLogin }: LoginFormProps) {
                 <Input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={data.password}
                   onChange={handleChange}
                   placeholder="Password"
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
                 />
+                {/* Eye toggle button */}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                  {showPassword ? (
+                    <IoEyeOffOutline size={18} />
+                  ) : (
+                    <IoEyeOutline size={18} />
+                  )}
+                </button>
               </div>
 
               <PrimaryButton

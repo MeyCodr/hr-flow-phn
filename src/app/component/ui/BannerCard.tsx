@@ -8,7 +8,6 @@ import ActionModal from "./ActionModal";
 
 export interface BannerCardProps {
   approvalId?: number;
-  profileImg: string;
   title: string;
   name: string;
   createddate: string;
@@ -20,6 +19,7 @@ export interface BannerCardProps {
   status?: string; // ✅ new status prop
   onActionComplete?: () => void; // Callback after action is complete
   onClick?: () => void; // Optional click handler
+  profileImg?: string;
 }
 
 export default function BannerCard({
@@ -35,6 +35,7 @@ export default function BannerCard({
   status,
   onActionComplete,
   onClick,
+  profileImg,
 }: BannerCardProps) {
   const [formattedDate, setFormattedDate] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -95,6 +96,13 @@ export default function BannerCard({
     }
   };
 
+  console.log("name: ", name);
+  const parts = name.trim().split(/\s+/);
+  const initials =
+    parts.length > 1
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : parts[0][0].toUpperCase();
+
   return (
     <>
       <div
@@ -104,9 +112,18 @@ export default function BannerCard({
         {/* Top Section */}
         <div className="flex justify-between items-start gap-3">
           <div className="flex items-start gap-3 w-full">
-            <div className="bg-indigo-700 text-white font-semibold w-10 h-10 flex items-center justify-center rounded-full text-sm">
-              AC
+            <div className="bg-indigo-700 text-white font-semibold w-10 h-10 flex items-center justify-center rounded-full text-sm overflow-hidden">
+              {profileImg ? (
+                <img
+                  src={profileImg}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{initials}</span>
+              )}
             </div>
+
             <div className="flex-1">
               <div className="flex gap-x-4 items-center">
                 <h1 className="text-sm font-semibold text-gray-900">{title}</h1>
@@ -145,7 +162,6 @@ export default function BannerCard({
             <p className="text-xs font-semibold text-indigo-700">
               {currentLevel} / {totalLevel}
             </p>
-        
           </div>
         </div>
 

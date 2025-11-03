@@ -2,6 +2,7 @@ import React from "react";
 import BannerCard from "../../ui/BannerCard";
 import { Approval } from "../ApprovalComponent";
 import { SelfForm, UserType } from "@/app/types/types";
+import PaginatedList from "../../ui/PaginatedList";
 
 interface HistoryContentProps {
   approvalsHistory: Approval[];
@@ -10,23 +11,47 @@ interface HistoryContentProps {
   onViewForm: (formId: number, formName: string) => void;
 }
 
+// Define a unified item type for pagination
+type HistoryItem =
+  | { type: "approval"; data: Approval }
+  | { type: "form"; data: SelfForm };
+
 export default function HistoryContent({
   approvalsHistory,
   userFormsHistory,
   user,
   onViewForm,
 }: HistoryContentProps) {
-  const historyContent =
-    approvalsHistory.length > 0 || userFormsHistory.length > 0 ? (
-      <div className="flex flex-col gap-4">
-        {/* Approvals handled by the user */}
-        {approvalsHistory.map((approval) => {
+  // Combine approvals and forms into one unified list
+  const historyItems: HistoryItem[] = [
+    ...approvalsHistory.map((approval) => ({
+      type: "approval" as const,
+      data: approval,
+    })),
+    ...userFormsHistory.map((form) => ({
+      type: "form" as const,
+      data: form,
+    })),
+  ];
+
+  if (historyItems.length === 0) {
+    return <p className="text-gray-600">No history found.</p>;
+  }
+
+  return (
+    <PaginatedList
+      items={historyItems}
+      pageSize={10}
+      renderItem={(item) => {
+        if (item.type === "approval") {
+          const approval = item.data;
           const submission = approval.submission;
+
           return (
             <BannerCard
               key={`approval-history-${approval.id}`}
               approvalId={approval.id}
-              profileImg={""}
+              profileImg={submission.createdBy.attachment || ""}
               title={submission.formType.name}
               name={submission.createdBy.fullname}
               createddate={new Date(submission.createdAt).toLocaleDateString()}
@@ -44,29 +69,26 @@ export default function HistoryContent({
               }
             />
           );
-        })}
-
-        {/* User’s submitted forms */}
-        {userFormsHistory.map((form) => (
-          <BannerCard
-            key={`form-history-${form.id}`}
-            profileImg={""}
-            title={form.formType.name}
-            name={"You"}
-            createddate={new Date(form.createdAt).toLocaleDateString()}
-            remarks={(form.formData?.remarks as string) || "No remarks"}
-            currentLevel={form.currentLevel ?? 0}
-            totalLevel={form.totalLevel ?? 0}
-            activeLevel={form.activeLevel}
-            roles={user.role}
-            status={form.status}
-            onClick={() => onViewForm(form.id, form.formType.name)}
-          />
-        ))}
-      </div>
-    ) : (
-      <p className="text-gray-600">No history found.</p>
-    );
-
-  return <div>{historyContent}</div>;
+        } else {
+          const form = item.data;
+          return (
+            <BannerCard
+              key={`form-history-${form.id}`}
+              profileImg={user.attachment || ""}
+              title={form.formType.name}
+              name={"You"}
+              createddate={new Date(form.createdAt).toLocaleDateString()}
+              remarks={(form.formData?.remarks as string) || "No remarks"}
+              currentLevel={form.currentLevel ?? 0}
+              totalLevel={form.totalLevel ?? 0}
+              activeLevel={form.activeLevel ?? 0}
+              roles={user.role}
+              status={form.status}
+              onClick={() => onViewForm(form.id, form.formType.name)}
+            />
+          );
+        }
+      }}
+    />
+  );
 }

@@ -2,10 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 
-import { ManPowerTypes, UserInfo } from "@/app/types/types";
+import { ManPowerTypes, SelfFormData, UserInfo } from "@/app/types/types";
 
 import axios from "axios";
-import { DynamicFormProps } from "../HrFormsClient";
 import Dropdown from "@/app/component/ui/Dropdown";
 import { categoryManPower, workLocation } from "../../../../../../lib/data";
 import Label from "@/app/component/ui/Label";
@@ -14,7 +13,7 @@ import ComboBox from "@/app/component/ui/ComboBox";
 import { Input } from "@/app/component/ui/Input";
 import CheckBox from "@/app/component/ui/CheckBox";
 import { TextArea } from "@/app/component/ui/TextArea";
-import { SelfFormData } from "@/app/component/approval/submissionComponent/ViewSubmission";
+import { DynamicFormProps } from "../HrFormsClient";
 
 interface ManPowerRequisitionViewProps extends DynamicFormProps {
   selfForm: SelfFormData;
@@ -166,6 +165,12 @@ export default function ManPowerRequisitionView({
     return menu;
   };
 
+  const parsedData = selfForm.formData as unknown as ManPowerTypes;
+
+  if (!selfForm.formData || !parsedData) {
+    return <p>Loading form data ...</p>;
+  }
+
   return (
     <>
       <form action="" className="bg-white max-w-6xl p-4 ">
@@ -178,7 +183,7 @@ export default function ManPowerRequisitionView({
                 className={`w-40 ${
                   errors.category ? "border border-red-500 rounded-md" : ""
                 }`}
-                selected={selfForm.formData.category?.name}
+                selected={parsedData.category?.name}
                 onSelect={(item) => {
                   setData((prev) => ({ ...prev, category: item }));
                   setErrors((prev) => ({ ...prev, category: undefined })); // clear error
@@ -199,7 +204,7 @@ export default function ManPowerRequisitionView({
                   className="block text-sm font-medium text-gray-900"
                 />
                 <DatePicker
-                  value={selfForm.formData.createddate}
+                  value={parsedData.createddate}
                   onChange={handleDateChange("createddate")}
                   disabled
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -214,7 +219,7 @@ export default function ManPowerRequisitionView({
                 <ComboBox
                   menu={divisions}
                   disabled
-                  selectedValue={selfForm.formData.division} // ✅ controlled
+                  selectedValue={parsedData.division} // ✅ controlled
                   onSelect={(item) => {
                     const value = item ? item.id.toString() : "";
                     setSelectedDivision(value);
@@ -238,7 +243,7 @@ export default function ManPowerRequisitionView({
                 <ComboBox
                   disabled
                   menu={addDashOption(departments)}
-                  selectedValue={selfForm.formData.department}
+                  selectedValue={parsedData.department}
                   onSelect={(item) => {
                     const value =
                       item && item.name !== "-" ? item.id.toString() : "";
@@ -261,7 +266,7 @@ export default function ManPowerRequisitionView({
                 <ComboBox
                   disabled
                   menu={addDashOption(sections)}
-                  selectedValue={selfForm.formData.section}
+                  selectedValue={parsedData.section}
                   onSelect={(item) => {
                     const value =
                       item && item.name !== "-" ? item.id.toString() : "";
@@ -280,7 +285,7 @@ export default function ManPowerRequisitionView({
                   id="reportingTo"
                   name="reportingTo"
                   type="text"
-                  value={selfForm.formData.reportingTo}
+                  value={parsedData.reportingTo}
                   onChange={handleChange}
                   placeholder="Reporting To"
                   required
@@ -298,7 +303,7 @@ export default function ManPowerRequisitionView({
                   id="noRequested"
                   name="noRequested"
                   type="text"
-                  value={selfForm.formData.noRequested}
+                  value={parsedData.noRequested}
                   onChange={handleChange}
                   placeholder="No Requested"
                   required
@@ -320,7 +325,7 @@ export default function ManPowerRequisitionView({
                     id="currentHeadCount"
                     name="currentHeadCount"
                     type="text"
-                    value={selfForm.formData.currentHeadCount}
+                    value={parsedData.currentHeadCount}
                     onChange={handleChange}
                     placeholder="Current Headcount"
                     required
@@ -340,7 +345,7 @@ export default function ManPowerRequisitionView({
                     id="approvedRequirement"
                     name="approvedRequirement"
                     type="text"
-                    value={selfForm.formData.approvedRequirement}
+                    value={parsedData.approvedRequirement}
                     onChange={handleChange}
                     placeholder="Approved Requirement"
                     required
@@ -358,7 +363,7 @@ export default function ManPowerRequisitionView({
                 />
                 <ComboBox
                   menu={workLocation}
-                  selectedValue={selfForm.formData.workLocation}
+                  selectedValue={parsedData.workLocation}
                   onSelect={(item) => {
                     const value = item ? item.name : "";
                     setSelectedWorkLocation(value);
@@ -376,7 +381,7 @@ export default function ManPowerRequisitionView({
                 <div className="flex items-center gap-x-4">
                   <div className="flex items-center gap-x-2">
                     <CheckBox
-                      checked={selfForm.formData.workStation === "Yes"}
+                      checked={parsedData.workStation === "Yes"}
                       onChange={() =>
                         setData((prev) => ({
                           ...prev,
@@ -392,7 +397,7 @@ export default function ManPowerRequisitionView({
                   </div>
                   <div className="flex items-center gap-x-2">
                     <CheckBox
-                      checked={selfForm.formData.workStation === "No"}
+                      checked={parsedData.workStation === "No"}
                       onChange={() =>
                         setData((prev) => ({
                           ...prev,
@@ -417,7 +422,7 @@ export default function ManPowerRequisitionView({
                 <div className="flex items-center gap-x-4">
                   <div className="flex items-center gap-x-2">
                     <CheckBox
-                      checked={selfForm.formData.employmentType === "Permanent"}
+                      checked={parsedData.employmentType === "Permanent"}
                       onChange={() =>
                         setData((prev) => ({
                           ...prev,
@@ -436,7 +441,7 @@ export default function ManPowerRequisitionView({
                   </div>
                   <div className="flex items-center gap-x-2">
                     <CheckBox
-                      checked={selfForm.formData.employmentType === "Contract"}
+                      checked={parsedData.employmentType === "Contract"}
                       onChange={() =>
                         setData((prev) => ({
                           ...prev,
@@ -457,6 +462,24 @@ export default function ManPowerRequisitionView({
               </div>
               <div className="flex flex-col space-y-2">
                 <Label
+                  name="Manpower Plan"
+                  htmlFor="manpowerPlan"
+                  className="block text-sm font-medium text-gray-900"
+                />
+                <Input
+                  id="manpowerPlan"
+                  name="manpowerPlan"
+                  type="text"
+                  value={parsedData.manpowerPlan}
+                  onChange={handleChange}
+                  placeholder="Manpower Plan"
+                  required
+                  disabled
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <div className="flex flex-col space-y-2">
+                <Label
                   name="Approved AMP"
                   htmlFor="approvedAmp"
                   className="block text-sm font-medium text-gray-900"
@@ -465,7 +488,7 @@ export default function ManPowerRequisitionView({
                   id="approvedAmp"
                   name="approvedAmp"
                   type="text"
-                  value={selfForm.formData.approvedAmp}
+                  value={parsedData.approvedAmp}
                   onChange={handleChange}
                   placeholder="Approved AMP"
                   required
@@ -488,7 +511,7 @@ export default function ManPowerRequisitionView({
               <TextArea
                 id="keyRequirement"
                 name="keyRequirement"
-                value={selfForm.formData.keyRequirement}
+                value={parsedData.keyRequirement}
                 onChange={handleTextAreaChange}
                 placeholder="Key Requirement"
                 disabled
@@ -504,7 +527,7 @@ export default function ManPowerRequisitionView({
               <TextArea
                 id="keyRequirement"
                 name="keyResponsibilities"
-                value={selfForm.formData.keyResponsibilities}
+                value={parsedData.keyResponsibilities}
                 onChange={handleTextAreaChange}
                 placeholder="Key Responsibilities"
                 disabled
@@ -523,9 +546,7 @@ export default function ManPowerRequisitionView({
                   <div className="flex flex-col ">
                     <div className="flex items-center gap-x-2">
                       <CheckBox
-                        checked={
-                          selfForm.formData.selectedOption === "replacement"
-                        }
+                        checked={parsedData.selectedOption === "replacement"}
                         onChange={() =>
                           setData((prev) => ({
                             ...prev,
@@ -569,7 +590,7 @@ export default function ManPowerRequisitionView({
                         id="incumbentName"
                         name="incumbentName"
                         type="text"
-                        value={selfForm.formData.incumbentName}
+                        value={parsedData.incumbentName}
                         onChange={handleChange}
                         placeholder="Incumbent Name"
                         required
@@ -584,7 +605,7 @@ export default function ManPowerRequisitionView({
                         className="block text-sm font-medium text-gray-900"
                       />
                       <DatePicker
-                        value={selfForm.formData.lastWorkingDay}
+                        value={parsedData.lastWorkingDay}
                         onChange={handleDateChange("lastWorkingDay")}
                         disabled
                         className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -596,9 +617,7 @@ export default function ManPowerRequisitionView({
                 <div className="flex flex-col ">
                   <div className="flex items-center gap-x-2">
                     <CheckBox
-                      checked={
-                        selfForm.formData.selectedOption === "additional"
-                      }
+                      checked={parsedData.selectedOption === "additional"}
                       onChange={() =>
                         setData((prev) => ({
                           ...prev,
@@ -632,7 +651,7 @@ export default function ManPowerRequisitionView({
                         id="productionVolumeIncrease"
                         name="productionVolumeIncrease"
                         type="text"
-                        value={selfForm.formData.productionVolumeIncrease}
+                        value={parsedData.productionVolumeIncrease}
                         onChange={handleChange}
                         placeholder="Production Volume Increase (Item)"
                         required
@@ -650,7 +669,7 @@ export default function ManPowerRequisitionView({
                         id="newProject"
                         name="newProject"
                         type="text"
-                        value={selfForm.formData.newProject}
+                        value={parsedData.newProject}
                         onChange={handleChange}
                         placeholder="New Project"
                         required
@@ -668,7 +687,7 @@ export default function ManPowerRequisitionView({
                         id="machineFaulty"
                         name="machineFaulty"
                         type="text"
-                        value={selfForm.formData.machineFaulty}
+                        value={parsedData.machineFaulty}
                         onChange={handleChange}
                         placeholder="Machine Faulty"
                         required
@@ -686,7 +705,7 @@ export default function ManPowerRequisitionView({
                         id="other"
                         name="other"
                         type="text"
-                        value={selfForm.formData.other}
+                        value={parsedData.other}
                         onChange={handleChange}
                         placeholder="Other"
                         required
@@ -758,7 +777,7 @@ export default function ManPowerRequisitionView({
                 <TextArea
                   id="remarks"
                   name="remarks"
-                  value={selfForm.formData.remarks}
+                  value={parsedData.remarks}
                   onChange={handleTextAreaChange}
                   placeholder="Remarks"
                   disabled

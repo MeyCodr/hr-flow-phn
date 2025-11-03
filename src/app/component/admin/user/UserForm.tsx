@@ -1,10 +1,10 @@
 import { Department, Division, Section, UserType } from "@/app/types/types";
-import Label from "../ui/Label";
-import { Input } from "../ui/Input";
+import Label from "../../ui/Label";
+import { Input } from "../../ui/Input";
 import { useState } from "react";
-import ComboBox from "../ui/ComboBox";
-import { roles } from "../../../../lib/data";
-import PrimaryButton from "../ui/PrimaryButton";
+import ComboBox from "../../ui/ComboBox";
+import { roles } from "../../../../../lib/data";
+import PrimaryButton from "../../ui/PrimaryButton";
 import { IoReturnDownBack } from "react-icons/io5";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";

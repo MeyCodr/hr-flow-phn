@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import fs from "fs/promises";
 import path from "path";
+import { transporter } from "../../../../lib/emailService";
+
+const emailFrom = process.env.EMAIL;
+const webLink = process.env.NEXTAUTH_URL;
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,6 +40,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "User does not exist" },
         { status: 404 }
+      );
+    }
+
+    const findDepartment = await prisma.department.findUnique({
+      where: { id: Number(findUser.departmentId) },
+    });
+
+    if (!findDepartment) {
+      return NextResponse.json(
+        { error: "Department not found" },
+        { status: 400 }
       );
     }
 
@@ -158,12 +173,62 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const createdApprovals = await prisma.approval.findMany({
-      where: { submissionId: formSubmission.id },
+    // const createdApprovals = await prisma.approval.findMany({
+    //   where: { submissionId: formSubmission.id },
+    //   include: { approver: true },
+    // });
+
+    // ✅ Fetch the first-step approvers (order = 1)
+    const firstStepApprovers = await prisma.approval.findMany({
+      where: { submissionId: formSubmission.id, stepOrder: 1 },
       include: { approver: true },
     });
 
-    console.log("✅ Created approvals:", createdApprovals);
+    console.log("✅ Created approvals:", firstStepApprovers);
+
+    const mailOptions = {
+      from: emailFrom,
+      to: findUser.email,
+      subject: "Form request has been submitted",
+      template: "FormSubmission",
+      context: {
+        subject: "Your Request Has Been Submitted and Is Pending Approval",
+        recipientName: findUser?.fullname,
+        formTitle: formType?.name,
+        requestorName: findUser?.fullname,
+        requestorStaffId: findUser?.staffid,
+        department: findDepartment?.name,
+        submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
+        status: formSubmission.status,
+        requestLink: `${webLink}/approval?id=${formSubmission.id}&name=${formType.name}`,
+        isApprover: false,
+      },
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    for (const approval of firstStepApprovers) {
+      const approvalMail = {
+        from: emailFrom,
+        to: approval.approver.email,
+        subject: "Action Required: New Request Pending Your Approval",
+        template: "FormSubmission",
+        context: {
+          subject: "Action Required: New Request Pending Your Approval",
+          recipientName: approval.approver.fullname,
+          formTitle: formType?.name,
+          requestorName: findUser?.fullname,
+          requestorStaffId: findUser?.staffid,
+          department: findDepartment?.name,
+          submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
+          status: formSubmission.status,
+          approvalLink: `${webLink}/approval?id=${formSubmission.id}&name=${formType.name}`,
+          isApprover: true,
+        },
+      };
+
+      await transporter.sendMail(approvalMail);
+    }
 
     return NextResponse.json(
       {

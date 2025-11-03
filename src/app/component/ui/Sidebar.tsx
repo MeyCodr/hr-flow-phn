@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { CiSettings, CiUser } from "react-icons/ci";
+import { CiUser } from "react-icons/ci";
 import { PiFlowArrowThin } from "react-icons/pi";
 import { IoDocumentsOutline } from "react-icons/io5";
 import { PiChalkboardSimpleLight } from "react-icons/pi";
 import { CiLock } from "react-icons/ci";
+import { UserType } from "@/app/types/types";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,14 +26,34 @@ export default function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<UserType>();
+  const { data: session } = useSession();
 
   useEffect(() => setMounted(true), []);
+  console.log("session: ", session);
+
+  useEffect(() => {
+    if (!session) return;
+
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(`/api/user/${session.user.staffid}`);
+        const user = res.data.data;
+        console.log("user: ", user);
+        setUser(user);
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      }
+    };
+
+    fetchUser();
+  }, [session]);
 
   const menuItems = [
     {
       name: "Dashboard",
       path: "/dashboard",
-      icon: <PiChalkboardSimpleLight  className="w-5 h-5" />,
+      icon: <PiChalkboardSimpleLight className="w-5 h-5" />,
     },
     {
       name: "Form",
@@ -45,13 +68,13 @@ export default function Sidebar({
     {
       name: "Profile",
       path: "/dashboard/profile",
-      icon: <CiUser  className="w-5 h-5" />,
+      icon: <CiUser className="w-5 h-5" />,
     },
-    {
-      name: "Setting",
-      path: "/dashboard/setting",
-      icon: <CiSettings  className="w-5 h-5" />,
-    },
+    // {
+    //   name: "Setting",
+    //   path: "/dashboard/setting",
+    //   icon: <CiSettings  className="w-5 h-5" />,
+    // },
     {
       name: "Admin",
       path: "/dashboard/admin",
@@ -94,29 +117,37 @@ export default function Sidebar({
 
       {/* Menu Items */}
       <nav className="flex flex-col gap-2 mt-4">
-        {menuItems.map((item) => {
-          const active = pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              href={item.path}
-              onClick={() => isMobile && toggleSidebar()}
-              className={`flex items-center gap-2 p-2 text-sm rounded transition-all ${
-                active ? "bg-purple-700 font-semibold" : "hover:bg-purple-600"
-              }`}
-            >
-              <div className="flex-shrink-0">{item.icon}</div>
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? 0 : -10 }}
-                exit={{ opacity: 0, x: -10 }}
-                className={`overflow-hidden whitespace-nowrap`}
+        {menuItems
+          .filter((item) => {
+            // Only show Admin tab if the user role is ADMIN
+            if (item.name === "Admin" && user?.role !== "ADMIN") {
+              return false;
+            }
+            return true;
+          })
+          .map((item) => {
+            const active = pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                href={item.path}
+                onClick={() => isMobile && toggleSidebar()}
+                className={`flex items-center gap-2 p-2 text-sm rounded transition-all ${
+                  active ? "bg-purple-700 font-semibold" : "hover:bg-purple-600"
+                }`}
               >
-                {item.name}
-              </motion.div>
-            </Link>
-          );
-        })}
+                <div className="flex-shrink-0">{item.icon}</div>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? 0 : -10 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="overflow-hidden whitespace-nowrap"
+                >
+                  {item.name}
+                </motion.div>
+              </Link>
+            );
+          })}
       </nav>
     </motion.aside>
   );
