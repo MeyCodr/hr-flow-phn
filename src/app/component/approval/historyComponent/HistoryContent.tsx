@@ -47,6 +47,8 @@ export default function HistoryContent({
           const approval = item.data;
           const submission = approval.submission;
 
+          if (!submission) return;
+
           return (
             <BannerCard
               key={`approval-history-${approval.id}`}

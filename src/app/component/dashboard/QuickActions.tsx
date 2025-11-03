@@ -55,7 +55,7 @@ export default function QuickActions() {
             <motion.div
               custom={index}
               variants={cardVariants}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1 }}
               whileTap={{ scale: 0.97 }}
               className="group border border-indigo-100 p-4 flex flex-col justify-center items-center bg-indigo-50 rounded-xl cursor-pointer hover:bg-indigo-800 transition-all duration-300 ease-in-out"
             >

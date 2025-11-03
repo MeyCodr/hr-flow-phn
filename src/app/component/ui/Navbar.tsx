@@ -4,6 +4,9 @@ import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import AccountDropdown from "./AccountDropdown";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { getFirstName } from "../../../../lib/utils";
+import { UserType } from "@/app/types/types";
 
 interface NavbarProps {
   pageName: string;
@@ -11,6 +14,7 @@ interface NavbarProps {
   isSidebarOpen: boolean;
   onSelectTab: (tab: string) => void;
   isMobile: boolean;
+  user: UserType | null;
 }
 
 export default function Navbar({
@@ -19,8 +23,10 @@ export default function Navbar({
   isSidebarOpen,
   onSelectTab,
   isMobile,
+  user,
 }: NavbarProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  console.log("user: ", user);
 
   return (
     <motion.header
@@ -60,8 +66,18 @@ export default function Navbar({
           whileHover={{ scale: 1.05, backgroundColor: "#ffffff20" }}
           className="flex items-center gap-2 cursor-pointer p-1 rounded transition-colors"
         >
-          <span className="hidden sm:inline text-sm">Account</span>
-          <FaUserCircle className="text-2xl text-gray-300 hover:text-white transition-colors" />
+          <span className="hidden sm:inline text-sm">
+            {user ? getFirstName(user.fullname) : "Account"}
+          </span>
+          {user?.attachment ? (
+         <img
+                src={user.attachment}
+                alt="Profile"
+                className="object-cover w-8 h-8 rounded-full"
+              />
+          ) : (
+            <FaUserCircle className="text-2xl text-gray-300 hover:text-white transition-colors" />
+          )}
         </motion.div>
 
         <AnimatePresence>

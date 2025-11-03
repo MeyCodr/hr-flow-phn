@@ -242,3 +242,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error }, { status: 500 });
   }
 }
+
+export async function GET(){
+  try{
+    const getAllFormSubmission = await prisma.formSubmission.findMany();
+    return NextResponse.json(getAllFormSubmission);
+  }catch(error){
+    return NextResponse.json({error: error}, {status: 500})
+  }
+}

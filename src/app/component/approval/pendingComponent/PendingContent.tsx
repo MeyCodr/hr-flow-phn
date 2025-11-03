@@ -51,6 +51,7 @@ export default function PendingContent({
         if (item.type === "approval") {
           const approval = item.data;
           const submission = approval.submission;
+          if (!submission) return;
           console.log("submissino: ", submission);
           const remarks =
             (submission.formData as { remarks?: string } | null)?.remarks ||
@@ -78,7 +79,7 @@ export default function PendingContent({
           );
         } else {
           const form = item.data;
-            console.log("form under:", form);
+          console.log("form under:", form);
           return (
             <BannerCard
               key={`form-${form.id}`}

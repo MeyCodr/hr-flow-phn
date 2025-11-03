@@ -6,6 +6,7 @@ import { signIn, useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import LoadingScreen from "../component/ui/LoadingScreen";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -21,8 +22,6 @@ export default function Login() {
   const handleLogin = async (values: { staffid: string; password: string }) => {
     let toastId = "";
     try {
-      console.log("data: ", values);
-
       toastId = toast.loading("Sign in . . .");
       setLoading(true);
       const res = await signIn("credentials", {
@@ -43,9 +42,21 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  const sendPasswordLogin = async (email: string) => {
+    try {
+      const res = await axios.post("/api/user/forget-password", { email });
+      if (res.status === 200) {
+        toast.success("Password has been sent to your email");
+      }
+    } catch (error) {
+      toast.error("Failed Request. Please contact an admin!");
+    }
+  };
+
   return (
     <div className="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 min-h-screen w-full">
-      <LoginForm onLogin={handleLogin} />
+      <LoginForm onLogin={handleLogin} sendPassword={sendPasswordLogin} />
       <LoadingScreen show={loading} />
     </div>
   );

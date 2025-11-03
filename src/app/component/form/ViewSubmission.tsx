@@ -188,8 +188,6 @@ export default function ViewSubmission({
     );
   }
 
-  console.log("self form: ", selfForm);
-
   return (
     <>
       <LoadingScreen show={loading} />

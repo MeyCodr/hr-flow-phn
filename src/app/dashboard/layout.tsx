@@ -5,6 +5,9 @@ import Navbar from "@/app/component/ui/Navbar";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { User, UserType } from "../types/types";
 
 export default function DashboardLayout({
   children,
@@ -13,6 +16,8 @@ export default function DashboardLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [user, setUser] = useState<UserType | null>(null);
+  const { data: session } = useSession();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -26,6 +31,10 @@ export default function DashboardLayout({
   };
 
   useEffect(() => {
+    getUser();
+  }, [session]);
+
+  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -34,6 +43,16 @@ export default function DashboardLayout({
 
   const handleSelectTab = (tab: string) => {
     router.push(`/dashboard/${tab}`);
+  };
+
+  const getUser = async () => {
+    if (!session) return;
+    try {
+      const res = await axios.get(`/api/user/${session.user.staffid}`);
+      setUser(res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -66,6 +85,7 @@ export default function DashboardLayout({
           toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           isSidebarOpen={isSidebarOpen}
           onSelectTab={handleSelectTab}
+          user={user}
         />
 
         <main className="flex-1 p-6 overflow-auto">{children}</main>

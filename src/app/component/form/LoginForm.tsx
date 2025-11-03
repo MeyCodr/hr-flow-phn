@@ -8,6 +8,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
+import ActionModal from "../ui/ActionModal";
 
 interface userData {
   staffid: string;
@@ -16,11 +17,13 @@ interface userData {
 
 interface LoginFormProps {
   onLogin: (data: userData) => void;
+  sendPassword: (email: string) => void;
 }
 
-function LoginForm({ onLogin }: LoginFormProps) {
+function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
   const [data, setData] = useState<userData>({ staffid: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [open, setOpen] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,6 +60,22 @@ function LoginForm({ onLogin }: LoginFormProps) {
 
   const handleNavigateToRegister = () => {
     setTimeout(() => router.push("/register"), 400); // wait for exit animation
+  };
+
+  const onSend = (email: string) => {
+    if (!email.trim()) {
+      toast.error("Please enter your email address!");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email!");
+      return;
+    }
+
+    sendPassword(email);
+    setOpen(false);
   };
 
   return (
@@ -139,12 +158,18 @@ function LoginForm({ onLogin }: LoginFormProps) {
                     <IoEyeOutline size={18} />
                   )}
                 </button>
+                <p
+                  onClick={() => setOpen(true)}
+                  className="flex justify-end text-xs text-indigo-600 hover:underline cursor-pointer"
+                >
+                  Forgot Password?
+                </p>
               </div>
 
               <PrimaryButton
                 name="Sign in"
                 type="submit"
-                className="border w-full py-2 bg-indigo-800 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer text-center"
+                className="border w-full text-sm py-2 bg-indigo-800 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer text-center"
               />
             </form>
 
@@ -162,6 +187,18 @@ function LoginForm({ onLogin }: LoginFormProps) {
           </div>
         </div>
       </motion.div>
+
+      <ActionModal
+        title="Forgot Password"
+        isOpen={open}
+        inputLabel="Email Address"
+        inputPlaceholder="Password will be send to this email ..."
+        inputType="text"
+        message=""
+        confirmText="Send"
+        onConfirm={onSend}
+        onCancel={() => setOpen(false)}
+      />
     </AnimatePresence>
   );
 }

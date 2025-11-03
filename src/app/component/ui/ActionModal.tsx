@@ -10,7 +10,10 @@ interface ActionModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  onConfirm: (remarks: string) => void; // ✅ pass remarks to parent
+  inputType?: "textarea" | "text" | null; // ✅ new
+  inputLabel?: string;
+  inputPlaceholder?: string;
+  onConfirm: (value: string) => void;
   onCancel: () => void;
   className?: string;
 }
@@ -21,17 +24,20 @@ export default function ActionModal({
   message,
   confirmText = "Confirm",
   cancelText = "Cancel",
+  inputType = "textarea", // ✅ default
+  inputLabel = "Remarks",
+  inputPlaceholder = "Enter here...",
   onConfirm,
   onCancel,
   className,
 }: ActionModalProps) {
   const [show, setShow] = useState(false);
-  const [remarks, setRemarks] = useState(""); // ✅ local remarks state
+  const [value, setValue] = useState("");
 
   useEffect(() => {
     if (isOpen) {
       setShow(true);
-      setRemarks(""); // reset each time modal opens
+      setValue("");
     } else {
       const timeout = setTimeout(() => setShow(false), 300);
       return () => clearTimeout(timeout);
@@ -41,7 +47,7 @@ export default function ActionModal({
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center font-poppins bg-black/50">
       <div
         className={`bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative transform transition-all duration-300
           ${isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"}
@@ -61,19 +67,32 @@ export default function ActionModal({
         {/* Message */}
         <p className="text-gray-700 text-sm mb-4">{message}</p>
 
-        {/* ✅ Remarks input */}
-        <div className="mb-6">
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Remarks (optional)
-          </label>
-          <textarea
-            rows={3}
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            placeholder="Enter your remarks..."
-            className="w-full border border-gray-300 rounded-md text-sm p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          />
-        </div>
+        {/* ✅ Dynamic Input Field */}
+        {inputType && (
+          <div className="mb-6">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              {inputLabel}
+            </label>
+
+            {inputType === "textarea" ? (
+              <textarea
+                rows={3}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder={inputPlaceholder}
+                className="w-full border border-gray-300 rounded-md text-sm p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            ) : (
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder={inputPlaceholder}
+                className="w-full border border-gray-300 rounded-md text-sm p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            )}
+          </div>
+        )}
 
         {/* Buttons */}
         <div className="flex justify-end gap-3">
@@ -85,9 +104,9 @@ export default function ActionModal({
 
           <PrimaryButton
             name={confirmText}
-            onClick={() => onConfirm(remarks)} // ✅ pass remarks back
+            onClick={() => onConfirm(value)}
             className={`px-4 py-2 rounded-sm text-white text-xs cursor-pointer ${
-              confirmText === "Approve"
+              confirmText === "Approve" || "Send"
                 ? "bg-indigo-700 hover:bg-indigo-800"
                 : "bg-red-600 hover:bg-red-700"
             } ${className}`}
