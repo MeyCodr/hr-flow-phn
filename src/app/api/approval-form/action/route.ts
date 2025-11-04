@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { transporter } from "../../../../../lib/emailService";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { approvalId, action, remarks } = await req.json();
 
     if (!approvalId || !action)

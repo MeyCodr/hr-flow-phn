@@ -79,7 +79,7 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <>
       <motion.div
         key="login-page"
         initial={{ opacity: 0, y: 20 }}
@@ -88,7 +88,7 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
         transition={{ duration: 0.4, ease: "easeInOut" }}
         className="flex justify-center items-center min-h-screen font-poppins p-6"
       >
-        <div className="text-sm">
+        <div className="text-xs">
           <Toaster position="top-center" />
         </div>
 
@@ -199,7 +199,7 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
         onConfirm={onSend}
         onCancel={() => setOpen(false)}
       />
-    </AnimatePresence>
+    </>
   );
 }
 

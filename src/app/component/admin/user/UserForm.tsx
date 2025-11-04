@@ -72,7 +72,7 @@ function UserForm({
 
   return (
     <div className="space-y-4">
-      <div className="text-sm">
+      <div className="text-xs">
         <Toaster position="top-right" />
       </div>
       <PrimaryButton

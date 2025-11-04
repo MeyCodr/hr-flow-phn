@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const body = await req.json();
-    console.log("body:", body);
 
     const { formTypeId, order, role, division, department, section } = body;
 
@@ -34,6 +40,11 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const approvalFlows = await prisma.approvalFlowStep.findMany({
       include: {
         formType: true,

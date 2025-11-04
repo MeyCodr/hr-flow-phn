@@ -5,12 +5,19 @@ import { getToken } from "next-auth/jwt";
 import { User } from "@prisma/client";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ staffid: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { staffid } = await context.params;
 
     console.log("staff id: ", staffid);
@@ -47,6 +54,11 @@ export async function PUT(
   context: { params: Promise<{ staffid: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { staffid } = await context.params;
     const body = await req.json();
 
@@ -140,6 +152,11 @@ export async function POST(
   context: { params: Promise<{ staffid: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { staffid } = await context.params;
 
     // Read the form data (for file uploads)

@@ -2,8 +2,17 @@ import AdminComponent from "@/app/component/admin/AdminComponent";
 import React from "react";
 import { prisma } from "../../../../lib/prisma";
 import { SelfFormData } from "@/app/types/types";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 export default async function Admin() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/"); //protected page
+  }
+
   const userListing = await prisma.user.findMany({
     include: {
       division: true,

@@ -2,9 +2,15 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { prisma } from "../../../../lib/prisma";
 import ApprovalComponent from "@/app/component/approval/ApprovalComponent";
+import { redirect } from "next/navigation";
 
 export default async function Approval() {
   const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/"); //protected page
+  }
+
   const staffid = session?.user?.staffid;
 
   if (!staffid) {

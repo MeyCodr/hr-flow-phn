@@ -4,8 +4,7 @@ import { prisma } from "../../../../../lib/prisma";
 import { compareSync } from "bcrypt";
 import { NextAuthOptions } from "next-auth";
 
-
-export const authOptions: NextAuthOptions  = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -24,7 +23,10 @@ export const authOptions: NextAuthOptions  = {
 
         if (!user) throw new Error("No user found with that staff ID.");
 
-        const passwordIsValid = compareSync(credentials.password, user.password);
+        const passwordIsValid = compareSync(
+          credentials.password,
+          user.password
+        );
         if (!passwordIsValid) throw new Error("Invalid password.");
 
         return {
@@ -45,15 +47,25 @@ export const authOptions: NextAuthOptions  = {
         token.staffid = user.staffid;
         token.name = user.name!;
         token.email = user.email!;
+
+        // Fetch role from DB (you can also preload this above)
+        const dbUser = await prisma.user.findUnique({
+          where: { staffid: user.staffid },
+          select: { role: true },
+        });
+
+        token.role = dbUser?.role || "USER"; // fallback if role missing
       }
       return token;
     },
+
     async session({ session, token }) {
       if (token) {
         session.user = {
           staffid: token.staffid,
           name: token.name,
           email: token.email,
+          role: token.role, // ✅ attach role to session
         };
       }
       return session;

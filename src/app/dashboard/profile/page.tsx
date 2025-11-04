@@ -3,16 +3,21 @@ import ProfileComponent from "@/app/component/profile/ProfileComponent";
 import { prisma } from "../../../../lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.staffid) {
-    return (
-      <div className="text-red-500 p-6">
-        Unauthorized access — please sign in.
-      </div>
-    );
+  if (!session) {
+    redirect("/"); //protected page
   }
+
+  // if (!session?.user?.staffid) {
+  //   return (
+  //     <div className="text-red-500 p-6">
+  //       Unauthorized access — please sign in.
+  //     </div>
+  //   );
+  // }
 
   const getUser = await prisma.user.findUnique({
     where: {
@@ -66,7 +71,7 @@ export default async function ProfilePage() {
           Manage your personal information and view your activity
         </p>
       </div>
-      <ProfileComponent userProfile={getUser} stats={stats}/>
+      <ProfileComponent userProfile={getUser} stats={stats} />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
+import { authOptions } from "../../auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 
 type FormDataType = Record<string, unknown> & {
   division?: string;
@@ -12,6 +14,11 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { id } = await context.params;
     const formId = Number(id);
 

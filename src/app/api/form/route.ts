@@ -3,12 +3,19 @@ import { prisma } from "../../../../lib/prisma";
 import fs from "fs/promises";
 import path from "path";
 import { transporter } from "../../../../lib/emailService";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const formData = await req.formData();
 
     const file = formData.get("fileAttachment") as File | null;
@@ -243,11 +250,16 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(){
-  try{
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const getAllFormSubmission = await prisma.formSubmission.findMany();
     return NextResponse.json(getAllFormSubmission);
-  }catch(error){
-    return NextResponse.json({error: error}, {status: 500})
+  } catch (error) {
+    return NextResponse.json({ error: error }, { status: 500 });
   }
 }

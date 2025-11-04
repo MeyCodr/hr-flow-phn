@@ -119,7 +119,7 @@ function RegisterForm({
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <>
       <motion.div
         key="register-page"
         initial={{ opacity: 0, y: 20 }}
@@ -128,7 +128,7 @@ function RegisterForm({
         transition={{ duration: 0.4, ease: "easeInOut" }}
         className="flex justify-center items-center min-h-screen font-poppins p-6"
       >
-        <div className="text-sm">
+        <div className="text-xs">
           <Toaster position="top-center" />
         </div>
 
@@ -354,7 +354,7 @@ function RegisterForm({
           </div>
         </div>
       </motion.div>
-    </AnimatePresence>
+    </>
   );
 }
 

@@ -146,7 +146,7 @@ function FormInfo({
 
   return (
     <>
-      <div className="text-sm">
+      <div className="text-xs">
         <Toaster position="top-right" />
       </div>
       <LoadingScreen show={loading} />

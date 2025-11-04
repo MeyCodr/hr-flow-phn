@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { hash } from "bcrypt";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    // 2️⃣ Block access if not logged in
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
-    console.log("body: ", body);
 
     // Convert 0 values to null for database fields that should be optional
     const processedBody = {
@@ -93,6 +101,12 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const users = await prisma.user.findMany({
       include: {
         division: true,

@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import crypto from "crypto";
 
 export function getFirstName(fullName: string | null | undefined): string {
   if (!fullName) return "";
@@ -19,3 +20,8 @@ export function getFormRemarks(formData: Prisma.JsonValue | null): string {
   }
   return "";
 }
+
+export function generateResetToken(length: number = 32): string {
+  return crypto.randomBytes(length).toString("hex");
+}
+

@@ -110,7 +110,7 @@ export default function Register() {
 
   return (
     <div className="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 min-h-screen w-full">
-      <div className="text-sm">
+      <div className="text-xs">
         <Toaster position="top-center" />
       </div>
       <RegisterForm
