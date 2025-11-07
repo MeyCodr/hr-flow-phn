@@ -23,3 +23,25 @@ export const roles = [
   { id: "TOP_MANAGEMENT", name: "Top Management" },
   { id: "ADMIN", name: "Admin" },
 ];
+
+export const complaintOptions = [
+  {
+    value: "Working Conditions",
+    label: "Working Conditions (Keadaan Tempat Kerja)",
+  },
+  { value: "Harassment/Bullying", label: "Harassment/Buli (Gangguan/Buli)" },
+  { value: "Discrimination", label: "Discrimination (Diskriminasi)" },
+  {
+    value: "Health & Safety Concerns",
+    label: "Health & Safety Concerns (Kebimbangan Kesihatan & Keselamatan)",
+  },
+  {
+    value: "Pay/Benefits Dispute",
+    label: "Pay/Benefits Dispute (Pertikaian Bayaran/Faedah)",
+  },
+  {
+    value: "Workload or Job Role",
+    label: "Workload or Job Role (Beban Kerja atau Peranan Kerja)",
+  },
+  { value: "Other", label: "Other (Please specify) Lain-lain (Sila Nyatakan)" },
+];

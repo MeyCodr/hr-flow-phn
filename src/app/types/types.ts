@@ -81,6 +81,23 @@ export interface ManPowerTypes {
   remarks: string;
 }
 
+export interface GrievanceReportTypes {
+  fullname: string;
+  department: string;
+  contactNo: string;
+  staffId: "",
+  designation: string;
+  dateOfComplaint: DateValueType;
+  complaintTypes: string;
+  others: string;
+  detailComplaints: string;
+  attemptsResolve: string;
+  preferredOutcome: string;
+  supportEvidence: File | null;
+  declaration: boolean;
+  remarks: string;
+}
+
 export interface UserInfo {
   departmentId: number;
   divisionId: number;

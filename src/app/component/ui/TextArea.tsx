@@ -8,6 +8,7 @@ interface TextAreaProps {
   placeholder: string;
   className?: string;
   disabled?: boolean; // ✅ add disabled prop
+  rows?: number;
 }
 
 function TextArea({
@@ -18,6 +19,7 @@ function TextArea({
   placeholder,
   className,
   disabled = false, // default to false
+  rows
 }: TextAreaProps) {
   return (
     <Textarea
@@ -26,6 +28,7 @@ function TextArea({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
+      rows={rows}
       disabled={disabled} // ✅ apply disabled
       className={`${className} ${
         disabled ? "bg-gray-200 text-gray-400 cursor-not-allowed" : ""
