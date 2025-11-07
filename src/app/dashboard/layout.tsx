@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { User, UserType } from "../types/types";
+import { UserType } from "../types/types";
 
 export default function DashboardLayout({
   children,

@@ -7,13 +7,11 @@ export async function POST(req: NextRequest) {
   // Create Divisions first
   // const createDivision = await prisma.division.createMany({
   //   data: body,
-  //   skipDuplicates: true, // avoids error if division already exists
   // });
 
   // Create Departments
   // const createDepartment = await prisma.department.createMany({
   //   data: body,
-  //   skipDuplicates: true,
   // });
 
   const createSection = await prisma.section.createMany({

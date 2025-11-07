@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { FormSubmissionType, SelfFormData } from "@/app/types/types";
+import { Department, Division, Section, SelfFormData } from "@/app/types/types";
 import ViewSubmission from "../../form/ViewSubmission";
 import axios from "axios";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -15,12 +15,14 @@ export default function FormSubmission({
 }: FormSubmissionProps) {
   const [loading, setLoading] = useState(false);
   const [selectedForm, setSelectedForm] = useState<SelfFormData | null>(null);
+  const [form, setForm] = useState<SelfFormData[]>(formSubmission);
 
   const handleRowClick = (form: SelfFormData) => {
     setSelectedForm(form);
   };
 
   const onBack = () => {
+    fetchFormSubmission();
     setSelectedForm(null);
   };
 
@@ -28,7 +30,7 @@ export default function FormSubmission({
     setLoading(true);
     try {
       const res = await axios.get(`/api/form`);
-      console.log("res data: ", res.data);
+      setForm(res.data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -89,35 +91,38 @@ export default function FormSubmission({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {formSubmission.map((form, i) => (
-                        <tr
-                          key={i}
-                          onClick={() => handleRowClick(form)}
-                          className="hover:bg-indigo-50 transition cursor-pointer"
-                        >
-                          <td className="px-4 py-3 font-medium text-gray-700">
-                            {i + 1}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {form.formType.name}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {form.createdBy.fullname}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {new Intl.DateTimeFormat("en-GB", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }).format(new Date(form.createdAt))}
-                          </td>
-                          <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">
-                            {form.status}
-                          </td>
-                        </tr>
-                      ))}
+                      {form.map((form, i) => {
+                        console.log("form: ", form);
+                        return (
+                          <tr
+                            key={i}
+                            onClick={() => handleRowClick(form)}
+                            className="hover:bg-indigo-50 transition cursor-pointer"
+                          >
+                            <td className="px-4 py-3 font-medium text-gray-700">
+                              {i + 1}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              {form.formType.name}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              {form.createdBy.fullname}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              {new Intl.DateTimeFormat("en-GB", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }).format(new Date(form.createdAt))}
+                            </td>
+                            <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">
+                              {form.status}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

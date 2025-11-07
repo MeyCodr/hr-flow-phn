@@ -5,6 +5,9 @@ import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
+import { UserType } from "@/app/types/types";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
 // Dummy tab components
 function DashboardTab() {
@@ -26,6 +29,8 @@ function SettingTab() {
 export default function Dashboard() {
   const router = useRouter();
   const pathname = usePathname();
+  const [user, setUser] = useState<UserType | null>(null);
+  const { data: session } = useSession();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -38,6 +43,10 @@ export default function Dashboard() {
     profile: "/profile",
     setting: "/setting",
   };
+
+  useEffect(() => {
+    getUser();
+  }, [session]);
 
   // derive tab name from current pathname
   const getTabFromPath = useCallback((): string => {
@@ -77,6 +86,16 @@ export default function Dashboard() {
     setting: <SettingTab />,
   };
 
+  const getUser = async () => {
+    if (!session) return;
+    try {
+      const res = await axios.get(`/api/user/${session.user.staffid}`);
+      setUser(res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100 relative overflow-hidden">
       <Sidebar
@@ -106,6 +125,7 @@ export default function Dashboard() {
           isSidebarOpen={isSidebarOpen}
           toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           onSelectTab={handleTabChange}
+          user={user}
         />
 
         <AnimatePresence mode="wait" initial={false}>

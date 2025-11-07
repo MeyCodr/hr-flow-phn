@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import React, { SetStateAction, useState } from "react";
 import PrimaryButton from "../ui/PrimaryButton";
 import Label from "../ui/Label";
@@ -62,7 +62,18 @@ function RegisterForm({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
+
+    let newValue = value;
+
+    // Apply uppercase only for specific fields
+    if (name === "fullname" || name === "designation" || name === "staffid") {
+      newValue = value.toUpperCase();
+    }
+
+    if (name === "email") {
+      newValue = value.toLowerCase();
+    }
+    setData((prev) => ({ ...prev, [name]: newValue }));
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {

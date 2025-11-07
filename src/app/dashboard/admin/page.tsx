@@ -41,7 +41,11 @@ export default async function Admin() {
       attachments: true,
       createdBy: true,
       formType: true,
-      approvals: true,
+      approvals: {
+        include: {
+          approver: true,
+        },
+      },
     },
   });
 

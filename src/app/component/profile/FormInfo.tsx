@@ -101,7 +101,15 @@ function FormInfo({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
+
+    let newValue = value;
+    if (name === "fullname" || name === "designation") {
+      newValue = value.toUpperCase();
+    }
+    if (name === "email") {
+      newValue = value.toUpperCase();
+    }
+    setData((prev) => ({ ...prev, [name]: newValue }));
   };
 
   const addDashOption = (menu: { id: number; name: string }[]) => {

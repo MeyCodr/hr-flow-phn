@@ -30,6 +30,7 @@ const loadImage = async (url: string): Promise<string> => {
 };
 
 export const downloadFormPDF = async (data: FormPDFData) => {
+  console.log("data: ", data);
   const {
     formData,
     departmentName,

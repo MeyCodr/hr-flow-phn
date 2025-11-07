@@ -5,8 +5,7 @@ import { Input } from "../ui/Input";
 import Label from "../ui/Label";
 import PrimaryButton from "../ui/PrimaryButton";
 import toast, { Toaster } from "react-hot-toast";
-import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 
 export interface Password {

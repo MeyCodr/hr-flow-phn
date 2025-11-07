@@ -14,8 +14,7 @@ import {
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
-import { Prisma } from "@prisma/client";
-import { Approval } from "../approval/ApprovalComponent";
+import { FormStatus } from "@prisma/client";
 import { getFormRemarks } from "../../../../lib/utils";
 import LoadingScreen from "../ui/LoadingScreen";
 import PrimaryButton from "../ui/PrimaryButton";
@@ -25,14 +24,18 @@ import ManPowerRequisitionView from "./hr-form/view/ManPowerRequisitionView";
 import ActionModal from "../ui/ActionModal";
 import Label from "../ui/Label";
 import { TextArea } from "../ui/TextArea";
-
-
+import { Approval } from "../approval/ApprovalComponent";
 
 interface ViewSubmissionProps {
   onBack?: () => void;
   selfForm: SelfFormData;
   onActionComplete?: () => void;
 }
+
+type EditedApproval = {
+  status: FormStatus;
+  remarks?: string | null;
+};
 
 export default function ViewSubmission({
   onBack,
@@ -53,6 +56,11 @@ export default function ViewSubmission({
     null
   );
   const [userSession, setUserSession] = useState<fullUserInfo>();
+  const [editedApprovals, setEditedApprovals] = useState<
+    Record<number, EditedApproval>
+  >({});
+  const [form, setForm] = useState<SelfFormData>(selfForm);
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -123,12 +131,12 @@ export default function ViewSubmission({
       .catch(console.error);
   };
 
-  const nextApproval = selfForm.approvals?.find(
+  const nextApproval = form.approvals?.find(
     (a: { approverId: number; status: string }) => a.status === "PENDING"
   );
 
   const isFormCompleted =
-    selfForm.status === "APPROVED" || selfForm.status === "REJECTED";
+    form.status === "APPROVED" || form.status === "REJECTED";
 
   const canApprove =
     !isFormCompleted && nextApproval?.approverId === userSession?.id;
@@ -140,7 +148,7 @@ export default function ViewSubmission({
 
   const performApproval = async () => {
     if (!actionType) return;
-    const remarks = selfForm.formData;
+    const remarks = form.formData;
     setLoading(true);
     try {
       await axios.post("/api/approval-form/action", {
@@ -161,26 +169,72 @@ export default function ViewSubmission({
     }
   };
 
-  const mappedApprovals: ApprovalUser[] = selfForm.approvals.map(
-    (a, index) => ({
-      id: a.id,
-      submissionId: selfForm.id,
-      approverId: a.approverId,
-      status: a.status as "PENDING" | "APPROVED" | "REJECTED" | "WAITING",
-      stepOrder: index + 1, // or use real stepOrder if available
-      remarks: a.remarks || null,
-      approvedAt: a.approvedAt || null,
-      approver: a.approver
-        ? {
-            staffid: a.approver.staffid,
-            email: a.approver.email,
-            name: a.approver.fullname,
-          }
-        : undefined,
-    })
-  );
+  const mappedApprovals: ApprovalUser[] = form.approvals.map((a, index) => ({
+    id: a.id,
+    submissionId: form.id,
+    approverId: a.approverId,
+    status: a.status as "PENDING" | "APPROVED" | "REJECTED" | "WAITING",
+    stepOrder: index + 1, // or use real stepOrder if available
+    remarks: a.remarks || null,
+    approvedAt: a.approvedAt || null,
+    approver: a.approver
+      ? {
+          staffid: a.approver.staffid,
+          email: a.approver.email,
+          name: a.approver.fullname,
+        }
+      : undefined,
+  }));
 
-  if (!selfForm) {
+  const handleAdminStatusChange = (id: number, newStatus: FormStatus) => {
+    setEditedApprovals((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], status: newStatus },
+    }));
+  };
+
+  const handleAdminApprovalSave = async (approval: Approval) => {
+    const edited = editedApprovals[approval.id];
+    if (!edited?.status) return;
+
+    try {
+      setLoading(true);
+
+      await axios.put(`/api/form/${approval.id}`, {
+        newStatus: edited.status,
+        formId: form.id,
+      });
+
+      await fetchForm();
+      alert("Approval status updated successfully!");
+      if (onActionComplete) await onActionComplete();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update approval status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchForm = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`/api/form/${selfForm.id}`);
+      const latestForm: SelfFormData = res.data;
+      console.log("latest form: ", latestForm);
+
+      // Update state
+      setForm(latestForm);
+      // setUserSession(latestForm.createdBy); // or latestForm.user if returned separately
+      setEditedApprovals({}); // reset admin edits
+    } catch (error) {
+      console.error("Failed to fetch form:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!form) {
     return (
       <p className="text-center text-sm text-gray-500 py-6">
         Loading form data ...
@@ -193,44 +247,60 @@ export default function ViewSubmission({
       <LoadingScreen show={loading} />
       <div className="bg-white my-6 p-6 rounded-lg border border-gray-300 shadow-xs">
         {/* Header */}
-        <div className="mb-4">
+        <div className="mb-4 flex justify-between">
           <PrimaryButton
             name="Back to list"
             icon={<IoReturnDownBack className="w-5 h-5" />}
             onClick={onBack}
             className="text-indigo-800 hover:text-indigo-500 text-xs font-medium cursor-pointer"
           />
+
+          <div className="flex gap-x-4">
+            <span
+              className={` px-4 py-2 text-xs font-semibold rounded ${
+                form.status === "APPROVED"
+                  ? "bg-green-100 text-green-700"
+                  : form.status === "REJECTED"
+                  ? "bg-red-100 text-red-700"
+                  : "bg-yellow-100 text-yellow-700"
+              }`}
+            >
+              {form.status}
+            </span>
+          </div>
         </div>
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-xl font-semibold text-gray-800">
-              {selfForm.formType.name}
+              {form.formType.name}
             </h1>
             <p className="text-xs text-indigo-800 font-light">
               This form is strictly for reference/viewing.
             </p>
+
+            {/* ✅ Admin controls: Edit Status */}
           </div>
 
           <PrimaryButton
             name="Download PDF"
             onClick={() =>
               downloadFormPDF({
-                formData: selfForm.formData,
-                departmentName: selfForm.departmentName ?? "",
-                divisionName: selfForm.divisionName ?? "",
-                sectionName: selfForm.sectionName ?? "",
-                createdBy: selfForm.createdBy,
+                formData: form.formData,
+                departmentName: form.departmentName ?? "",
+                divisionName: form.divisionName ?? "",
+                sectionName: form.sectionName ?? "",
+                createdBy: form.createdBy,
                 approvals: mappedApprovals,
               })
             }
-            className="bg-purple-700 text-white px-3 py-2 text-xs rounded-sm hover:bg-purple-900 cursor-pointer duration-200 transition-all ease-in-out"
+            className="bg-purple-700 text-white px-3 py-2 text-xs rounded-sm hover:bg-purple-900 cursor-pointer"
             icon={<MdOutlineFileDownload className="w-5 h-5" />}
           />
         </div>
 
         <div>
           <ManPowerRequisitionView
-            formId={selfForm.id}
+            formId={form.id}
             divisions={divisions}
             departments={departments}
             sections={sections}
@@ -239,7 +309,7 @@ export default function ViewSubmission({
             setSelectedSection={setSelectedSection}
             setSelectedWorkLocation={setSelectedWorkLocation}
             user={user}
-            selfForm={selfForm}
+            selfForm={form}
           />
 
           <div>
@@ -277,9 +347,8 @@ export default function ViewSubmission({
         </div>
       </div>
 
-      {/* ✅ Approval Remarks Section */}
       {/* ✅ Approval Timeline Section */}
-      {selfForm.approvals && selfForm.approvals.length > 0 && (
+      {form.approvals && form.approvals.length > 0 && (
         <div className="mt-10">
           <div className="mb-6">
             <h1 className="font-semibold text-lg text-gray-800">
@@ -291,7 +360,7 @@ export default function ViewSubmission({
           </div>
 
           <div className="relative border-l border-gray-300 pl-6 space-y-8">
-            {selfForm.approvals.map((approval, index) => (
+            {form.approvals.map((approval, index) => (
               <div key={approval.id} className="relative">
                 {/* Timeline dot */}
                 <div
@@ -328,17 +397,40 @@ export default function ViewSubmission({
                           : "Pending approval"}
                       </p>
                     </div>
-                    <span
-                      className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                        approval.status === "APPROVED"
-                          ? "bg-green-100 text-green-700"
-                          : approval.status === "REJECTED"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {approval.status}
-                    </span>
+
+                    {/* ✅ Admin can change status */}
+                    {userSession?.role === "ADMIN" ? (
+                      <select
+                        className="text-xs border border-gray-300 rounded px-2 py-1 bg-white cursor-pointer"
+                        value={
+                          editedApprovals[approval.id]?.status ||
+                          approval.status
+                        }
+                        onChange={(e) =>
+                          handleAdminStatusChange(
+                            approval.id,
+                            e.target.value as FormStatus
+                          )
+                        }
+                      >
+                        <option value="PENDING">PENDING</option>
+                        <option value="WAITING">WAITING</option>
+                        <option value="APPROVED">APPROVED</option>
+                        <option value="REJECTED">REJECTED</option>
+                      </select>
+                    ) : (
+                      <span
+                        className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                          approval.status === "APPROVED"
+                            ? "bg-green-100 text-green-700"
+                            : approval.status === "REJECTED"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {approval.status}
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -356,6 +448,15 @@ export default function ViewSubmission({
                       onChange={() => {}}
                       placeholder=""
                     />
+
+                    {userSession?.role === "ADMIN" && (
+                      <PrimaryButton
+                        name="Save Changes"
+                        type="button"
+                        className="mt-2 text-xs bg-purple-700 text-white px-3 py-2 rounded hover:bg-purple-900 cursor-pointer"
+                        onClick={() => handleAdminApprovalSave(approval)}
+                      />
+                    )}
                   </div>
                 </div>
               </div>

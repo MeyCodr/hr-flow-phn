@@ -4,7 +4,6 @@ import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import AccountDropdown from "./AccountDropdown";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
 import { getFirstName } from "../../../../lib/utils";
 import { UserType } from "@/app/types/types";
 
@@ -26,7 +25,6 @@ export default function Navbar({
   user,
 }: NavbarProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  console.log("user: ", user);
 
   return (
     <motion.header

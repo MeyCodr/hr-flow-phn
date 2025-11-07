@@ -5,7 +5,7 @@ import { Input } from "../ui/Input";
 import Label from "../ui/Label";
 import PrimaryButton from "../ui/PrimaryButton";
 import toast, { Toaster } from "react-hot-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import ActionModal from "../ui/ActionModal";
@@ -28,7 +28,12 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
+
+    let newValue = value;
+    if (name === "staffid") {
+      newValue = value.toUpperCase();
+    }
+    setData((prev) => ({ ...prev, [name]: newValue }));
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {

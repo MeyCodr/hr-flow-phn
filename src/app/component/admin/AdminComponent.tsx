@@ -3,7 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { TabItem } from "../ui/Tabs";
 import UserListing from "./user/UserListing";
-import { Department, Division, FormSubmissionType, Section, SelfFormData, UserType } from "@/app/types/types";
+import {
+  Department,
+  Division,
+  Section,
+  SelfFormData,
+  UserType,
+} from "@/app/types/types";
 import axios from "axios";
 import FormTypeComponent from "./form-type/FormTypeComponent";
 import { ApprovalFlowStep, FormType } from "@prisma/client";
@@ -32,6 +38,7 @@ export default function AdminComponent({
   const [sections, setSections] = useState<Section[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  
 
   useEffect(() => {
     axios
@@ -137,7 +144,9 @@ export default function AdminComponent({
           animate="visible"
           variants={tabContentVariants}
         >
-          <FormSubmission formSubmission={formSubmission}/>
+          <FormSubmission
+            formSubmission={formSubmission}
+          />
         </motion.div>
       ),
     },

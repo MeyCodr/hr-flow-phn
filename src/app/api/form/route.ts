@@ -5,6 +5,7 @@ import path from "path";
 import { transporter } from "../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { Prisma } from "@prisma/client";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -116,68 +117,49 @@ export async function POST(req: NextRequest) {
       console.warn(`⚠️ No approval flow steps found for formTypeId: ${formId}`);
     }
 
-    // ✅ Process each approval step
+    const assignedApprovers: number[] = [];
+
     for (const step of approvalFlowSteps) {
-      let approvers = [];
+      let approver = null;
 
-      switch (step.role) {
-        case "HEAD_OF_DIVISION":
-          approvers = await prisma.user.findMany({
-            where: {
-              role: step.role,
-              divisionId: step.divisionId ?? findUser.divisionId, // dynamic or static
-            },
-          });
-          break;
+      const baseWhere: Prisma.UserWhereInput = {
+        role: step.role,
+        id: { notIn: assignedApprovers }, // ✅ EXCLUDE already assigned approvers
+      };
 
-        case "HEAD_OF_DEPARTMENT":
-          approvers = await prisma.user.findMany({
-            where: {
-              role: step.role,
-              departmentId: step.departmentId ?? findUser.departmentId,
-            },
-          });
-          break;
-
-        case "HEAD_OF_SECTION":
-          approvers = await prisma.user.findMany({
-            where: {
-              role: step.role,
-              sectionId: step.sectionId ?? findUser.sectionId,
-            },
-          });
-          break;
-
-        default:
-          approvers = await prisma.user.findMany({
-            where: {
-              role: step.role,
-              divisionId: step.divisionId ?? findUser.divisionId,
-            },
-          });
-          break;
+      // ✅ Dynamic lookup based on flow config
+      if (step.divisionId !== null) {
+        baseWhere.divisionId = Number(step.divisionId);
+      } else if (step.departmentId !== null) {
+        baseWhere.departmentId = Number(step.departmentId);
+      } else if (step.sectionId !== null) {
+        baseWhere.sectionId = Number(step.sectionId);
+      } else {
+        baseWhere.divisionId = findUser.divisionId; // fallback to requester division
       }
 
-      if (approvers.length === 0) {
+      approver = await prisma.user.findFirst({
+        where: baseWhere,
+        orderBy: { id: "asc" }, // deterministic
+      });
+
+      if (!approver) {
         console.warn(
-          `⚠️ No approvers found for ${step.role} in step ${step.order}`
+          `⚠️ No approver found for Role=${step.role} at step ${step.order}`
         );
         continue;
       }
 
-      // ✅ Create approvals for all approvers in this step
-      await Promise.all(
-        approvers.map((approver) =>
-          prisma.approval.create({
-            data: {
-              submissionId: formSubmission.id,
-              approverId: approver.id,
-              stepOrder: step.order,
-              status: step.order === 1 ? "PENDING" : "WAITING",
-            },
-          })
-        )
-      );
+      assignedApprovers.push(approver.id);
+
+      await prisma.approval.create({
+        data: {
+          submissionId: formSubmission.id,
+          approverId: approver.id,
+          stepOrder: step.order,
+          status: step.order === 1 ? "PENDING" : "WAITING",
+        },
+      });
     }
 
     // const createdApprovals = await prisma.approval.findMany({
@@ -257,9 +239,56 @@ export async function GET() {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const getAllFormSubmission = await prisma.formSubmission.findMany();
-    return NextResponse.json(getAllFormSubmission);
+
+    // Fetch form submissions with createdBy and approvals
+    const submissions = await prisma.formSubmission.findMany({
+      include: {
+        attachments: true,
+        createdBy: true,
+        formType: true,
+        approvals: {
+          include: {
+            approver: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Map to flatten division, department, section names
+    const mapped = await Promise.all(
+      submissions.map(async (sub) => {
+        const createdBy = sub.createdBy;
+
+        // Fetch related names
+        const [division, department, section] = await Promise.all([
+          createdBy.divisionId
+            ? prisma.division.findUnique({
+                where: { id: createdBy.divisionId },
+              })
+            : null,
+          createdBy.departmentId
+            ? prisma.department.findUnique({
+                where: { id: createdBy.departmentId },
+              })
+            : null,
+          createdBy.sectionId
+            ? prisma.section.findUnique({ where: { id: createdBy.sectionId } })
+            : null,
+        ]);
+
+        return {
+          ...sub,
+          departmentName: department?.name || null,
+          divisionName: division?.name || null,
+          sectionName: section?.name || null,
+        };
+      })
+    );
+
+    return NextResponse.json(mapped);
   } catch (error) {
+    console.error("Error fetching form submissions:", error);
     return NextResponse.json({ error: error }, { status: 500 });
   }
 }

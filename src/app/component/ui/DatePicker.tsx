@@ -48,7 +48,7 @@ export default function DatePicker({
   const handleDateSelect = (date: Date) => {
     if (disabled) return;
     setSelectedDate(date);
-    const dateString = date.toISOString().split("T")[0];
+    const dateString = date.toLocaleDateString("en-CA");
     onChange(dateString);
     setIsOpen(false);
   };

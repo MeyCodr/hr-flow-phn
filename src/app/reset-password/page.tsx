@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { LoginForm } from "../component/form/LoginForm";
-import { signIn, useSession } from "next-auth/react";
+import React, { Suspense, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import LoadingScreen from "../component/ui/LoadingScreen";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,6 +12,14 @@ import {
 } from "../component/form/ResetPasswordForm";
 
 export default function ResetPassword() {
+  return (
+    <Suspense fallback={<LoadingScreen show={true} />}>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
+
+function ResetPasswordContent() {
   const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
   const search = useSearchParams();
@@ -25,7 +32,6 @@ export default function ResetPassword() {
   }, [session, router]);
 
   const resetPassword = async (values: Password) => {
-    console.log("values: ", values);
     setLoading(true);
     const token = search.get("token");
     if (!token) return;
@@ -35,7 +41,7 @@ export default function ResetPassword() {
       if (res.status === 200) {
         toast.success("Password has been reset!");
         setTimeout(() => {
-            router.push('/');
+          router.push("/");
         }, 1000);
       }
     } catch (error) {
