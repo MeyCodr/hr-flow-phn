@@ -10,6 +10,9 @@ import { Prisma } from "@prisma/client";
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
 
+console.log("email from: ", emailFrom);
+
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -23,6 +26,11 @@ export async function POST(req: NextRequest) {
     const user = JSON.parse(formData.get("user") as string);
     const formId = Number(formData.get("formId"));
     const data = JSON.parse(formData.get("data") as string);
+
+    console.log("file: ", file);
+    console.log("user: ", user);
+    console.log("formId: ", formId);
+    console.log("data: ", data);
 
     // ✅ Validate user
     if (!user) {

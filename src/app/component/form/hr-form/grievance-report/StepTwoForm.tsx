@@ -36,7 +36,8 @@ function StepTwoForm({
                 handleChangeCheckbox({
                   target: {
                     name: "complaintTypes",
-                    value: option.value,
+                    value:
+                      data.complaintTypes === option.value ? "" : option.value,
                   },
                 } as React.ChangeEvent<HTMLInputElement>)
               }
@@ -47,7 +48,10 @@ function StepTwoForm({
                   handleChangeCheckbox({
                     target: {
                       name: "complaintTypes",
-                      value: option.value,
+                      value:
+                        data.complaintTypes === option.value
+                          ? ""
+                          : option.value,
                     },
                   } as React.ChangeEvent<HTMLInputElement>)
                 }

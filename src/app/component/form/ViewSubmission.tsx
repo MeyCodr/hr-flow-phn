@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from "react";
+"use client";
 
+import React, { useEffect, useState } from "react";
 import { IoReturnDownBack } from "react-icons/io5";
+import { MdOutlineFileDownload } from "react-icons/md";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 
 import {
   ApprovalUser,
@@ -11,16 +15,13 @@ import {
   SelfFormData,
   User,
 } from "@/app/types/types";
-import axios from "axios";
-import { useSession } from "next-auth/react";
-
 import { FormStatus } from "@prisma/client";
-import { getFormRemarks } from "../../../../lib/utils";
+import { getFormRemarks, sanitizeName } from "../../../../lib/utils";
+import { downloadFormPDF } from "../../../../lib/pdfDownloader";
+import { HrFormComponents } from "../../../../lib/hrformcomponents";
+
 import LoadingScreen from "../ui/LoadingScreen";
 import PrimaryButton from "../ui/PrimaryButton";
-import { downloadFormPDF } from "../../../../lib/pdfDownloader";
-import { MdOutlineFileDownload } from "react-icons/md";
-import ManPowerRequisitionView from "./hr-form/view/ManPowerRequisitionView";
 import ActionModal from "../ui/ActionModal";
 import Label from "../ui/Label";
 import { TextArea } from "../ui/TextArea";
@@ -60,22 +61,19 @@ export default function ViewSubmission({
     Record<number, EditedApproval>
   >({});
   const [form, setForm] = useState<SelfFormData>(selfForm);
-
   const [loading, setLoading] = useState(false);
 
+  const sanitizedKey = sanitizeName(form.formType.name);
+  const FormComponent = HrFormComponents[sanitizedKey];
+
   useEffect(() => {
-    if (session) {
-      const user = session.user;
-      setUser(user);
-    }
+    if (session) setUser(session.user);
   }, [session]);
 
   useEffect(() => {
     axios
       .get("/api/division")
-      .then((res) => {
-        setDivisions(res.data);
-      })
+      .then((res) => setDivisions(res.data))
       .catch(console.error);
   }, []);
 
@@ -85,15 +83,14 @@ export default function ViewSubmission({
         .get(`/api/department?divisionId=${selectedDivision}`)
         .then((res) => {
           setDepartments(res.data);
-          setSections([]); // ✅ clear sections when division changes
+          setSections([]);
         })
         .catch(console.error);
     } else {
-      setDepartments([]); // ✅ clear both if division cleared
+      setDepartments([]);
       setSections([]);
     }
 
-    // also clear current selections
     setSelectedDepartment("");
     setSelectedSection("");
   }, [selectedDivision]);
@@ -102,38 +99,29 @@ export default function ViewSubmission({
     if (selectedDepartment) {
       axios
         .get(`/api/section?departmentId=${selectedDepartment}`)
-        .then((res) => {
-          setSections(res.data);
-        })
+        .then((res) => setSections(res.data))
         .catch(console.error);
     } else {
-      setSections([]); // ✅ clear sections if no department selected
+      setSections([]);
     }
 
-    // clear selected section every time department changes
     setSelectedSection("");
   }, [selectedDepartment]);
 
   useEffect(() => {
-    if (user) {
-      findUser();
-    }
+    if (user) findUser();
   }, [user]);
 
   const findUser = async () => {
-    await axios
-      .get(`/api/user/${user?.staffid}`)
-      .then((res) => {
-        const data = res.data.data;
-        setUserSession(data);
-        console.log("res user: ", data);
-      })
-      .catch(console.error);
+    try {
+      const res = await axios.get(`/api/user/${user?.staffid}`);
+      setUserSession(res.data.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const nextApproval = form.approvals?.find(
-    (a: { approverId: number; status: string }) => a.status === "PENDING"
-  );
+  const nextApproval = form.approvals?.find((a) => a.status === "PENDING");
 
   const isFormCompleted =
     form.status === "APPROVED" || form.status === "REJECTED";
@@ -148,17 +136,15 @@ export default function ViewSubmission({
 
   const performApproval = async () => {
     if (!actionType) return;
-    const remarks = form.formData;
     setLoading(true);
     try {
       await axios.post("/api/approval-form/action", {
         approvalId: nextApproval?.id,
         action: actionType,
-        remarks: getFormRemarks(remarks),
+        remarks: getFormRemarks(form.formData),
       });
       if (onActionComplete) await onActionComplete();
       if (onBack) await onBack();
-      // Optionally refresh data or call a parent callback
     } catch (error) {
       console.error(error);
       alert("Failed to perform action");
@@ -174,7 +160,7 @@ export default function ViewSubmission({
     submissionId: form.id,
     approverId: a.approverId,
     status: a.status as "PENDING" | "APPROVED" | "REJECTED" | "WAITING",
-    stepOrder: index + 1, // or use real stepOrder if available
+    stepOrder: index + 1,
     remarks: a.remarks || null,
     approvedAt: a.approvedAt || null,
     approver: a.approver
@@ -199,12 +185,10 @@ export default function ViewSubmission({
 
     try {
       setLoading(true);
-
       await axios.put(`/api/form/${approval.id}`, {
         newStatus: edited.status,
         formId: form.id,
       });
-
       await fetchForm();
       alert("Approval status updated successfully!");
       if (onActionComplete) await onActionComplete();
@@ -220,13 +204,8 @@ export default function ViewSubmission({
     try {
       setLoading(true);
       const res = await axios.get(`/api/form/${selfForm.id}`);
-      const latestForm: SelfFormData = res.data;
-      console.log("latest form: ", latestForm);
-
-      // Update state
-      setForm(latestForm);
-      // setUserSession(latestForm.createdBy); // or latestForm.user if returned separately
-      setEditedApprovals({}); // reset admin edits
+      setForm(res.data);
+      setEditedApprovals({});
     } catch (error) {
       console.error("Failed to fetch form:", error);
     } finally {
@@ -254,7 +233,6 @@ export default function ViewSubmission({
             onClick={onBack}
             className="text-indigo-800 hover:text-indigo-500 text-xs font-medium cursor-pointer"
           />
-
           <div className="flex gap-x-4">
             <span
               className={` px-4 py-2 text-xs font-semibold rounded ${
@@ -269,6 +247,7 @@ export default function ViewSubmission({
             </span>
           </div>
         </div>
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-xl font-semibold text-gray-800">
@@ -277,8 +256,6 @@ export default function ViewSubmission({
             <p className="text-xs text-indigo-800 font-light">
               This form is strictly for reference/viewing.
             </p>
-
-            {/* ✅ Admin controls: Edit Status */}
           </div>
 
           <PrimaryButton
@@ -299,37 +276,42 @@ export default function ViewSubmission({
         </div>
 
         <div>
-          <ManPowerRequisitionView
-            formId={form.id}
-            divisions={divisions}
-            departments={departments}
-            sections={sections}
-            setSelectedDivision={setSelectedDivision}
-            setSelectedDepartment={setSelectedDepartment}
-            setSelectedSection={setSelectedSection}
-            setSelectedWorkLocation={setSelectedWorkLocation}
-            user={user}
-            selfForm={form}
-          />
+          {/* Dynamic Form Rendering */}
+          {FormComponent ? (
+            <FormComponent
+              formId={form.id}
+              selfForm={form}
+              user={user}
+              divisions={divisions}
+              departments={departments}
+              sections={sections}
+              setSelectedDivision={setSelectedDivision}
+              setSelectedDepartment={setSelectedDepartment}
+              setSelectedSection={setSelectedSection}
+              setSelectedWorkLocation={setSelectedWorkLocation}
+              readOnly={true}
+            />
+          ) : (
+            <p className="text-sm text-gray-500">Form type not supported.</p>
+          )}
 
-          <div>
-            {canApprove && (
-              <div className="flex gap-x-4 justify-end">
-                <PrimaryButton
-                  name="Reject"
-                  type="button"
-                  onClick={() => handleActionClick("reject")}
-                  className="border border-red-600 bg-red-600 text-white px-6 py-2 shadow-md text-xs rounded-sm cursor-pointer hover:bg-red-700 hover:border-red-700 ease-in-out duration-200 transition-all"
-                />
-                <PrimaryButton
-                  name="Approve"
-                  type="button"
-                  onClick={() => handleActionClick("approve")}
-                  className="border border-indigo-800 bg-indigo-800 text-white px-6 py-2 shadow-md text-xs rounded-sm cursor-pointer hover:bg-indigo-700 hover:border-indigo-700 ease-in-out duration-200 transition-all"
-                />
-              </div>
-            )}
-          </div>
+          {/* Approve / Reject Buttons */}
+          {canApprove && (
+            <div className="flex gap-x-4 justify-end mt-4">
+              <PrimaryButton
+                name="Reject"
+                type="button"
+                onClick={() => handleActionClick("reject")}
+                className="border border-red-600 bg-red-600 text-white px-6 py-2 shadow-md text-xs rounded-sm cursor-pointer hover:bg-red-700 hover:border-red-700 transition-all"
+              />
+              <PrimaryButton
+                name="Approve"
+                type="button"
+                onClick={() => handleActionClick("approve")}
+                className="border border-indigo-800 bg-indigo-800 text-white px-6 py-2 shadow-md text-xs rounded-sm cursor-pointer hover:bg-indigo-700 hover:border-indigo-700 transition-all"
+              />
+            </div>
+          )}
 
           <ActionModal
             isOpen={confirmModalOpen}
@@ -347,7 +329,7 @@ export default function ViewSubmission({
         </div>
       </div>
 
-      {/* ✅ Approval Timeline Section */}
+      {/* Approval Timeline */}
       {form.approvals && form.approvals.length > 0 && (
         <div className="mt-10">
           <div className="mb-6">
@@ -362,7 +344,6 @@ export default function ViewSubmission({
           <div className="relative border-l border-gray-300 pl-6 space-y-8">
             {form.approvals.map((approval, index) => (
               <div key={approval.id} className="relative">
-                {/* Timeline dot */}
                 <div
                   className={`absolute -left-[10px] top-1 w-4 h-4 rounded-full border-2 ${
                     approval.status === "APPROVED"
@@ -373,7 +354,6 @@ export default function ViewSubmission({
                   }`}
                 ></div>
 
-                {/* Timeline content */}
                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
                   <div className="flex justify-between items-center mb-2">
                     <div>
@@ -398,7 +378,6 @@ export default function ViewSubmission({
                       </p>
                     </div>
 
-                    {/* ✅ Admin can change status */}
                     {userSession?.role === "ADMIN" ? (
                       <select
                         className="text-xs border border-gray-300 rounded px-2 py-1 bg-white cursor-pointer"
@@ -446,7 +425,7 @@ export default function ViewSubmission({
                       className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-800 text-xs bg-gray-50 resize-none focus:outline-none"
                       name="remarks"
                       onChange={() => {}}
-                      placeholder=""
+                      placeholder={""}
                     />
 
                     {userSession?.role === "ADMIN" && (

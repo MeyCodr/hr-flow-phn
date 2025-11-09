@@ -28,7 +28,9 @@ export default function ManPower({
   user,
   onSubmitSuccess,
   formId,
-}: DynamicFormProps) {
+  selfForm,
+  readOnly = false,
+}: DynamicFormProps & { readOnly?: boolean }) {
   const [data, setData] = useState<ManPowerTypes>({
     category: null,
     createddate: null,
@@ -264,7 +266,11 @@ export default function ManPower({
                 />
                 <DatePicker
                   value={data.createddate}
-                  onChange={handleDateChange("createddate")}
+                  // onChange={handleDateChange("createddate")}
+                  onChange={
+                    readOnly ? () => {} : handleDateChange("createddate")
+                  }
+                  disabled={readOnly}
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -289,6 +295,7 @@ export default function ManPower({
                       section: "",
                     }));
                   }}
+                  disabled={readOnly}
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -311,6 +318,7 @@ export default function ManPower({
                       section: "",
                     }));
                   }}
+                  disabled={readOnly}
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -328,6 +336,7 @@ export default function ManPower({
                     setSelectedSection(value);
                     setData((prev) => ({ ...prev, section: value }));
                   }}
+                  disabled={readOnly}
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -341,7 +350,8 @@ export default function ManPower({
                   name="reportingTo"
                   type="text"
                   value={data.reportingTo}
-                  onChange={handleChange}
+                  onChange={readOnly ? () => {} : handleChange}
+                  disabled={readOnly}
                   placeholder="Reporting To"
                   required
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -358,7 +368,9 @@ export default function ManPower({
                   name="noRequested"
                   type="text"
                   value={data.noRequested}
-                  onChange={handleChange}
+                  // onChange={readOnly ? () => {} : handleChange}
+                  disabled={readOnly}
+                  onChange={readOnly ? () => {} : handleChange}
                   placeholder="No Requested"
                   required
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -379,7 +391,8 @@ export default function ManPower({
                     name="currentHeadCount"
                     type="text"
                     value={data.currentHeadCount}
-                    onChange={handleChange}
+                    onChange={readOnly ? () => {} : handleChange}
+                    disabled={readOnly}
                     placeholder="Current Headcount"
                     required
                     className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -398,7 +411,8 @@ export default function ManPower({
                     name="approvedRequirement"
                     type="text"
                     value={data.approvedRequirement}
-                    onChange={handleChange}
+                    onChange={readOnly ? () => {} : handleChange}
+                    disabled={readOnly}
                     placeholder="Approved Requirement"
                     required
                     className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -420,6 +434,7 @@ export default function ManPower({
                     setSelectedWorkLocation(value);
                     setData((prev) => ({ ...prev, workLocation: value }));
                   }}
+                  disabled={readOnly}
                 />
               </div>
               <div className="flex flex-col space-y-4 my-1">
@@ -438,6 +453,7 @@ export default function ManPower({
                           workStation: prev.workStation === "Yes" ? "" : "Yes",
                         }))
                       }
+                      disabled={readOnly}
                     />
                     <Label
                       name="Yes"
@@ -454,6 +470,7 @@ export default function ManPower({
                           workStation: prev.workStation === "No" ? "" : "No",
                         }))
                       }
+                      disabled={readOnly}
                     />
                     <Label
                       name="No"
@@ -482,6 +499,7 @@ export default function ManPower({
                               : "Permanent",
                         }))
                       }
+                      disabled={readOnly}
                     />
                     <Label
                       name="Permanent"
@@ -501,6 +519,7 @@ export default function ManPower({
                               : "Contract",
                         }))
                       }
+                      disabled={readOnly}
                     />
                     <Label
                       name="Contract"
@@ -521,7 +540,8 @@ export default function ManPower({
                   name="manpowerPlan"
                   type="text"
                   value={data.manpowerPlan}
-                  onChange={handleChange}
+                  onChange={readOnly ? () => {} : handleChange}
+                  disabled={readOnly}
                   placeholder="Manpower Plan"
                   required
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -538,7 +558,8 @@ export default function ManPower({
                   name="approvedAmp"
                   type="text"
                   value={data.approvedAmp}
-                  onChange={handleChange}
+                  onChange={readOnly ? () => {} : handleChange}
+                  disabled={readOnly}
                   placeholder="Approved AMP"
                   required
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -561,6 +582,7 @@ export default function ManPower({
                 name="keyRequirement"
                 value={data.keyRequirement}
                 onChange={handleTextAreaChange}
+                disabled={readOnly}
                 placeholder="Key Requirement"
                 className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
@@ -576,6 +598,7 @@ export default function ManPower({
                 name="keyResponsibilities"
                 value={data.keyResponsibilities}
                 onChange={handleTextAreaChange}
+                disabled={readOnly}
                 placeholder="Key Responsibilities"
                 className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
@@ -611,6 +634,7 @@ export default function ManPower({
                                 : prev.lastWorkingDay,
                           }))
                         }
+                        disabled={readOnly}
                       />
                       <Label
                         name="Replacement"
@@ -637,7 +661,7 @@ export default function ManPower({
                         name="incumbentName"
                         type="text"
                         value={data.incumbentName}
-                        onChange={handleChange}
+                        onChange={readOnly ? () => {} : handleChange}
                         placeholder="Incumbent Name"
                         required
                         disabled={data.selectedOption !== "replacement"} // only editable if Replacement is selected
@@ -683,6 +707,7 @@ export default function ManPower({
                               : "additional",
                         }))
                       }
+                      disabled={readOnly}
                     />
                     <Label
                       name="Additional"
@@ -708,7 +733,7 @@ export default function ManPower({
                         name="productionVolumeIncrease"
                         type="text"
                         value={data.productionVolumeIncrease}
-                        onChange={handleChange}
+                        onChange={readOnly ? () => {} : handleChange}
                         placeholder="Production Volume Increase (Item)"
                         required
                         disabled={data.selectedOption !== "additional"}
@@ -731,7 +756,7 @@ export default function ManPower({
                         name="newProject"
                         type="text"
                         value={data.newProject}
-                        onChange={handleChange}
+                        onChange={readOnly ? () => {} : handleChange}
                         placeholder="New Project"
                         required
                         disabled={data.selectedOption !== "additional"}
@@ -754,7 +779,7 @@ export default function ManPower({
                         name="machineFaulty"
                         type="text"
                         value={data.machineFaulty}
-                        onChange={handleChange}
+                        onChange={readOnly ? () => {} : handleChange}
                         placeholder="Machine Faulty"
                         required
                         disabled={data.selectedOption !== "additional"}
@@ -777,7 +802,7 @@ export default function ManPower({
                         name="other"
                         type="text"
                         value={data.other}
-                        onChange={handleChange}
+                        onChange={readOnly ? () => {} : handleChange}
                         placeholder="Other"
                         required
                         disabled={data.selectedOption !== "additional"}
@@ -802,12 +827,21 @@ export default function ManPower({
 
                 <label
                   htmlFor="fileAttachment"
-                  className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-3 text-xs text-gray-600  transition hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
+                  className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs transition
+    ${
+      readOnly
+        ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
+        : "bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
+    }`}
                 >
                   <span className="truncate">
                     {file ? file.name : "Choose a file or drag & drop"}
                   </span>
-                  <span className="ml-2 rounded bg-indigo-800 px-3 py-1 text-xs font-medium text-white">
+                  <span
+                    className={`ml-2 rounded px-3 py-1 text-xs font-medium text-white ${
+                      readOnly ? "bg-gray-400" : "bg-indigo-800"
+                    }`}
+                  >
                     Browse
                   </span>
                   <input
@@ -819,6 +853,7 @@ export default function ManPower({
                       const selectedFile = e.target.files?.[0] || null;
                       setFile(selectedFile);
                     }}
+                    disabled={readOnly}
                   />
                 </label>
 
@@ -839,6 +874,7 @@ export default function ManPower({
                   name="remarks"
                   value={data.remarks}
                   onChange={handleTextAreaChange}
+                  disabled={readOnly}
                   placeholder="Remarks"
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />

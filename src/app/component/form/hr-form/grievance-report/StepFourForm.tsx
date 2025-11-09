@@ -80,19 +80,21 @@ function StepFourForm({
               htmlFor="declaration"
               className=""
             />
-            <div className="flex items-center gap-4">
-              <CheckBox
-                checked={data.declaration}
-                onChange={(checked) =>
-                  handleCheckboxBoolean("declaration", checked)
-                }
-              />
+            <div className="cursor-pointer" onClick={() => handleCheckboxBoolean("declaration", !data.declaration)}>
+              <div className="flex items-center gap-4">
+                <CheckBox
+                  checked={data.declaration}
+                  onChange={(checked) =>
+                    handleCheckboxBoolean("declaration", checked)
+                  }
+                />
 
-              <Label
-                name="Yes, I declare all of the information is true"
-                htmlFor="declaration"
-                className=""
-              />
+                <Label
+                  name="Yes, I declare all of the information is true"
+                  htmlFor="declaration"
+                  className="cursor-pointer"
+                />
+              </div>
             </div>
           </div>
         </div>

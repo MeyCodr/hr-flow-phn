@@ -83,11 +83,13 @@ export interface ManPowerTypes {
 
 export interface GrievanceReportTypes {
   fullname: string;
-  department: string;
   contactNo: string;
-  staffId: "",
+  staffId: string;
   designation: string;
   dateOfComplaint: DateValueType;
+  division: string;
+  department: string;
+  section: string;
   complaintTypes: string;
   others: string;
   detailComplaints: string;
@@ -105,6 +107,8 @@ export interface UserInfo {
   sectionId: number;
   workLocation: string;
   designation?: string;
+  fullname: string;
+  staffid: string;
 }
 
 export interface fullUserInfo {
@@ -202,7 +206,6 @@ export interface FormSubmissionType {
     uploadedAt: Date;
   }[];
 }
-
 
 export interface SelfFormData {
   id: number;

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import LoadingScreen from "../../../ui/LoadingScreen";
 import ProgressBar from "../../../ui/ProgressBar";
-import { GrievanceReportTypes } from "@/app/types/types";
+import { GrievanceReportTypes, UserInfo } from "@/app/types/types";
 import { StepOneForm } from "./StepOneForm";
 import { StepTwoForm } from "./StepTwoForm";
 import { StepThreeForm } from "./StepThreeForm";
@@ -15,6 +15,12 @@ import axios from "axios";
 import ActionModal from "@/app/component/ui/ActionModal";
 
 export default function GrievanceReport({
+  divisions,
+  departments,
+  sections,
+  setSelectedDivision,
+  setSelectedDepartment,
+  setSelectedSection,
   user,
   onSubmitSuccess,
   formId,
@@ -24,6 +30,8 @@ export default function GrievanceReport({
   const [step, setStep] = useState(1);
   const [data, setData] = useState<GrievanceReportTypes>({
     fullname: "",
+    division: "",
+    section: "",
     department: "",
     contactNo: "",
     staffId: "",
@@ -38,8 +46,42 @@ export default function GrievanceReport({
     declaration: false,
     remarks: "",
   });
+  const [userInfo, setUserInfo] = useState<UserInfo>();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    const staffid = user.staffid;
+    console.log("staffid: ", staffid);
+
+    if (!staffid) {
+      return;
+    }
+
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(`/api/user/${staffid}`);
+        console.log("res: ", res.data.data);
+        const userInfo = res.data.data;
+        setData((prev) => ({
+          ...prev,
+          designation: userInfo.designation,
+        }));
+        setUserInfo(userInfo);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error fetching user:", error.message);
+        } else {
+          console.error("Unknown error fetching user:", error);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -82,7 +124,7 @@ export default function GrievanceReport({
     if (data.supportEvidence) {
       formData.append("fileAttachment", data.supportEvidence);
     }
-    formData.append("data", JSON.stringify({...data, remarks}));
+    formData.append("data", JSON.stringify({ ...data, remarks }));
 
     setLoading(true);
     try {
@@ -90,8 +132,10 @@ export default function GrievanceReport({
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Form submitted successfully!");
-      router.replace("/dashboard/forms");
-      onSubmitSuccess?.();
+      setTimeout(() => {
+        router.replace("/dashboard/forms");
+        onSubmitSuccess?.();
+      }, 1000);
     } catch (error) {
       console.error(error);
     } finally {
@@ -101,13 +145,51 @@ export default function GrievanceReport({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (step < totalSteps) {
-      return setStep(step + 1);
+
+    if (!validateStep()) {
+      toast.error("Please fill in all required fields before proceeding.");
+      return;
     }
-    setOpen(true);
+
+    if (step < totalSteps) {
+      setStep(step + 1);
+    } else {
+      setOpen(true);
+    }
   };
 
   const goBack = () => setStep(Math.max(step - 1, 1));
+
+  const validateStep = (): boolean => {
+    switch (step) {
+      case 1:
+        return (
+          !!data.fullname &&
+          !!data.division &&
+          !!data.department &&
+          !!data.section &&
+          !!data.contactNo &&
+          !!data.staffId &&
+          !!data.designation
+        );
+
+      case 2:
+        return (
+          !!data.complaintTypes &&
+          (data.complaintTypes !== "Other" || !!data.others) &&
+          !!data.detailComplaints
+        );
+
+      case 3:
+        return !!data.attemptsResolve && !!data.preferredOutcome;
+
+      case 4:
+        return data.declaration === true; // must check the declaration box
+
+      default:
+        return true;
+    }
+  };
 
   return (
     <>
@@ -131,7 +213,18 @@ export default function GrievanceReport({
 
         <div className="flex-grow">
           {step === 1 && (
-            <StepOneForm data={data} handleChange={handleChange} />
+            <StepOneForm
+              data={data}
+              handleChange={handleChange}
+              divisions={divisions}
+              departments={departments}
+              sections={sections}
+              setSelectedDivision={setSelectedDivision}
+              setSelectedDepartment={setSelectedDepartment}
+              setSelectedSection={setSelectedSection}
+              setData={setData}
+              userInfo={userInfo}
+            />
           )}
           {step === 2 && (
             <StepTwoForm

@@ -5,11 +5,18 @@ import Card from "@/app/component/ui/Card";
 import { HrFormComponents } from "../../../../../lib/hrformcomponents";
 import PrimaryButton from "@/app/component/ui/PrimaryButton";
 import axios from "axios";
-import { Department, Division, Section, User } from "@/app/types/types";
+import {
+  Department,
+  Division,
+  Section,
+  SelfFormData,
+  User,
+} from "@/app/types/types";
 import { IoReturnDownBack } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
+import { sanitizeName } from "../../../../../lib/utils";
 
 export interface DynamicFormProps {
   divisions: Division[];
@@ -22,6 +29,9 @@ export interface DynamicFormProps {
   user: User | null;
   onSubmitSuccess?: () => void;
   formId: number | null;
+  selfForm?: SelfFormData;
+  readOnly?: boolean;
+  
 }
 
 interface FlowStep {
@@ -124,8 +134,12 @@ export default function HrFormsClient({
     router.push(`/dashboard/forms`);
   };
 
+  // const DynamicFormComponent = selectedFormName
+  //   ? HrFormComponents[selectedFormName]
+  //   : null;
+
   const DynamicFormComponent = selectedFormName
-    ? HrFormComponents[selectedFormName]
+    ? HrFormComponents[sanitizeName(selectedFormName)]
     : null;
 
   const cardVariants: Variants = {
@@ -228,9 +242,3 @@ export default function HrFormsClient({
   );
 }
 
-function sanitizeName(name: string) {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "-")
-    .replace(/-+/g, "-");
-}
