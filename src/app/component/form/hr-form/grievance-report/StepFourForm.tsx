@@ -1,6 +1,6 @@
 import CheckBox from "@/app/component/ui/CheckBox";
 import Label from "@/app/component/ui/Label";
-import { GrievanceReportTypes } from "@/app/types/types";
+import { GrievanceReportTypes, SelfFormData } from "@/app/types/types";
 import { useState } from "react";
 
 interface StepFour {
@@ -11,6 +11,8 @@ interface StepFour {
     value: boolean
   ) => void;
   handleFileChange: (file: File | null) => void;
+  readOnly?: boolean;
+  selfForm?: SelfFormData;
 }
 
 /* ✅ You can replace with real input fields */
@@ -18,17 +20,24 @@ function StepFourForm({
   data,
   handleCheckboxBoolean,
   handleFileChange,
+  readOnly,
+  selfForm,
 }: StepFour) {
   const [file, setFile] = useState<File | null>(null);
+
+  const parsedData = selfForm?.formData as unknown as GrievanceReportTypes;
+  const formData = readOnly && parsedData ? parsedData : data;
+  const fileData = selfForm?.attachments;
+  console.log("file Data: ", fileData);
 
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
         <h2 className="font-semibold text-sm mb-4">
-          Supporting Evidence (If any) / Bukti Sokongan (Jika Ada)
+          F. Supporting Evidence (If any) / Bukti Sokongan (Jika Ada)
         </h2>
         <h2 className="font-semibold text-sm mb-4">
-          Declaration (Pengisytiharan)
+          G. Declaration (Pengisytiharan)
         </h2>
       </div>
 
@@ -45,12 +54,21 @@ function StepFourForm({
 
             <label
               htmlFor="fileAttachment"
-              className="flex max-w-sm cursor-pointer items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-3 text-xs text-gray-600  transition hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800 mt-2"
+              className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs transition
+                  ${
+                    readOnly
+                      ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
+                  }`}
             >
               <span className="truncate">
                 {file ? file.name : "Choose a file or drag & drop"}
               </span>
-              <span className="ml-2 rounded bg-indigo-800 px-3 py-1 text-xs font-medium text-white">
+              <span
+                className={`ml-2 rounded px-3 py-1 text-xs font-medium text-white ${
+                  readOnly ? "bg-gray-400" : "bg-indigo-800"
+                }`}
+              >
                 Browse
               </span>
               <input
@@ -63,6 +81,7 @@ function StepFourForm({
                   setFile(selectedFile);
                   handleFileChange(selectedFile); // pass to parent
                 }}
+                disabled={readOnly}
               />
             </label>
 
@@ -71,6 +90,19 @@ function StepFourForm({
                 📎 <strong>Selected:</strong> {file.name}
               </div>
             )}
+
+            {readOnly &&
+              fileData && parsedData &&
+              fileData.map((item, i) => (
+                <a
+                  key={i}
+                  href={`/uploads/${encodeURIComponent(item.fileName)}`} // 👈 direct link to public folder
+                  download={item.fileName} // 👈 triggers browser download
+                  className="mt-1 block w-full rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
+                >
+                  📎 <strong>Download:</strong> {item.fileName}
+                </a>
+              ))}
           </div>
         </div>
         <div className="text-xs">
@@ -80,10 +112,16 @@ function StepFourForm({
               htmlFor="declaration"
               className=""
             />
-            <div className="cursor-pointer" onClick={() => handleCheckboxBoolean("declaration", !data.declaration)}>
+            <div
+              className="cursor-pointer"
+              onClick={() =>
+                handleCheckboxBoolean("declaration", !data.declaration)
+              }
+            >
               <div className="flex items-center gap-4">
                 <CheckBox
-                  checked={data.declaration}
+                  //   checked={data.declaration}
+                  checked={formData.declaration ?? ""}
                   onChange={(checked) =>
                     handleCheckboxBoolean("declaration", checked)
                   }

@@ -45,3 +45,10 @@ export const complaintOptions = [
   },
   { value: "Other", label: "Other (Please specify) Lain-lain (Sila Nyatakan)" },
 ];
+
+export const reportingToOptions = [
+  { id: 1, name: "Supervisor" },
+  { id: 2, name: "Executive/Senior Executive" },
+  { id: 3, name: "Head of Section/Assistant Manager" },
+  { id: 4, name: "Head of Department/Manager" },
+];

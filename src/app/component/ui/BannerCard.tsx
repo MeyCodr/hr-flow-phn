@@ -5,6 +5,8 @@ import { FaCalendarAlt } from "react-icons/fa";
 import PrimaryButton from "./PrimaryButton";
 import axios from "axios";
 import ActionModal from "./ActionModal";
+import { UserType } from "@/app/types/types";
+import toast, { Toaster } from "react-hot-toast";
 
 export interface BannerCardProps {
   approvalId?: number;
@@ -74,9 +76,11 @@ export default function BannerCard({
         action: actionType,
         remarks,
       });
+      toast.success("Form has been processed successfully.");
       if (onActionComplete) await onActionComplete();
     } catch (error) {
       console.error("Error handling approval action:", error);
+      toast.error("There was an error processing the form. Please try again.");
     } finally {
       setLoading(false);
       setConfirmModalOpen(false);
@@ -91,12 +95,10 @@ export default function BannerCard({
 
   const openForm = () => {
     if (onClick) {
-      console.log("onclick: ", onClick);
       onClick();
     }
   };
 
-  console.log("name: ", name);
   const parts = name.trim().split(/\s+/);
   const initials =
     parts.length > 1
@@ -105,6 +107,9 @@ export default function BannerCard({
 
   return (
     <>
+      <div className="text-sm">
+        <Toaster position="top-right" />
+      </div>
       <div
         onClick={openForm}
         className="bg-white w-full rounded-xl border border-gray-300 shadow-sm hover:shadow-md hover:bg-indigo-50 transition-all duration-200 p-4 cursor-pointer"
@@ -193,42 +198,44 @@ export default function BannerCard({
             ) : (
               <>
                 {/* Actions */}
-                <div className="flex flex-col items-end gap-1">
-                  <div className="flex gap-2">
-                    <PrimaryButton
-                      name={loading ? "Processing..." : "Reject"}
-                      disabled={isLocked || loading}
-                      className={`w-24 rounded-md py-2 text-xs font-medium transition-all duration-200 ${
-                        isLocked
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-red-600 hover:bg-red-700 text-white cursor-pointer"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        confirmAction("reject");
-                      }}
-                    />
-                    <PrimaryButton
-                      name={loading ? "Processing..." : "Approve"}
-                      disabled={isLocked || loading}
-                      className={`w-24 rounded-md py-2 text-xs font-medium transition-all duration-200 ${
-                        isLocked
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-indigo-700 hover:bg-indigo-800 text-white cursor-pointer"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        confirmAction("approve");
-                      }}
-                    />
-                  </div>
+                {roles && roles !== "ADMIN" && (
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex gap-2">
+                      <PrimaryButton
+                        name={loading ? "Processing..." : "Reject"}
+                        disabled={isLocked || loading}
+                        className={`w-24 rounded-md py-2 text-xs font-medium transition-all duration-200 ${
+                          isLocked
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-red-600 hover:bg-red-700 text-white cursor-pointer"
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          confirmAction("reject");
+                        }}
+                      />
+                      <PrimaryButton
+                        name={loading ? "Processing..." : "Approve"}
+                        disabled={isLocked || loading}
+                        className={`w-24 rounded-md py-2 text-xs font-medium transition-all duration-200 ${
+                          isLocked
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-indigo-700 hover:bg-indigo-800 text-white cursor-pointer"
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          confirmAction("approve");
+                        }}
+                      />
+                    </div>
 
-                  {isLocked && (
-                    <p className="text-[0.6rem] text-gray-500 italic mt-1">
-                      Waiting for Level {activeLevel} to approve first.
-                    </p>
-                  )}
-                </div>
+                    {isLocked && (
+                      <p className="text-[0.6rem] text-gray-500 italic mt-1">
+                        Waiting for Level {activeLevel} to approve first.
+                      </p>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </>

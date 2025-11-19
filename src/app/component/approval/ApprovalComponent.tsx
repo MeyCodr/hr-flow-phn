@@ -154,11 +154,14 @@ export default function ApprovalComponent({
     (f) => f.status === "PENDING"
   );
   const userFormsHistory = formsWithLevels.filter(
-    (f) => f.status === "APPROVED" || f.status === "REJECTED"
+    (f) => f.status === "APPROVED" || f.status === "REJECTED" || f.status === "ESCALATED"
   );
   const approvalsHistory = approvals.filter(
-    (a) => a.status === "APPROVED" || a.status === "REJECTED"
+    (a) => a.status === "APPROVED" || a.status === "REJECTED" || a.status === "ESCALATED"
   );
+
+  //if admin
+
 
   const categories: TabItem[] = [
     {

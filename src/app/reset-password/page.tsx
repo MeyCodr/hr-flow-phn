@@ -45,6 +45,7 @@ function ResetPasswordContent() {
         }, 1000);
       }
     } catch (error) {
+      console.log(error);
       toast.error("Unable to reset password. Please contact your admin.");
     } finally {
       setLoading(false);

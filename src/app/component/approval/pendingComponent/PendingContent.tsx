@@ -24,6 +24,7 @@ export default function PendingContent({
   onActionComplete,
   onViewForm,
 }: PendingContentProps) {
+
   const pendingApprovals = approvals.filter(
     (approval) => approval.status === "PENDING"
   );
@@ -56,7 +57,7 @@ export default function PendingContent({
           const remarks =
             (submission.formData as { remarks?: string } | null)?.remarks ||
             "No remarks yet";
-
+          console.log("user pending: ", user);
           return (
             <BannerCard
               key={`approval-${approval.id}`}

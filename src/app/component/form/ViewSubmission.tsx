@@ -16,7 +16,7 @@ import {
   User,
 } from "@/app/types/types";
 import { FormStatus } from "@prisma/client";
-import { getFormRemarks, sanitizeName } from "../../../../lib/utils";
+import { sanitizeName } from "../../../../lib/utils";
 import { downloadFormPDF } from "../../../../lib/pdfDownloader";
 import { HrFormComponents } from "../../../../lib/hrformcomponents";
 
@@ -26,6 +26,7 @@ import ActionModal from "../ui/ActionModal";
 import Label from "../ui/Label";
 import { TextArea } from "../ui/TextArea";
 import { Approval } from "../approval/ApprovalComponent";
+import toast, { Toaster } from "react-hot-toast";
 
 interface ViewSubmissionProps {
   onBack?: () => void;
@@ -62,6 +63,7 @@ export default function ViewSubmission({
   >({});
   const [form, setForm] = useState<SelfFormData>(selfForm);
   const [loading, setLoading] = useState(false);
+  const [activeAdminModal, setActiveAdminModal] = useState<number | null>(null);
 
   const sanitizedKey = sanitizeName(form.formType.name);
   const FormComponent = HrFormComponents[sanitizedKey];
@@ -134,14 +136,14 @@ export default function ViewSubmission({
     setConfirmModalOpen(true);
   };
 
-  const performApproval = async () => {
+  const performApproval = async (remarks: string) => {
     if (!actionType) return;
     setLoading(true);
     try {
       await axios.post("/api/approval-form/action", {
         approvalId: nextApproval?.id,
         action: actionType,
-        remarks: getFormRemarks(form.formData),
+        remarks: remarks,
       });
       if (onActionComplete) await onActionComplete();
       if (onBack) await onBack();
@@ -179,8 +181,13 @@ export default function ViewSubmission({
     }));
   };
 
-  const handleAdminApprovalSave = async (approval: Approval) => {
+  const handleAdminApprovalSave = async (
+    approval: Approval,
+    remarks: string
+  ) => {
+
     const edited = editedApprovals[approval.id];
+    console.log("edited approval: ", edited);
     if (!edited?.status) return;
 
     try {
@@ -188,13 +195,14 @@ export default function ViewSubmission({
       await axios.put(`/api/form/${approval.id}`, {
         newStatus: edited.status,
         formId: form.id,
+        remarks: remarks,
       });
       await fetchForm();
-      alert("Approval status updated successfully!");
+      toast.success("Approval status updated successfully!");
       if (onActionComplete) await onActionComplete();
     } catch (error) {
       console.error(error);
-      alert("Failed to update approval status");
+      toast.error("Failed to update approval status");
     } finally {
       setLoading(false);
     }
@@ -215,9 +223,11 @@ export default function ViewSubmission({
 
   if (!form) {
     return (
-      <p className="text-center text-sm text-gray-500 py-6">
-        Loading form data ...
-      </p>
+      <div className="flex justify-center items-center h-[300px] bg-white my-6 p-6 rounded-lg border border-gray-300 shadow-xs">
+        <p className="text-center text-sm text-gray-500">
+          Loading form data ...
+        </p>
+      </div>
     );
   }
 
@@ -240,7 +250,9 @@ export default function ViewSubmission({
                   ? "bg-green-100 text-green-700"
                   : form.status === "REJECTED"
                   ? "bg-red-100 text-red-700"
-                  : "bg-yellow-100 text-yellow-700"
+                  : form.status === "WAITING"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-gray-100 text-gray-700"
               }`}
             >
               {form.status}
@@ -262,6 +274,8 @@ export default function ViewSubmission({
             name="Download PDF"
             onClick={() =>
               downloadFormPDF({
+                formTypeId: form.formTypeId,
+                formType: form.formType.name,
                 formData: form.formData,
                 departmentName: form.departmentName ?? "",
                 divisionName: form.divisionName ?? "",
@@ -321,7 +335,7 @@ export default function ViewSubmission({
             message={`Please check the details of the form carefully. Once ${
               actionType === "approve" ? "approved" : "rejected"
             }, this action cannot be undone.`}
-            onConfirm={performApproval}
+            onConfirm={(remarks) => performApproval(remarks)}
             onCancel={() => setConfirmModalOpen(false)}
             confirmText={actionType === "approve" ? "Approve" : "Reject"}
             cancelText="Cancel"
@@ -350,7 +364,11 @@ export default function ViewSubmission({
                       ? "border-green-600 bg-green-100"
                       : approval.status === "REJECTED"
                       ? "border-red-600 bg-red-100"
-                      : "border-yellow-500 bg-yellow-100"
+                      : approval.status === "ESCALATED"
+                      ? "border-orange-600 bg-orange-100"
+                      : approval.status === "WAITING"
+                      ? "border-yellow-600 bg-yellow-100"
+                      : "border-gray-600 bg-gray-100"
                   }`}
                 ></div>
 
@@ -393,6 +411,7 @@ export default function ViewSubmission({
                         }
                       >
                         <option value="PENDING">PENDING</option>
+                        <option value="ESCALATED">ESCALATED</option>
                         <option value="WAITING">WAITING</option>
                         <option value="APPROVED">APPROVED</option>
                         <option value="REJECTED">REJECTED</option>
@@ -404,7 +423,11 @@ export default function ViewSubmission({
                             ? "bg-green-100 text-green-700"
                             : approval.status === "REJECTED"
                             ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-700"
+                            : approval.status === "ESCALATED"
+                            ? "bg-orange-100 text-orange-700"
+                            : approval.status === "WAITING"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-gray-100 text-gray-700"
                         }`}
                       >
                         {approval.status}
@@ -433,9 +456,23 @@ export default function ViewSubmission({
                         name="Save Changes"
                         type="button"
                         className="mt-2 text-xs bg-purple-700 text-white px-3 py-2 rounded hover:bg-purple-900 cursor-pointer"
-                        onClick={() => handleAdminApprovalSave(approval)}
+                        // onClick={() => handleAdminApprovalSave(approval)}
+                        onClick={() => setActiveAdminModal(approval.id)}
                       />
                     )}
+
+                    <ActionModal
+                      isOpen={activeAdminModal === approval.id} // ✅ only open for this approval
+                      title={`Do you want to change this approval status?`}
+                      message={""}
+                      onConfirm={(remarks) => {
+                        handleAdminApprovalSave(approval, remarks);
+                        setActiveAdminModal(null); // ✅ close modal after confirm
+                      }}
+                      onCancel={() => setActiveAdminModal(null)} // ✅ close modal on cancel
+                      confirmText="Yes, Save"
+                      cancelText="Cancel"
+                    />
                   </div>
                 </div>
               </div>

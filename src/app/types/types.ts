@@ -79,6 +79,10 @@ export interface ManPowerTypes {
   approvedby: string;
   fileAttachment?: File | null;
   remarks: string;
+  selectedReasons: string[];
+  divisionName?: string;
+  departmentName?: string;
+  sectionName?: string;
 }
 
 export interface GrievanceReportTypes {
@@ -98,6 +102,9 @@ export interface GrievanceReportTypes {
   supportEvidence: File | null;
   declaration: boolean;
   remarks: string;
+  divisionName?: string;
+  departmentName?: string;
+  sectionName?: string;
 }
 
 export interface UserInfo {
@@ -209,6 +216,7 @@ export interface FormSubmissionType {
 
 export interface SelfFormData {
   id: number;
+  formTypeId: number;
   formType: {
     name: string;
   };

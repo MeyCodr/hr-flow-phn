@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Department, Division, Section, SelfFormData } from "@/app/types/types";
+import { SelfFormData } from "@/app/types/types";
 import ViewSubmission from "../../form/ViewSubmission";
 import axios from "axios";
 import { motion, AnimatePresence, Variants } from "framer-motion";

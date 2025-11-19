@@ -9,6 +9,7 @@ export default async function Forms(props: {
 }) {
   // ✅ Await searchParams first
   const session = await getServerSession(authOptions);
+  console.log("session in forms page: ", session);
 
   if (!session) {
     redirect("/"); //protected page

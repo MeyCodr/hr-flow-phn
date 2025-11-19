@@ -24,7 +24,9 @@ export default function GrievanceReport({
   user,
   onSubmitSuccess,
   formId,
-}: DynamicFormProps) {
+  selfForm,
+  readOnly = false,
+}: DynamicFormProps & { readOnly?: boolean }) {
   const [loading, setLoading] = useState(false);
   const totalSteps = 4;
   const [step, setStep] = useState(1);
@@ -50,12 +52,14 @@ export default function GrievanceReport({
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
+  console.log("deaprtmetns here: ", departments);
+
   useEffect(() => {
     if (!user) {
       return;
     }
     const staffid = user.staffid;
-    console.log("staffid: ", staffid);
+    console.log("staffid admin here: ", staffid);
 
     if (!staffid) {
       return;
@@ -128,7 +132,7 @@ export default function GrievanceReport({
 
     setLoading(true);
     try {
-      await axios.post(`/api/form`, formData, {
+      await axios.post(`/api/form/grievance-post`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Form submitted successfully!");
@@ -146,9 +150,11 @@ export default function GrievanceReport({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!validateStep()) {
-      toast.error("Please fill in all required fields before proceeding.");
-      return;
+    if (!readOnly) {
+      if (!validateStep()) {
+        toast.error("Please fill in all required fields before proceeding.");
+        return;
+      }
     }
 
     if (step < totalSteps) {
@@ -191,6 +197,20 @@ export default function GrievanceReport({
     }
   };
 
+  console.log("self form data here: ", selfForm);
+  // const parsedData = selfForm?.formData as unknown as GrievanceReportTypes;
+
+  if (!selfForm) {
+    return <div>Loading...</div>;
+  }
+
+  const parsedData: GrievanceReportTypes = {
+    ...(selfForm.formData as unknown as GrievanceReportTypes),
+    divisionName: selfForm.divisionName,
+    departmentName: selfForm.departmentName,
+    sectionName: selfForm.sectionName,
+  };
+
   return (
     <>
       <div className="text-xs">
@@ -201,15 +221,24 @@ export default function GrievanceReport({
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white mx-auto p-4 mt-6 rounded-xl min-h-[450px] border border-gray-300 flex flex-col"
+        className={`bg-white max-w-6xl rounded-xl ${
+          readOnly ? "p-0" : "p-4 border border-gray-300 "
+        }`}
       >
         <div className="mb-4">
-          <h1 className="text-xl font-semibold">Grievance Report</h1>
+          <h1 className="text-xl font-semibold">
+            {readOnly ? "" : "Grievance Report"}
+          </h1>
           <p className="text-sm text-indigo-800">
-            Submit your grievance to our management.
+            {readOnly ? "" : "Submit your grievance to our management."}
           </p>
         </div>
-        <ProgressBar currentStep={step} totalSteps={totalSteps} />
+
+        {readOnly ? (
+          ""
+        ) : (
+          <ProgressBar currentStep={step} totalSteps={totalSteps} />
+        )}
 
         <div className="flex-grow">
           {step === 1 && (
@@ -224,6 +253,8 @@ export default function GrievanceReport({
               setSelectedSection={setSelectedSection}
               setData={setData}
               userInfo={userInfo}
+              readOnly={readOnly}
+              parsedData={parsedData}
             />
           )}
           {step === 2 && (
@@ -232,12 +263,16 @@ export default function GrievanceReport({
               handleChange={handleChange}
               handleChangeCheckbox={handleChangeCheckbox}
               handleTextAreaChange={handleTextAreaChange}
+              readOnly={readOnly}
+              parsedData={parsedData}
             />
           )}
           {step === 3 && (
             <StepThreeForm
               data={data}
               handleTextAreaChange={handleTextAreaChange}
+              readOnly={readOnly}
+              parsedData={parsedData}
             />
           )}
           {step === 4 && (
@@ -246,6 +281,8 @@ export default function GrievanceReport({
               handleTextAreaChange={handleTextAreaChange}
               handleCheckboxBoolean={handleCheckboxBoolean}
               handleFileChange={handleFileChange}
+              readOnly={readOnly}
+              selfForm={selfForm}
             />
           )}
         </div>
@@ -263,12 +300,35 @@ export default function GrievanceReport({
             <div />
           )}
 
-          <button
-            type="submit"
-            className="px-4 py-2 text-xs bg-indigo-800 hover:bg-indigo-900 cursor-pointer text-white rounded"
-          >
-            {step === totalSteps ? "Submit" : "Next"}
-          </button>
+          {step === totalSteps ? (
+            !readOnly ? (
+              <button
+                type="submit"
+                disabled={readOnly && step === totalSteps} // ✅ disable only on Submit step
+                className={`px-4 py-2 text-xs rounded text-white  ${
+                  readOnly && step === totalSteps
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-indigo-800 hover:bg-indigo-900 cursor-pointer"
+                }`}
+              >
+                Submit
+              </button>
+            ) : (
+              <></>
+            )
+          ) : (
+            <button
+              type="submit"
+              disabled={readOnly && step === totalSteps} // ✅ disable only on Submit step
+              className={`px-4 py-2 text-xs rounded text-white flex justify-end  ${
+                readOnly && step === totalSteps
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-indigo-800 hover:bg-indigo-900 cursor-pointer"
+              }`}
+            >
+              Next
+            </button>
+          )}
         </div>
       </form>
 

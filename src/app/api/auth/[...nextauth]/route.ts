@@ -43,19 +43,24 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
+      // On first login, attach user data
       if (user) {
         token.staffid = user.staffid;
-        token.name = user.name!;
-        token.email = user.email!;
+      }
 
-        // Fetch role from DB (you can also preload this above)
+      // 🔥 Always load fresh user data from DB
+      if (token.staffid) {
         const dbUser = await prisma.user.findUnique({
-          where: { staffid: user.staffid },
-          select: { role: true },
+          where: { staffid: token.staffid },
         });
 
-        token.role = dbUser?.role || "USER"; // fallback if role missing
+        if (dbUser) {
+          token.name = dbUser.fullname;
+          token.email = dbUser.email;
+          token.role = dbUser.role;
+        }
       }
+
       return token;
     },
 

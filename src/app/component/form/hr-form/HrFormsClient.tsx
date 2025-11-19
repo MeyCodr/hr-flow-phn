@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import Card from "@/app/component/ui/Card";
-import { HrFormComponents } from "../../../../../lib/hrformcomponents";
+import {
+  HrFormComponents,
+  HrFormIcons,
+} from "../../../../../lib/hrformcomponents";
 import PrimaryButton from "@/app/component/ui/PrimaryButton";
 import axios from "axios";
 import {
@@ -31,7 +34,6 @@ export interface DynamicFormProps {
   formId: number | null;
   selfForm?: SelfFormData;
   readOnly?: boolean;
-  
 }
 
 interface FlowStep {
@@ -184,23 +186,28 @@ export default function HrFormsClient({
               initial="hidden"
               animate="visible"
             >
-              {safeForms.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  custom={index}
-                  variants={cardVariants}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  <Card
-                    formId={item.id}
-                    title={item.name}
-                    description={item.description ?? ""}
-                    approvals={item.flowSteps.length}
-                    onClick={() => handleCardClick(item)}
-                  />
-                </motion.div>
-              ))}
+              {safeForms.map((item, index) => {
+                const sanitized = sanitizeName(item.name);
+                const icon = HrFormIcons[sanitized] || HrFormIcons.default;
+                return (
+                  <motion.div
+                    key={item.id}
+                    custom={index}
+                    variants={cardVariants}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <Card
+                      formId={item.id}
+                      title={item.name}
+                      description={item.description ?? ""}
+                      approvals={item.flowSteps.length}
+                      onClick={() => handleCardClick(item)}
+                      icon={icon}
+                    />
+                  </motion.div>
+                );
+              })}
             </motion.div>
           </motion.div>
         )}
@@ -241,4 +248,3 @@ export default function HrFormsClient({
     </div>
   );
 }
-

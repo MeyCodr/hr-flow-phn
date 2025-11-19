@@ -1,25 +1,31 @@
-import CheckBox from "@/app/component/ui/CheckBox";
-import { Input } from "@/app/component/ui/Input";
 import Label from "@/app/component/ui/Label";
 import { GrievanceReportTypes } from "@/app/types/types";
-import { complaintOptions } from "../../../../../../lib/data";
 import { TextArea } from "@/app/component/ui/TextArea";
 
-interface StepThree {
+interface StepThreeProps {
   data: GrievanceReportTypes;
   handleTextAreaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  readOnly?: boolean;
+  parsedData?: GrievanceReportTypes;
 }
 
-/* ✅ You can replace with real input fields */
-function StepThreeForm({ data, handleTextAreaChange }: StepThree) {
+function StepThreeForm({
+  data,
+  handleTextAreaChange,
+  readOnly,
+  parsedData,
+}: StepThreeProps) {
+  const formData = readOnly && parsedData ? parsedData : data;
+  console.log("form data: ", formData);
+
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
         <h2 className="font-semibold text-sm mb-4">
-          Attempts to Resolve The Issue (Cubaan Awal Untuk Menyelesaikan Isu)
+          D. Attempts to Resolve The Issue (Cubaan Awal Untuk Menyelesaikan Isu)
         </h2>
         <h2 className="font-semibold text-sm mb-4">
-          Preferred Outcome (Penyelesaian Yang Diharapkan)
+          E. Preferred Outcome (Penyelesaian Yang Diharapkan)
         </h2>
       </div>
 
@@ -36,8 +42,9 @@ function StepThreeForm({ data, handleTextAreaChange }: StepThree) {
             <TextArea
               id="attemptsResolve"
               name="attemptsResolve"
-              value={data.attemptsResolve}
+              value={formData.attemptsResolve ?? ""}
               onChange={handleTextAreaChange}
+              disabled={readOnly}
               rows={6}
               placeholder="Attempts to Resolve"
               className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -54,8 +61,9 @@ function StepThreeForm({ data, handleTextAreaChange }: StepThree) {
             <TextArea
               id="preferredOutcome"
               name="preferredOutcome"
-              value={data.preferredOutcome}
+              value={formData.preferredOutcome ?? ""}
               onChange={handleTextAreaChange}
+              disabled={readOnly}
               rows={6}
               placeholder="Preferred Outcome"
               className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"

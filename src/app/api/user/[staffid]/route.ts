@@ -61,6 +61,7 @@ export async function PUT(
     }
     const { staffid } = await context.params;
     const body = await req.json();
+    console.log("user body: ", body);
 
     const {
       fullname,
@@ -106,18 +107,21 @@ export async function PUT(
       workLocation,
     };
 
-    // Convert if division/department/section are objects or ids
-    if (division) {
-      updateData.divisionId =
-        typeof division === "object" ? division.id : Number(division);
-    }
     if (department) {
-      updateData.departmentId =
-        typeof department === "object" ? department.id : Number(department);
+      const depId = Number(department.id);
+      updateData.departmentId = depId > 0 ? depId : null;
+    } else {
+      updateData.departmentId = null;
     }
+
+    if (division) {
+      const divId = Number(division.id);
+      updateData.divisionId = divId > 0 ? divId : null;
+    }
+
     if (section) {
-      updateData.sectionId =
-        typeof section === "object" ? section.id : Number(section);
+      const secId = Number(section.id);
+      updateData.sectionId = secId > 0 ? secId : null;
     }
 
     // 🧂 Only admin can update role

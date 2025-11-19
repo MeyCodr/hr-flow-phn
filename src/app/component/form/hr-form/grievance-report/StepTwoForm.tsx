@@ -10,6 +10,8 @@ interface StepTwo {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleChangeCheckbox: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleTextAreaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  readOnly?: boolean;
+  parsedData?: GrievanceReportTypes;
 }
 
 /* ✅ You can replace with real input fields */
@@ -18,7 +20,11 @@ function StepTwoForm({
   handleChange,
   handleChangeCheckbox,
   handleTextAreaChange,
+  readOnly,
+  parsedData,
 }: StepTwo) {
+  console.log("parsed data step 2: ", parsedData);
+  const formData = readOnly && parsedData ? parsedData : data;
   return (
     <>
       <h2 className="font-semibold text-sm mb-4">
@@ -32,29 +38,36 @@ function StepTwoForm({
             <div
               key={i}
               className="flex items-center gap-4 mb-2 cursor-pointer"
-              onClick={() =>
+              onClick={() => {
+                if (readOnly) return; // prevent clicks
                 handleChangeCheckbox({
                   target: {
                     name: "complaintTypes",
                     value:
-                      data.complaintTypes === option.value ? "" : option.value,
+                      formData.complaintTypes === option.value
+                        ? ""
+                        : option.value,
                   },
-                } as React.ChangeEvent<HTMLInputElement>)
-              }
+                } as React.ChangeEvent<HTMLInputElement>);
+              }}
             >
               <CheckBox
-                checked={data.complaintTypes === option.value}
-                onChange={() =>
-                  handleChangeCheckbox({
-                    target: {
-                      name: "complaintTypes",
-                      value:
-                        data.complaintTypes === option.value
-                          ? ""
-                          : option.value,
-                    },
-                  } as React.ChangeEvent<HTMLInputElement>)
+                checked={formData.complaintTypes === option.value}
+                onChange={
+                  readOnly
+                    ? undefined
+                    : () =>
+                        handleChangeCheckbox({
+                          target: {
+                            name: "complaintTypes",
+                            value:
+                              formData.complaintTypes === option.value
+                                ? ""
+                                : option.value,
+                          },
+                        } as React.ChangeEvent<HTMLInputElement>)
                 }
+                disabled={readOnly}
               />
               <Label
                 name={option.label}
@@ -64,7 +77,7 @@ function StepTwoForm({
             </div>
           ))}
 
-          {data.complaintTypes === "Other" && (
+          {formData.complaintTypes === "Other" && (
             <div className="mt-4 flex flex-col gap-y-2">
               <Label
                 name="Please specify / Sila Nyatakan"
@@ -75,11 +88,16 @@ function StepTwoForm({
                 id="others"
                 name="others"
                 type="text"
-                value={data.others}
-                onChange={handleChange}
+                value={formData.others ?? ""}
+                onChange={readOnly ? () => {} : handleChange}
                 placeholder="Type here..."
                 required
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-xs focus:ring-indigo-500"
+                disabled={readOnly}
+                className={`w-full border rounded-md py-2 px-3 text-xs focus:ring-indigo-500 ${
+                  readOnly
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "border-gray-300"
+                }`}
               />
             </div>
           )}
@@ -97,8 +115,9 @@ function StepTwoForm({
             <TextArea
               id="detailComplaints"
               name="detailComplaints"
-              value={data.detailComplaints}
-              onChange={handleTextAreaChange}
+              value={formData.detailComplaints ?? ""}
+              onChange={readOnly ? () => {} : handleTextAreaChange}
+              disabled={readOnly}
               rows={6}
               placeholder="Detail of Complaints"
               className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"

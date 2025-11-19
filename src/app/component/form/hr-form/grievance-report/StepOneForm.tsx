@@ -8,8 +8,12 @@ import {
   Section,
   UserInfo,
 } from "@/app/types/types";
-import { useEffect, useState } from "react";
-import { addDashOption, getCurrentDateTime } from "../../../../../../lib/utils";
+import { useEffect } from "react";
+import {
+  addDashOption,
+  formatPhoneNumber,
+  getCurrentDateTime,
+} from "../../../../../../lib/utils";
 
 interface StepOne {
   data: GrievanceReportTypes;
@@ -22,6 +26,8 @@ interface StepOne {
   setSelectedSection: React.Dispatch<React.SetStateAction<string>>;
   setData: React.Dispatch<React.SetStateAction<GrievanceReportTypes>>;
   userInfo?: UserInfo;
+  readOnly?: boolean;
+  parsedData?: GrievanceReportTypes;
 }
 
 /* ✅ You can replace with real input fields */
@@ -36,6 +42,8 @@ function StepOneForm({
   setSelectedSection,
   setData,
   userInfo,
+  readOnly,
+  parsedData,
 }: StepOne) {
   useEffect(() => {
     if (!userInfo) return;
@@ -62,15 +70,26 @@ function StepOneForm({
     setSelectedSection,
   ]);
 
-  if(!userInfo){
+  const formData = readOnly && parsedData ? parsedData : data;
+  console.log("parsed data step 2: ", formData);
+
+  console.log("divisions: ", divisions);
+  console.log("deaprtments: ", departments);
+
+  if (!userInfo) {
     return (
-      <p>Loading user info ...</p>
-    )
+      <div className="flex justify-center items-center h-[300px] bg-white my-6 p-6 rounded-lg border border-gray-300 shadow-xs">
+        <p className="text-center text-sm text-gray-500">
+          Loading user info ...
+        </p>
+      </div>
+    );
   }
+
   return (
     <>
       <h2 className="font-semibold text-sm mb-4 text-center">
-        Complainer's Detail (Maklumat Peribadi)
+        Complainer&apos;s Detail (Maklumat Peribadi)
       </h2>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -85,7 +104,7 @@ function StepOneForm({
               id="fullname"
               name="fullname"
               type="text"
-              value={userInfo.fullname}
+              value={formData.fullname ?? ""}
               onChange={handleChange}
               placeholder="Full Name"
               required
@@ -104,7 +123,7 @@ function StepOneForm({
               id="staffId"
               name="staffId"
               type="text"
-              value={userInfo.staffid}
+              value={readOnly ? formData.staffId : userInfo.staffid}
               onChange={handleChange}
               placeholder="Staff Id"
               required
@@ -121,9 +140,10 @@ function StepOneForm({
             />
             <ComboBox
               menu={divisions}
-              selectedValue={data.division} // ✅ controlled
+              selectedValue={formData ? formData.division : data.division} // ✅ controlled
               onSelect={(item) => {
                 const value = item ? item.id.toString() : "";
+                console.log("value division: ", value);
                 setSelectedDivision(value);
                 setSelectedDepartment("");
                 setSelectedSection("");
@@ -134,7 +154,7 @@ function StepOneForm({
                   section: "",
                 }));
               }}
-              disabled
+              disabled={readOnly}
             />
           </div>
           <div className="flex flex-col space-y-2">
@@ -145,7 +165,9 @@ function StepOneForm({
             />
             <ComboBox
               menu={addDashOption(departments)}
-              selectedValue={data.department}
+              selectedValue={
+                formData ? formData.departmentName : data.department
+              }
               onSelect={(item) => {
                 const value =
                   item && item.name !== "-" ? item.id.toString() : "";
@@ -157,7 +179,7 @@ function StepOneForm({
                   section: "",
                 }));
               }}
-              disabled
+              disabled={readOnly}
             />
           </div>
         </div>
@@ -172,14 +194,16 @@ function StepOneForm({
               />
               <ComboBox
                 menu={addDashOption(sections)}
-                selectedValue={data.section}
+                selectedValue={
+                  formData ? formData.sectionName : data.section
+                }
                 onSelect={(item) => {
                   const value =
                     item && item.name !== "-" ? item.id.toString() : "";
                   setSelectedSection(value);
                   setData((prev) => ({ ...prev, section: value }));
                 }}
-                disabled
+                disabled={readOnly}
               />
             </div>
             <div className="flex flex-col space-y-2">
@@ -192,8 +216,14 @@ function StepOneForm({
                 id="contactNo"
                 name="contactNo"
                 type="text"
-                value={data.contactNo}
-                onChange={handleChange}
+                // value={formatPhoneNumber(data.contactNo)}
+                value={
+                  readOnly
+                    ? formatPhoneNumber(parsedData?.contactNo ?? "")
+                    : formatPhoneNumber(data.contactNo)
+                }
+                onChange={readOnly ? () => {} : handleChange}
+                disabled={readOnly}
                 placeholder="Contact No"
                 required
                 className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -210,7 +240,7 @@ function StepOneForm({
                 id="designation"
                 name="designation"
                 type="text"
-                value={data.designation}
+                value={formData.designation ?? ""}
                 onChange={handleChange}
                 placeholder="Designation"
                 required
@@ -229,8 +259,12 @@ function StepOneForm({
                 id="dateOfComplaint"
                 name="dateOfComplaint"
                 type="text"
-                value={getCurrentDateTime()}
-                onChange={handleChange}
+                value={
+                  readOnly
+                    ? parsedData?.dateOfComplaint ?? ""
+                    : getCurrentDateTime()
+                }
+                onChange={readOnly ? () => {} : handleChange}
                 placeholder="Date of Complaint"
                 required
                 disabled

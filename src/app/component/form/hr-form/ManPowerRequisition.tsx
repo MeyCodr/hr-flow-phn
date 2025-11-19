@@ -2,7 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Dropdown from "../../ui/Dropdown";
-import { categoryManPower, workLocation } from "../../../../../lib/data";
+import {
+  categoryManPower,
+  reportingToOptions,
+  workLocation,
+} from "../../../../../lib/data";
 import { Input } from "../../ui/Input";
 import Label from "../../ui/Label";
 import DatePicker, { DateValueType } from "../../ui/DatePicker";
@@ -69,13 +73,16 @@ export default function ManPower({
     approvedby: "",
     fileAttachment: null,
     remarks: "",
+    selectedReasons: [] as string[],
   });
   // const [formId, setFormId] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ category?: string }>({});
+  const [errors, setErrors] = useState<{
+    category?: string;
+    fileAttachment?: string;
+  }>({});
   const [userInfo, setUserInfo] = useState<UserInfo>();
   const [file, setFile] = useState<File | null>(null);
-
   const router = useRouter();
 
   useEffect(() => {
@@ -154,18 +161,52 @@ export default function ManPower({
       setData((prev) => ({ ...prev, [field]: val }));
     };
 
+  const handleMainCheck = () => {
+    setData((prev) => ({
+      ...prev,
+      selectedOption: prev.selectedOption === "additional" ? "" : "additional",
+      selectedReasons: [],
+    }));
+  };
+
+  const handleReasonCheck = (reason: string) => {
+    setData((prev) => {
+      const isSelected = prev.selectedReasons.includes(reason);
+      const updated = isSelected
+        ? prev.selectedReasons.filter((r) => r !== reason)
+        : [...prev.selectedReasons, reason];
+
+      return { ...prev, selectedReasons: updated };
+    });
+  };
+
+  const reasonOptions = [
+    {
+      key: "productionVolumeIncrease",
+      label: "Production Volume Increase (Item)",
+    },
+    { key: "newProject", label: "New Project" },
+    { key: "machineFaulty", label: "Machine Faulty" },
+    { key: "other", label: "Other" },
+  ];
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("formid: ", formId);
+    console.log("data: ", data);
     if (!formId) {
       return;
     }
 
-    const newErrors: { category?: string } = {};
+    const newErrors: { category?: string; fileAttachment?: string } = {};
 
     if (!data.category) {
       newErrors.category = "Category is required";
       toast.error("Category is required!");
+    }
+
+    if (!data.fileAttachment) {
+      newErrors.fileAttachment = "File Attachment is required";
+      toast.error("File Attachment is required!");
     }
 
     setErrors(newErrors);
@@ -218,6 +259,28 @@ export default function ManPower({
     return menu;
   };
 
+  const fileData = selfForm?.attachments;
+  // const parsedData = selfForm?.formData as unknown as ManPowerTypes;
+
+  if (!selfForm) {
+    return <div>Loading...</div>;
+  }
+
+  const parsedData: ManPowerTypes = {
+    ...(selfForm.formData as unknown as ManPowerTypes),
+    divisionName: selfForm.divisionName,
+    departmentName: selfForm.departmentName,
+    sectionName: selfForm.sectionName,
+  };
+  console.log("self form mantype: ", selfForm);
+  console.log("parsed Data: ", parsedData);
+
+  const formData = readOnly && parsedData ? parsedData : data;
+
+  const isAdditionalSelected = readOnly
+    ? parsedData?.selectedOption === "additional"
+    : data.selectedOption === "additional";
+
   return (
     <>
       <div className="text-xs">
@@ -228,12 +291,16 @@ export default function ManPower({
       <form
         action=""
         onSubmit={handleSubmit}
-        className="bg-white max-w-6xl p-4 rounded-xl border border-gray-300 "
+        className={`bg-white max-w-6xl rounded-xl ${
+          readOnly ? "p-0" : "p-4 border border-gray-300 "
+        }`}
       >
         <div>
-          <h1 className="text-xl font-semibold">Man Power Requisition</h1>
+          <h1 className="text-xl font-semibold">
+            {readOnly ? "" : "Man Power Requisition"}
+          </h1>
           <p className="text-sm text-indigo-800">
-            Fill in the details below to submit your request
+            {readOnly ? "" : "Fill in the details below to submit your request"}
           </p>
         </div>
         <div className="grid grid-cols-1 gap-6 my-10 md:my-0">
@@ -245,11 +312,14 @@ export default function ManPower({
                 className={`w-40 ${
                   errors.category ? "border border-red-500 rounded-md" : ""
                 }`}
-                selected={data.category?.name}
+                selected={
+                  readOnly ? parsedData?.category?.name : data.category?.name
+                }
                 onSelect={(item) => {
                   setData((prev) => ({ ...prev, category: item }));
                   setErrors((prev) => ({ ...prev, category: undefined })); // clear error
                 }}
+                disabled={readOnly}
               />
               {errors.category && (
                 <p className="text-xs text-red-600 mt-1">{errors.category}</p>
@@ -265,7 +335,7 @@ export default function ManPower({
                   className="block text-sm font-medium text-gray-900"
                 />
                 <DatePicker
-                  value={data.createddate}
+                  value={readOnly ? parsedData?.createddate : data.createddate}
                   // onChange={handleDateChange("createddate")}
                   onChange={
                     readOnly ? () => {} : handleDateChange("createddate")
@@ -306,7 +376,9 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={addDashOption(departments)}
-                  selectedValue={data.department}
+                  selectedValue={
+                    formData ? formData.departmentName : data.department
+                  }
                   onSelect={(item) => {
                     const value =
                       item && item.name !== "-" ? item.id.toString() : "";
@@ -329,7 +401,9 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={addDashOption(sections)}
-                  selectedValue={data.section}
+                  selectedValue={
+                    formData ? formData.sectionName : data.sectionName
+                  }
                   onSelect={(item) => {
                     const value =
                       item && item.name !== "-" ? item.id.toString() : "";
@@ -345,16 +419,16 @@ export default function ManPower({
                   htmlFor="reportingTo"
                   className="block text-sm font-medium text-gray-900"
                 />
-                <Input
-                  id="reportingTo"
-                  name="reportingTo"
-                  type="text"
-                  value={data.reportingTo}
-                  onChange={readOnly ? () => {} : handleChange}
+                <ComboBox
+                  menu={reportingToOptions}
+                  selectedValue={
+                    parsedData ? parsedData.reportingTo : data.reportingTo
+                  }
+                  onSelect={(item) => {
+                    const value = item ? item.name : "";
+                    setData((prev) => ({ ...prev, reportingTo: value }));
+                  }}
                   disabled={readOnly}
-                  placeholder="Reporting To"
-                  required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -367,8 +441,7 @@ export default function ManPower({
                   id="noRequested"
                   name="noRequested"
                   type="text"
-                  value={data.noRequested}
-                  // onChange={readOnly ? () => {} : handleChange}
+                  value={readOnly ? parsedData?.noRequested : data.noRequested}
                   disabled={readOnly}
                   onChange={readOnly ? () => {} : handleChange}
                   placeholder="No Requested"
@@ -390,7 +463,11 @@ export default function ManPower({
                     id="currentHeadCount"
                     name="currentHeadCount"
                     type="text"
-                    value={data.currentHeadCount}
+                    value={
+                      readOnly
+                        ? parsedData?.currentHeadCount
+                        : data.currentHeadCount
+                    }
                     onChange={readOnly ? () => {} : handleChange}
                     disabled={readOnly}
                     placeholder="Current Headcount"
@@ -410,7 +487,11 @@ export default function ManPower({
                     id="approvedRequirement"
                     name="approvedRequirement"
                     type="text"
-                    value={data.approvedRequirement}
+                    value={
+                      readOnly
+                        ? parsedData?.approvedRequirement
+                        : data.approvedRequirement
+                    }
                     onChange={readOnly ? () => {} : handleChange}
                     disabled={readOnly}
                     placeholder="Approved Requirement"
@@ -437,45 +518,69 @@ export default function ManPower({
                   disabled={readOnly}
                 />
               </div>
-              <div className="flex flex-col space-y-4 my-1">
+              <div className="flex flex-col space-y-3 my-1">
                 <Label
                   name="Workstation Availability"
                   htmlFor=""
                   className="block text-sm font-medium text-gray-900"
                 />
                 <div className="flex items-center gap-x-4">
-                  <div className="flex items-center gap-x-2">
+                  <div
+                    className="flex items-center gap-x-2 cursor-pointer"
+                    onClick={() =>
+                      setData((prev) => ({
+                        ...prev,
+                        workStation: prev.workStation === "Yes" ? "" : "Yes",
+                      }))
+                    }
+                  >
                     <CheckBox
-                      checked={data.workStation === "Yes"}
-                      onChange={() =>
-                        setData((prev) => ({
-                          ...prev,
-                          workStation: prev.workStation === "Yes" ? "" : "Yes",
-                        }))
+                      checked={
+                        readOnly
+                          ? parsedData.workStation === "Yes"
+                          : data.workStation === "Yes"
                       }
+                      // onChange={() =>
+                      //   setData((prev) => ({
+                      //     ...prev,
+                      //     workStation: prev.workStation === "Yes" ? "" : "Yes",
+                      //   }))
+                      // }
                       disabled={readOnly}
                     />
                     <Label
                       name="Yes"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 cursor-pointer"
                     />
                   </div>
-                  <div className="flex items-center gap-x-2">
+                  <div
+                    className="flex items-center gap-x-2"
+                    onClick={() =>
+                      setData((prev) => ({
+                        ...prev,
+                        workStation: prev.workStation === "No" ? "" : "No",
+                      }))
+                    }
+                  >
                     <CheckBox
-                      checked={data.workStation === "No"}
-                      onChange={() =>
-                        setData((prev) => ({
-                          ...prev,
-                          workStation: prev.workStation === "No" ? "" : "No",
-                        }))
+                      checked={
+                        readOnly
+                          ? parsedData.workStation === "No"
+                          : data.workStation === "No"
                       }
+                      // onChange={() =>
+                      //   setData((prev) => ({
+                      //     ...prev,
+                      //     workStation: prev.workStation === "No" ? "" : "No",
+                      //   }))
+                      // }
                       disabled={readOnly}
                     />
                     <Label
                       name="No"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 cursor-pointer"
                     />
                   </div>
                 </div>
@@ -487,66 +592,152 @@ export default function ManPower({
                   className="block text-sm font-medium text-gray-900"
                 />
                 <div className="flex items-center gap-x-4">
-                  <div className="flex items-center gap-x-2">
+                  <div
+                    className="flex items-center gap-x-2"
+                    onClick={() =>
+                      setData((prev) => ({
+                        ...prev,
+                        employmentType:
+                          prev.employmentType === "Permanent"
+                            ? ""
+                            : "Permanent",
+                      }))
+                    }
+                  >
                     <CheckBox
-                      checked={data.employmentType === "Permanent"}
-                      onChange={() =>
-                        setData((prev) => ({
-                          ...prev,
-                          employmentType:
-                            prev.employmentType === "Permanent"
-                              ? ""
-                              : "Permanent",
-                        }))
+                      checked={
+                        readOnly
+                          ? parsedData.employmentType === "Permanent"
+                          : data.employmentType === "Permanent"
                       }
+                      // onChange={() =>
+                      //   setData((prev) => ({
+                      //     ...prev,
+                      //     employmentType:
+                      //       prev.employmentType === "Permanent"
+                      //         ? ""
+                      //         : "Permanent",
+                      //   }))
+                      // }
                       disabled={readOnly}
                     />
                     <Label
                       name="Permanent"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 cursor-pointer"
                     />
                   </div>
-                  <div className="flex items-center gap-x-2">
+                  <div
+                    className="flex items-center gap-x-2"
+                    onClick={() =>
+                      setData((prev) => ({
+                        ...prev,
+                        employmentType:
+                          prev.employmentType === "Contract" ? "" : "Contract",
+                      }))
+                    }
+                  >
                     <CheckBox
-                      checked={data.employmentType === "Contract"}
-                      onChange={() =>
-                        setData((prev) => ({
-                          ...prev,
-                          employmentType:
-                            prev.employmentType === "Contract"
-                              ? ""
-                              : "Contract",
-                        }))
+                      checked={
+                        readOnly
+                          ? parsedData.employmentType === "Contract"
+                          : data.employmentType === "Contract"
                       }
+                      // onChange={() =>
+                      //   setData((prev) => ({
+                      //     ...prev,
+                      //     employmentType:
+                      //       prev.employmentType === "Contract"
+                      //         ? ""
+                      //         : "Contract",
+                      //   }))
+                      // }
                       disabled={readOnly}
                     />
                     <Label
                       name="Contract"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 cursor-pointer"
                     />
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col space-y-2">
+              <div className="flex flex-col space-y-3 my-1">
                 <Label
                   name="Manpower Plan"
-                  htmlFor="manpowerPlan"
-                  className="block text-sm font-medium text-gray-900"
+                  htmlFor=""
+                  className="block text-sm font-medium text-gray-900 "
                 />
-                <Input
-                  id="manpowerPlan"
-                  name="manpowerPlan"
-                  type="text"
-                  value={data.manpowerPlan}
-                  onChange={readOnly ? () => {} : handleChange}
-                  disabled={readOnly}
-                  placeholder="Manpower Plan"
-                  required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
+                <div className="flex items-center gap-4 mb-2">
+                  <div
+                    className="flex items-center gap-x-2"
+                    onClick={() =>
+                      setData((prev) => ({
+                        ...prev,
+                        manpowerPlan:
+                          prev.manpowerPlan === "Budgeted" ? "" : "Budgeted",
+                      }))
+                    }
+                  >
+                    <CheckBox
+                      checked={
+                        readOnly
+                          ? parsedData.manpowerPlan === "Budgeted"
+                          : data.manpowerPlan === "Budgeted"
+                      }
+                      // onChange={() =>
+                      //   setData((prev) => ({
+                      //     ...prev,
+                      //     manpowerPlan:
+                      //       prev.manpowerPlan === "Budgeted" ? "" : "Budgeted",
+                      //   }))
+                      // }
+                      disabled={readOnly}
+                    />
+                    <Label
+                      name="Budgeted"
+                      htmlFor=""
+                      className="block text-sm font-medium text-gray-900 cursor-pointer"
+                    />
+                  </div>
+                  <div
+                    className="flex items-center gap-x-2"
+                    onClick={() =>
+                      setData((prev) => ({
+                        ...prev,
+                        manpowerPlan:
+                          prev.manpowerPlan === "Non-Budgeted"
+                            ? ""
+                            : "Non-Budgeted",
+                      }))
+                    }
+                  >
+                    <CheckBox
+                      checked={
+                        readOnly
+                          ? parsedData.manpowerPlan === "Non-Budgeted"
+                          : data.manpowerPlan === "Non-Budgeted"
+                      }
+                      // onChange={() =>
+                      //   setData((prev) => ({
+                      //     ...prev,
+                      //     manpowerPlan:
+                      //       prev.manpowerPlan === "Non-Budgeted"
+                      //         ? ""
+                      //         : "Non-Budgeted",
+                      //   }))
+                      // }
+                      disabled={readOnly}
+                    />
+                    <Label
+                      name="Non-Budgeted"
+                      htmlFor=""
+                      className="block text-sm font-medium text-gray-900 cursor-pointer"
+                    />
+                  </div>
+                </div>
               </div>
+
               <div className="flex flex-col space-y-2">
                 <Label
                   name="Approved AMP"
@@ -557,7 +748,7 @@ export default function ManPower({
                   id="approvedAmp"
                   name="approvedAmp"
                   type="text"
-                  value={data.approvedAmp}
+                  value={readOnly ? parsedData.approvedAmp : data.approvedAmp}
                   onChange={readOnly ? () => {} : handleChange}
                   disabled={readOnly}
                   placeholder="Approved AMP"
@@ -580,7 +771,9 @@ export default function ManPower({
               <TextArea
                 id="keyRequirement"
                 name="keyRequirement"
-                value={data.keyRequirement}
+                value={
+                  readOnly ? parsedData.keyRequirement : data.keyRequirement
+                }
                 onChange={handleTextAreaChange}
                 disabled={readOnly}
                 placeholder="Key Requirement"
@@ -596,7 +789,11 @@ export default function ManPower({
               <TextArea
                 id="keyRequirement"
                 name="keyResponsibilities"
-                value={data.keyResponsibilities}
+                value={
+                  readOnly
+                    ? parsedData.keyResponsibilities
+                    : data.keyResponsibilities
+                }
                 onChange={handleTextAreaChange}
                 disabled={readOnly}
                 placeholder="Key Responsibilities"
@@ -615,7 +812,11 @@ export default function ManPower({
                   <div className="flex flex-col ">
                     <div className="flex items-center gap-x-2">
                       <CheckBox
-                        checked={data.selectedOption === "replacement"}
+                        checked={
+                          readOnly
+                            ? parsedData.selectedOption === "replacement"
+                            : data.selectedOption === "replacement"
+                        }
                         onChange={() =>
                           setData((prev) => ({
                             ...prev,
@@ -660,7 +861,11 @@ export default function ManPower({
                         id="incumbentName"
                         name="incumbentName"
                         type="text"
-                        value={data.incumbentName}
+                        value={
+                          readOnly
+                            ? parsedData.incumbentName
+                            : data.incumbentName
+                        }
                         onChange={readOnly ? () => {} : handleChange}
                         placeholder="Incumbent Name"
                         required
@@ -680,7 +885,11 @@ export default function ManPower({
                         className="block text-sm font-medium text-gray-900"
                       />
                       <DatePicker
-                        value={data.lastWorkingDay}
+                        value={
+                          readOnly
+                            ? parsedData.lastWorkingDay
+                            : data.lastWorkingDay
+                        }
                         onChange={handleDateChange("lastWorkingDay")}
                         disabled={data.selectedOption !== "replacement"}
                         className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
@@ -694,19 +903,16 @@ export default function ManPower({
                   </div>
                 </div>
 
-                <div className="flex flex-col ">
+                <div className="flex flex-col">
+                  {/* Main Checkbox */}
                   <div className="flex items-center gap-x-2">
                     <CheckBox
-                      checked={data.selectedOption === "additional"}
-                      onChange={() =>
-                        setData((prev) => ({
-                          ...prev,
-                          selectedOption:
-                            prev.selectedOption === "additional"
-                              ? ""
-                              : "additional",
-                        }))
+                      checked={
+                        readOnly
+                          ? parsedData.selectedOption === "additional"
+                          : data.selectedOption === "additional"
                       }
+                      onChange={readOnly ? undefined : handleMainCheck}
                       disabled={readOnly}
                     />
                     <Label
@@ -721,100 +927,72 @@ export default function ManPower({
                     request)
                   </p>
 
-                  <div className="flex flex-col gap-6 my-6">
-                    <div className="flex-1 flex flex-col space-y-2">
-                      <Label
-                        name="Production Volume Increase (Item)"
-                        htmlFor="productionVolumeIncrease"
-                        className="block text-sm font-medium text-gray-900"
-                      />
-                      <Input
-                        id="productionVolumeIncrease"
-                        name="productionVolumeIncrease"
-                        type="text"
-                        value={data.productionVolumeIncrease}
-                        onChange={readOnly ? () => {} : handleChange}
-                        placeholder="Production Volume Increase (Item)"
-                        required
-                        disabled={data.selectedOption !== "additional"}
-                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
-                                ${
-                                  data.selectedOption !== "additional"
-                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                    : "bg-white text-gray-900 border-gray-300"
-                                }`}
-                      />
+                  {isAdditionalSelected && (
+                    <div className="flex flex-col gap-6 my-6 ml-6">
+                      {(readOnly
+                        ? reasonOptions.filter(
+                            (reason) =>
+                              parsedData?.[
+                                reason.key as keyof ManPowerTypes
+                              ] !== undefined &&
+                              parsedData?.[
+                                reason.key as keyof ManPowerTypes
+                              ] !== ""
+                          )
+                        : reasonOptions
+                      ).map((reason) => {
+                        const isChecked = data.selectedReasons.includes(
+                          reason.key
+                        );
+                        const value = (data as any)[reason.key];
+
+                        return (
+                          <div key={reason.key} className="flex flex-col gap-2">
+                            <div className="flex items-center gap-x-2">
+                              <CheckBox
+                                checked={
+                                  readOnly
+                                    ? parsedData?.selectedReasons.includes(
+                                        reason.key
+                                      )
+                                    : isChecked
+                                }
+                                onChange={() => handleReasonCheck(reason.key)}
+                                disabled={readOnly}
+                              />
+                              <Label
+                                name={reason.label}
+                                htmlFor={reason.key}
+                                className="block text-sm font-medium text-gray-900"
+                              />
+                            </div>
+
+                            <Input
+                              id={reason.key}
+                              name={reason.key}
+                              type="text"
+                              value={
+                                readOnly
+                                  ? parsedData?.[
+                                      reason.key as keyof ManPowerTypes
+                                    ] || ""
+                                  : value
+                              }
+                              onChange={readOnly ? undefined : handleChange}
+                              placeholder={reason.label}
+                              required={isChecked}
+                              disabled={readOnly || !isChecked}
+                              className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                                readOnly || !isChecked
+                                  ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                                  : "bg-white text-gray-900 border-gray-300"
+                              }`}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="flex-1 flex flex-col space-y-2">
-                      <Label
-                        name="New Project"
-                        htmlFor="newProject"
-                        className="block text-sm font-medium text-gray-900"
-                      />
-                      <Input
-                        id="newProject"
-                        name="newProject"
-                        type="text"
-                        value={data.newProject}
-                        onChange={readOnly ? () => {} : handleChange}
-                        placeholder="New Project"
-                        required
-                        disabled={data.selectedOption !== "additional"}
-                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
-                                ${
-                                  data.selectedOption !== "additional"
-                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                    : "bg-white text-gray-900 border-gray-300"
-                                }`}
-                      />
-                    </div>
-                    <div className="flex-1 flex flex-col space-y-2">
-                      <Label
-                        name="Machine Faulty"
-                        htmlFor="machineFaulty"
-                        className="block text-sm font-medium text-gray-900"
-                      />
-                      <Input
-                        id="machineFaulty"
-                        name="machineFaulty"
-                        type="text"
-                        value={data.machineFaulty}
-                        onChange={readOnly ? () => {} : handleChange}
-                        placeholder="Machine Faulty"
-                        required
-                        disabled={data.selectedOption !== "additional"}
-                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
-                                ${
-                                  data.selectedOption !== "additional"
-                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                    : "bg-white text-gray-900 border-gray-300"
-                                }`}
-                      />
-                    </div>
-                    <div className="flex-1 flex flex-col space-y-2">
-                      <Label
-                        name="Other"
-                        htmlFor="other"
-                        className="block text-sm font-medium text-gray-900"
-                      />
-                      <Input
-                        id="other"
-                        name="other"
-                        type="text"
-                        value={data.other}
-                        onChange={readOnly ? () => {} : handleChange}
-                        placeholder="Other"
-                        required
-                        disabled={data.selectedOption !== "additional"}
-                        className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
-                                ${
-                                  data.selectedOption !== "additional"
-                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                    : "bg-white text-gray-900 border-gray-300"
-                                }`}
-                      />
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -827,12 +1005,12 @@ export default function ManPower({
 
                 <label
                   htmlFor="fileAttachment"
-                  className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs transition
-    ${
-      readOnly
-        ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
-        : "bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
-    }`}
+                  className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs transition cursor-pointer
+                  ${
+                    readOnly
+                      ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
+                  } ${errors.fileAttachment ? "border-red-500" : ""}`}
                 >
                   <span className="truncate">
                     {file ? file.name : "Choose a file or drag & drop"}
@@ -852,6 +1030,11 @@ export default function ManPower({
                     onChange={(e) => {
                       const selectedFile = e.target.files?.[0] || null;
                       setFile(selectedFile);
+
+                      setData((prev) => ({
+                        ...prev,
+                        fileAttachment: selectedFile,
+                      }));
                     }}
                     disabled={readOnly}
                   />
@@ -862,6 +1045,19 @@ export default function ManPower({
                     📎 <strong>Selected:</strong> {file.name}
                   </div>
                 )}
+
+                {selfForm &&
+                  fileData &&
+                  fileData.map((item, i) => (
+                    <a
+                      key={i}
+                      href={`/uploads/${encodeURIComponent(item.fileName)}`} // 👈 direct link to public folder
+                      download={item.fileName} // 👈 triggers browser download
+                      className="mt-1 block w-full rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
+                    >
+                      📎 <strong>Download:</strong> {item.fileName}
+                    </a>
+                  ))}
               </div>
               <div className="flex-1 flex flex-col space-y-2 mb-6">
                 <Label
@@ -872,7 +1068,7 @@ export default function ManPower({
                 <TextArea
                   id="remarks"
                   name="remarks"
-                  value={data.remarks}
+                  value={readOnly ? parsedData.remarks : data.remarks}
                   onChange={handleTextAreaChange}
                   disabled={readOnly}
                   placeholder="Remarks"
@@ -884,11 +1080,18 @@ export default function ManPower({
         </div>
 
         <div className="flex justify-end">
-          <PrimaryButton
-            name="Submit"
-            type="submit"
-            className="border px-10  py-2 bg-indigo-800 text-white rounded-md hover:bg-indigo-700 transition-all ease-in-out duration-150 cursor-pointer text-xs text-center"
-          />
+          {!readOnly ? (
+            <PrimaryButton
+              name="Submit"
+              type="submit"
+              disabled={readOnly}
+              className={`border px-10  py-2 text-white rounded-md  transition-all ease-in-out duration-150   text-xs text-center ${
+                readOnly
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-indigo-800 hover:bg-indigo-700 cursor-pointer"
+              }`}
+            />
+          ) : <></>}
         </div>
       </form>
     </>

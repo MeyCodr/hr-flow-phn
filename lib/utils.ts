@@ -73,3 +73,28 @@ export function sanitizeName(name: string) {
     .replace(/[^a-z0-9]/g, "-")
     .replace(/-+/g, "-");
 }
+
+export function formatPhoneNumber(phone: string, countryCode: string = "60"): string {
+  if (!phone) return "";
+
+  // Remove any non-digit characters
+  const cleaned = phone.replace(/\D/g, "");
+
+  // If starts with 0 and not with country code, add it
+  let formatted = cleaned;
+  if (cleaned.startsWith("0")) {
+    formatted = countryCode + cleaned.substring(1);
+  }
+
+  // Format based on length
+  if (formatted.length === 10 || formatted.length === 11) {
+    // e.g., 60123456789 -> +60 12-345 6789
+    return `+${countryCode} ${formatted.substring(countryCode.length, countryCode.length + 2)}-${formatted.substring(
+      countryCode.length + 2,
+      countryCode.length + 5
+    )} ${formatted.substring(countryCode.length + 5)}`;
+  }
+
+  // Fallback format
+  return `+${formatted}`;
+}

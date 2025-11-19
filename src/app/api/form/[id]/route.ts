@@ -138,7 +138,7 @@ export async function PUT(
       where: { id: approvalId },
       data: {
         status: newStatus,
-        remarks: remarks || null,
+        remarks: remarks ? "Admin: " + remarks : null,
         approvedAt: new Date(),
       },
     });

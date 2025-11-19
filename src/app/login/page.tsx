@@ -50,6 +50,7 @@ export default function Login() {
         toast.success("Password has been sent to your email");
       }
     } catch (error) {
+      console.log(error);
       toast.error("Failed Request. Please contact an admin!");
     }
   };

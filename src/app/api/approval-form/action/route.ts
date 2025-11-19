@@ -14,7 +14,8 @@ export async function POST(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const { approvalId, action, remarks } = await req.json();
+    const { approvalId, action, remarks, user } = await req.json();
+    console.log("user: ", user);
 
     if (!approvalId || !action)
       return NextResponse.json(
@@ -54,6 +55,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    console.log("formType: ", formType);
+
     if (!formType) {
       return NextResponse.json(
         { error: "Form type not found" },
@@ -90,6 +93,49 @@ export async function POST(req: NextRequest) {
     );
 
     if (action === "approve") {
+      const isGrievance =
+        formType.name.trim().toLowerCase() === "grievance report";
+
+      if (isGrievance) {
+        // Mark submission as approved
+        await prisma.formSubmission.update({
+          where: { id: submissionId },
+          data: { status: "APPROVED" },
+        });
+
+        // Mark ALL approvals as approved
+        await prisma.approval.updateMany({
+          where: { submissionId },
+          data: {
+            status: "APPROVED",
+            approvedAt: new Date(),
+          },
+        });
+
+        const mailOptions = {
+          from: emailFrom,
+          to: requestor.email,
+          subject: "Your Grievance Form Has Been Approved",
+          template: "finalApproval",
+          context: {
+            status: "APPROVED",
+            formTitle: formType.name,
+            requestorName: requestor.fullname,
+            requestorStaffId: requestor.staffid,
+            submittedAt: submission.createdAt.toLocaleString(),
+            department: findDepartment.name,
+            finalApproverName: approval.approver.fullname,
+            requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
+          },
+        };
+
+        // Notify requestor
+        await transporter.sendMail(mailOptions);
+
+        return NextResponse.json({
+          message: "Grievance form approved successfully",
+        });
+      }
       if (nextStep) {
         // Next approver pending
         await prisma.approval.updateMany({
