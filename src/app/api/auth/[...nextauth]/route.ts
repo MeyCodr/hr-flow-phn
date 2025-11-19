@@ -39,7 +39,11 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
 
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60, // 1 hour in seconds
+    updateAge: 15 * 60, // refresh JWT every 15 minutes if active
+  },
 
   callbacks: {
     async jwt({ token, user }) {
