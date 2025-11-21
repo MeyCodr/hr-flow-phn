@@ -5,7 +5,6 @@ import { FaCalendarAlt } from "react-icons/fa";
 import PrimaryButton from "./PrimaryButton";
 import axios from "axios";
 import ActionModal from "./ActionModal";
-import { UserType } from "@/app/types/types";
 import toast, { Toaster } from "react-hot-toast";
 
 export interface BannerCardProps {

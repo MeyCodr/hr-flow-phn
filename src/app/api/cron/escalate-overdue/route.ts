@@ -65,11 +65,11 @@ export async function GET() {
       const newDeadline = new Date(Date.now() + intervalMinutes * 60 * 1000);
 
       // 6️⃣ Email recipient logic
-      let recipientEmail = nextStep
+      const recipientEmail = nextStep
         ? nextStep.approver.email
         : approval.approver.email;
 
-      let ccEmails: string[] = [];
+      const ccEmails: string[] = [];
 
       // Step 1 → CC Step 2
       const nextApprover = await prisma.approval.findFirst({

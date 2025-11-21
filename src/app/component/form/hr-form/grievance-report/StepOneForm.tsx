@@ -70,11 +70,12 @@ function StepOneForm({
     setSelectedSection,
   ]);
 
-  const formData = readOnly && parsedData ? parsedData : data;
-  console.log("parsed data step 2: ", formData);
+  console.log("readOnly step 1: ", readOnly);
+  console.log("parsedData step 1: ", parsedData);
+  console.log("data step 1: ", data);
 
-  console.log("divisions: ", divisions);
-  console.log("deaprtments: ", departments);
+  const formData = readOnly && parsedData ? parsedData : data;
+  console.log("parsed data step 1: ", formData.department);
 
   if (!userInfo) {
     return (
@@ -166,8 +167,8 @@ function StepOneForm({
             <ComboBox
               menu={addDashOption(departments)}
               selectedValue={
-                formData ? formData.departmentName : data.department
-              }
+                formData?.departmentName ?? formData.department ?? ""
+              } // ✅ controlled
               onSelect={(item) => {
                 const value =
                   item && item.name !== "-" ? item.id.toString() : "";
@@ -194,9 +195,7 @@ function StepOneForm({
               />
               <ComboBox
                 menu={addDashOption(sections)}
-                selectedValue={
-                  formData ? formData.sectionName : data.section
-                }
+                selectedValue={formData?.sectionName ?? formData.section ?? ""}
                 onSelect={(item) => {
                   const value =
                     item && item.name !== "-" ? item.id.toString() : "";

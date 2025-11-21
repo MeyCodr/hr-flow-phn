@@ -106,9 +106,6 @@ function FormInfo({
     if (name === "fullname" || name === "designation") {
       newValue = value.toUpperCase();
     }
-    if (name === "email") {
-      newValue = value.toUpperCase();
-    }
     setData((prev) => ({ ...prev, [name]: newValue }));
   };
 

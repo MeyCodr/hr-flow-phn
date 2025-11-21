@@ -1,4 +1,3 @@
-import { FiUserPlus } from "react-icons/fi";
 import { SiTicktick } from "react-icons/si";
 import PrimaryButton from "./PrimaryButton";
 import { IoIosArrowForward } from "react-icons/io";

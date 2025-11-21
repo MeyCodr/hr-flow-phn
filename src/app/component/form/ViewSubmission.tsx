@@ -26,7 +26,7 @@ import ActionModal from "../ui/ActionModal";
 import Label from "../ui/Label";
 import { TextArea } from "../ui/TextArea";
 import { Approval } from "../approval/ApprovalComponent";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 interface ViewSubmissionProps {
   onBack?: () => void;

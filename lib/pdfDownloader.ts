@@ -14,6 +14,7 @@ export interface FormPDFData {
     fullname: string;
     staffid: string;
     email: string;
+    createdAt?: string | Date;
   };
   approvals: ApprovalUser[];
 }
@@ -31,6 +32,7 @@ const loadImage = async (url: string): Promise<string> => {
 };
 
 const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
+  console.log("data: ", data);
   const {
     formData,
     departmentName,
@@ -69,18 +71,25 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
 
   approverNames[0] = createdBy.fullname || "-";
 
-  // Similarly for dates
+  // Dates row
   const approverDates: string[] = new Array(6).fill("");
+
+  // Requested by date (index 0)
+  approverDates[0] = createdBy?.createdAt
+    ? new Date(createdBy.createdAt).toLocaleDateString("en-GB")
+    : "-";
+
+  // Approver dates
   approvals.forEach((a) => {
-    const index = a.stepOrder;
-    if (index >= 0 && index < 5) {
+    const index = a.stepOrder; // stepOrder: 1..5 for approvers
+    if (index >= 1 && index <= 5) {
       approverDates[index] = a.approvedAt
         ? new Date(a.approvedAt).toLocaleDateString("en-GB")
         : "";
     }
   });
 
-  let finalStatus = approvals.find((a) => a.stepOrder === 5)?.status || "";
+  const finalStatus = approvals.find((a) => a.stepOrder === 5)?.status || "";
 
   // Checkbox helper
   const checkbox = (selected: boolean) => (selected ? "[X]" : "[ ]");
@@ -211,7 +220,7 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
       "Last Working Day",
       parsedFormData?.lastWorkingDay ?? "-",
       "New Project",
-      parsedFormData?.newProject ?? "-"
+      parsedFormData?.newProject ?? "-",
     ],
     [
       { content: "", colSpan: 2, rowSpan: 2 },

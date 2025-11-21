@@ -187,7 +187,7 @@ export interface ApprovalUser {
   id: number;
   submissionId: number;
   approverId: number;
-  status: "PENDING" | "APPROVED" | "REJECTED" | "WAITING";
+  status: "PENDING" | "APPROVED" | "REJECTED" | "WAITING" | "KIV";
   remarks?: string | null;
   approvedAt?: string | Date | null;
   stepOrder: number;
@@ -225,6 +225,7 @@ export interface SelfFormData {
     staffid: string;
     email: string;
     fullname: string;
+    createdAt?: string | Date;
   };
   departmentName?: string;
   divisionName?: string;

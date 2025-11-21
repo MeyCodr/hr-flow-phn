@@ -191,4 +191,5 @@ enum ApprovalStatus {
   APPROVED
   REJECTED
   WAITING
+  KIV
 }

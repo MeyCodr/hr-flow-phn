@@ -70,9 +70,6 @@ function RegisterForm({
       newValue = value.toUpperCase();
     }
 
-    if (name === "email") {
-      newValue = value.toLowerCase();
-    }
     setData((prev) => ({ ...prev, [name]: newValue }));
   };
 

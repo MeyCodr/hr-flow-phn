@@ -58,7 +58,7 @@ function StepFourForm({
                   ${
                     readOnly
                       ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
+                      : "bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800 cursor-pointer"
                   }`}
             >
               <span className="truncate">

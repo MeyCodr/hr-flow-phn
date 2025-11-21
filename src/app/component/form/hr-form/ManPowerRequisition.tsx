@@ -180,7 +180,7 @@ export default function ManPower({
     });
   };
 
-  const reasonOptions = [
+  const reasonOptions: { key: ReasonKey; label: string }[] = [
     {
       key: "productionVolumeIncrease",
       label: "Production Volume Increase (Item)",
@@ -189,6 +189,15 @@ export default function ManPower({
     { key: "machineFaulty", label: "Machine Faulty" },
     { key: "other", label: "Other" },
   ];
+
+  type StringKeys<T> = {
+    [K in keyof T]: T[K] extends string ? K : never;
+  }[keyof T];
+
+  type ReasonKey = Extract<
+    keyof ManPowerTypes,
+    "productionVolumeIncrease" | "newProject" | "machineFaulty" | "other"
+  >;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -262,15 +271,11 @@ export default function ManPower({
   const fileData = selfForm?.attachments;
   // const parsedData = selfForm?.formData as unknown as ManPowerTypes;
 
-  if (!selfForm) {
-    return <div>Loading...</div>;
-  }
-
   const parsedData: ManPowerTypes = {
-    ...(selfForm.formData as unknown as ManPowerTypes),
-    divisionName: selfForm.divisionName,
-    departmentName: selfForm.departmentName,
-    sectionName: selfForm.sectionName,
+    ...(selfForm?.formData as unknown as ManPowerTypes),
+    divisionName: selfForm?.divisionName,
+    departmentName: selfForm?.departmentName,
+    sectionName: selfForm?.sectionName,
   };
   console.log("self form mantype: ", selfForm);
   console.log("parsed Data: ", parsedData);
@@ -376,9 +381,7 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={addDashOption(departments)}
-                  selectedValue={
-                    formData ? formData.departmentName : data.department
-                  }
+                  selectedValue={formData?.departmentName ?? formData.department ?? ""} // ✅ controlled
                   onSelect={(item) => {
                     const value =
                       item && item.name !== "-" ? item.id.toString() : "";
@@ -401,9 +404,7 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={addDashOption(sections)}
-                  selectedValue={
-                    formData ? formData.sectionName : data.sectionName
-                  }
+                 selectedValue={formData?.sectionName ?? formData.section ?? ""} 
                   onSelect={(item) => {
                     const value =
                       item && item.name !== "-" ? item.id.toString() : "";
@@ -421,9 +422,7 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={reportingToOptions}
-                  selectedValue={
-                    parsedData ? parsedData.reportingTo : data.reportingTo
-                  }
+                  selectedValue={parsedData?.reportingTo ?? data.reportingTo ?? "" }
                   onSelect={(item) => {
                     const value = item ? item.name : "";
                     setData((prev) => ({ ...prev, reportingTo: value }));
@@ -944,7 +943,9 @@ export default function ManPower({
                         const isChecked = data.selectedReasons.includes(
                           reason.key
                         );
-                        const value = (data as any)[reason.key];
+                        // const value = (data as any)[reason.key];
+                        // const value = data[reason.key as ReasonKey];
+                        const value = data[reason.key];
 
                         return (
                           <div key={reason.key} className="flex flex-col gap-2">
@@ -973,9 +974,7 @@ export default function ManPower({
                               type="text"
                               value={
                                 readOnly
-                                  ? parsedData?.[
-                                      reason.key as keyof ManPowerTypes
-                                    ] || ""
+                                  ? (parsedData?.[reason.key] as string) || ""
                                   : value
                               }
                               onChange={readOnly ? undefined : handleChange}
@@ -1091,7 +1090,9 @@ export default function ManPower({
                   : "bg-indigo-800 hover:bg-indigo-700 cursor-pointer"
               }`}
             />
-          ) : <></>}
+          ) : (
+            <></>
+          )}
         </div>
       </form>
     </>

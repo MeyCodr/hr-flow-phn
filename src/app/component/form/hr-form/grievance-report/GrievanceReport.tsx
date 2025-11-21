@@ -200,15 +200,11 @@ export default function GrievanceReport({
   console.log("self form data here: ", selfForm);
   // const parsedData = selfForm?.formData as unknown as GrievanceReportTypes;
 
-  if (!selfForm) {
-    return <div>Loading...</div>;
-  }
-
   const parsedData: GrievanceReportTypes = {
-    ...(selfForm.formData as unknown as GrievanceReportTypes),
-    divisionName: selfForm.divisionName,
-    departmentName: selfForm.departmentName,
-    sectionName: selfForm.sectionName,
+    ...(selfForm?.formData as unknown as GrievanceReportTypes),
+    divisionName: selfForm?.divisionName,
+    departmentName: selfForm?.departmentName,
+    sectionName: selfForm?.sectionName,
   };
 
   return (
