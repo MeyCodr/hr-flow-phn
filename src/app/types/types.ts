@@ -200,7 +200,7 @@ export interface FormSubmissionType {
   formType: FormType;
   createdBy: UserType;
   status: string;
-  formData: Prisma.JsonValue | null;
+  formData: Prisma.InputJsonValue | null;
   // attachments?: string | null;
   approvals: Approval[];
   createdAt: string | Date;
@@ -231,7 +231,7 @@ export interface SelfFormData {
   divisionName?: string;
   sectionName?: string;
   // formData: ManPowerTypes;
-  formData: Prisma.JsonValue | null;
+  formData: Prisma.InputJsonValue | null;
   createdAt: string | Date;
   status: string;
   attachments: {

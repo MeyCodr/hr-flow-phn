@@ -11,7 +11,7 @@ export function getFirstName(fullName: string | null | undefined): string {
   return firstName.charAt(0).toUpperCase() + firstName.slice(1);
 }
 
-export function getFormRemarks(formData: Prisma.JsonValue | null): string {
+export function getFormRemarks(formData: Prisma.InputJsonValue | null): string {
   if (formData && typeof formData === "object" && !Array.isArray(formData)) {
     const obj = formData as Record<string, unknown>;
     if (typeof obj.remarks === "string") {

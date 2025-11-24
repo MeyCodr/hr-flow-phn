@@ -6,7 +6,8 @@ import autoTable, { RowInput } from "jspdf-autotable";
 export interface FormPDFData {
   formTypeId: number;
   formType: string;
-  formData: Prisma.JsonValue | null;
+  // formData: Prisma.JsonValue | null;
+  formData: Prisma.InputJsonValue | null;
   departmentName: string;
   divisionName: string;
   sectionName: string;
