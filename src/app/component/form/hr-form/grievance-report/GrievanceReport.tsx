@@ -141,7 +141,14 @@ export default function GrievanceReport({
         onSubmitSuccess?.();
       }, 1000);
     } catch (error) {
-      console.error(error);
+    let errorMessage = "Submission failed";
+
+    // Check if it's an Axios error
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.error || error.message || errorMessage;
+    }
+
+    toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

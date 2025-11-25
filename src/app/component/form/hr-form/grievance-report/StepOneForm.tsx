@@ -70,12 +70,7 @@ function StepOneForm({
     setSelectedSection,
   ]);
 
-  console.log("readOnly step 1: ", readOnly);
-  console.log("parsedData step 1: ", parsedData);
-  console.log("data step 1: ", data);
-
   const formData = readOnly && parsedData ? parsedData : data;
-  console.log("parsed data step 1: ", formData.department);
 
   if (!userInfo) {
     return (
@@ -155,7 +150,7 @@ function StepOneForm({
                   section: "",
                 }));
               }}
-              disabled={readOnly}
+              disabled
             />
           </div>
           <div className="flex flex-col space-y-2">
@@ -180,7 +175,7 @@ function StepOneForm({
                   section: "",
                 }));
               }}
-              disabled={readOnly}
+              disabled
             />
           </div>
         </div>
@@ -202,7 +197,7 @@ function StepOneForm({
                   setSelectedSection(value);
                   setData((prev) => ({ ...prev, section: value }));
                 }}
-                disabled={readOnly}
+                disabled
               />
             </div>
             <div className="flex flex-col space-y-2">

@@ -108,19 +108,19 @@ export async function PUT(
     };
 
     if (department) {
-      const depId = Number(department.id);
+      const depId = Number(department);
       updateData.departmentId = depId > 0 ? depId : null;
     } else {
       updateData.departmentId = null;
     }
 
     if (division) {
-      const divId = Number(division.id);
+      const divId = Number(division);
       updateData.divisionId = divId > 0 ? divId : null;
     }
 
     if (section) {
-      const secId = Number(section.id);
+      const secId = Number(section);
       updateData.sectionId = secId > 0 ? secId : null;
     }
 
