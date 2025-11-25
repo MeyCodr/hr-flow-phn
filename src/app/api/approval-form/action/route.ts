@@ -212,7 +212,7 @@ export async function POST(req: NextRequest) {
           requestorStaffId: requestor.staffid,
           submittedAt: submission.createdAt.toLocaleString(),
           department: findDepartment.name,
-          rejectedBy: "amir",
+          rejectedBy: approval.approver.fullname,
           requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
         },
       };

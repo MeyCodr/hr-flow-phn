@@ -2,50 +2,64 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Escalation: ${formTitle} pending > 5 days</title>
+    <title>Escalation: ${formTitle} Pending > 5 days</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <style>
       body, table, td, p { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
       img { border: 0; outline: none; text-decoration: none; }
       table { border-collapse: collapse; }
+
       .email-wrapper { width: 100%; background-color: #f8f9fa; padding: 20px 0; }
       .email-container { width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; border: 1px solid #ddd; }
+
       .header { background-color: #004aad; color: #ffffff; text-align: center; padding: 20px; font-size: 20px; font-weight: bold; }
       .content { padding: 25px; color: #333333; font-size: 14px; line-height: 1.6; }
       .content h2 { color: #004aad; font-size: 16px; margin-bottom: 10px; }
-      .details { width: 100%; border-collapse: collapse; margin-top: 10px; }
-      .details td { padding: 8px 10px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
+
+      .details td { padding: 8px 10px; border-bottom: 1px solid #e0e0e0; }
       .details .label { font-weight: bold; color: #555555; width: 35%; }
-      .btn { background-color: #004aad; color: #ffffff !important; text-decoration: none; padding: 10px 18px; display: inline-block; border-radius: 5px; font-weight: 600; margin-top: 15px; }
-      .footer { background-color: #f0f0f0; color: #555555; padding: 15px; text-align: center; font-size: 12px; line-height: 1.4; }
+
+      /* Apple Mail Fix */
+      a[x-apple-data-detectors] {
+        color: inherit !important;
+        text-decoration: none !important;
+      }
+
+      .footer { background-color: #f0f0f0; color: #555555; padding: 15px; text-align: center; font-size: 12px; }
+      
       @media only screen and (max-width: 600px) {
         .content { padding: 15px; }
         .header { font-size: 18px; }
-        .btn { display: block; width: 100%; text-align: center; }
       }
     </style>
   </head>
 
-  <body style="background-color: #f8f9fa; margin: 0; padding: 0;">
+  <body style="background-color: #f8f9fa;">
     <center class="email-wrapper">
-      <table role="presentation" class="email-container">
+      <table role="presentation" width="100%" class="email-container">
+
+        <!-- HEADER -->
         <tr>
           <td class="header">
-            Escalation: Request Pending Action > 5 days
+            Escalation: Request Pending Action &gt; 5 Days
           </td>
         </tr>
 
+        <!-- BODY -->
         <tr>
           <td class="content">
             <p>Dear {{hcdName}},</p>
 
             <p>
-              The request <strong>{{formTitle}}</strong> submitted by <strong>{{requestorName}} (Staff ID: {{requestorStaffId}})</strong> has not been resolved by <strong>{{previousApproverName}}</strong> within 5 days.
+              The request <strong>{{formTitle}}</strong> submitted by 
+              <strong>{{requestorName}} ({{requestorStaffId}})</strong> has not been acted upon by 
+              <strong>{{previousApproverName}}</strong> within 5 days.
             </p>
 
             <h2>Request Details</h2>
 
-            <table class="details" role="presentation">
+            <table class="details" width="100%" role="presentation">
               <tr>
                 <td class="label">Request Title:</td>
                 <td>{{formTitle}}</td>
@@ -70,17 +84,51 @@
 
             <p>Please take the necessary action on this request:</p>
 
-            <a href="{{approvalLink}}" class="btn">Review & Approve</a>
+            <!-- OUTLOOK VML BUTTON -->
+            <!--[if mso]>
+              <table cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td align="center" bgcolor="#004AAD" style="border-radius:5px;">
+                    <a href="{{approvalLink}}" 
+                      style="font-size:14px;font-weight:bold;color:#ffffff;text-decoration:none;
+                             padding:10px 18px;display:inline-block;">
+                      Review & Approve
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            <![endif]-->
 
-            <p style="margin-top: 20px;">Thank you,<br />PHN Automation System</p>
+            <!-- NON-OUTLOOK BUTTON -->
+            <!--[if !mso]><!-- -->
+              <a 
+                href="{{approvalLink}}" 
+                x-apple-data-detectors="true"
+                style="
+                  background-color:#004aad;
+                  color:#ffffff !important;
+                  padding:10px 18px;
+                  display:inline-block;
+                  border-radius:5px;
+                  font-weight:600;
+                  text-decoration:none !important;
+                  margin-top:15px;
+                ">
+                Review & Approve
+              </a>
+            <!--<![endif]-->
+
+            <p style="margin-top: 20px;">Thank you,<br/>PHN Automation System</p>
           </td>
         </tr>
 
+        <!-- FOOTER -->
         <tr>
           <td class="footer">
-            This is an automated message. Please do not reply to this email.
+            This is an automated message. Please do not reply.
           </td>
         </tr>
+
       </table>
     </center>
   </body>

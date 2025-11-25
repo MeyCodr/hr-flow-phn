@@ -111,13 +111,14 @@ export async function PUT(
       );
     }
 
-    // Fetch approval + submission + all approvals
+    // Fetch approval + submission + approvals + form type
     const approval = await prisma.approval.findUnique({
       where: { id: approvalId },
       include: {
         submission: {
           include: {
-            approvals: { orderBy: { stepOrder: "asc" } }, // ensure proper order
+            approvals: { orderBy: { stepOrder: "asc" } },
+            formType: true,
           },
         },
       },
@@ -133,29 +134,33 @@ export async function PUT(
     const submission = approval.submission;
     const submissionId = submission.id;
 
-    // Update the selected approval
+    // Check if grievance
+    const isGrievance =
+      submission.formType?.name?.trim().toLowerCase() === "grievance report";
+
+    // Update THIS approval
     await prisma.approval.update({
       where: { id: approvalId },
       data: {
         status: newStatus,
         remarks: remarks ? "Admin: " + remarks : null,
-        approvedAt: new Date(),
+        approvedAt: newStatus === "APPROVED" ? new Date() : null,
       },
     });
 
-    // Fetch all approvals again after update
-    const approvals = submission.approvals.sort(
-      (a, b) => a.stepOrder - b.stepOrder
-    );
+    const approvals = submission.approvals;
 
-    if (newStatus === "APPROVED") {
-      // ✅ Force all previous approvals to APPROVED
-      const previousApprovals = approvals.filter(
-        (a) => a.stepOrder < approval.stepOrder && a.status !== "APPROVED"
+    // ======================================================
+    // ⭐ SPECIAL LOGIC FOR GRIEVANCE (auto-approve remaining)
+    // ======================================================
+    if (newStatus === "APPROVED" && isGrievance) {
+      const laterApprovals = approvals.filter(
+        (a) => a.stepOrder > approval.stepOrder
       );
 
+      // Approve all future approval steps ONLY
       await Promise.all(
-        previousApprovals.map((a) =>
+        laterApprovals.map((a) =>
           prisma.approval.update({
             where: { id: a.id },
             data: { status: "APPROVED", approvedAt: new Date() },
@@ -163,13 +168,29 @@ export async function PUT(
         )
       );
 
-      // ✅ Continue your current logic: handle nextStep → pending
+      // Finally mark submission as fully approved
+      await prisma.formSubmission.update({
+        where: { id: submissionId },
+        data: { status: "APPROVED" },
+      });
+
+      return NextResponse.json({
+        message:
+          "Grievance: remaining approval steps auto-approved successfully",
+      });
+    }
+
+    // ======================================================
+    // NORMAL LOGIC FOR OTHER FORM TYPES
+    // ======================================================
+
+    if (newStatus === "APPROVED") {
       const nextStep = approvals.find(
         (a) => a.stepOrder === approval.stepOrder + 1
       );
 
       if (nextStep) {
-        await prisma.approval.updateMany({
+        await prisma.approval.update({
           where: { id: nextStep.id },
           data: { status: "PENDING" },
         });
@@ -196,11 +217,14 @@ export async function PUT(
           data: { status: "APPROVED" },
         });
       }
-    } else if (newStatus === "REJECTED") {
-      // Reject current + all later approvals
+    }
+
+    // Rejection logic
+    else if (newStatus === "REJECTED") {
       const laterApprovals = approvals.filter(
         (a) => a.stepOrder >= approval.stepOrder
       );
+
       await Promise.all(
         laterApprovals.map((a) =>
           prisma.approval.update({
@@ -213,26 +237,6 @@ export async function PUT(
       await prisma.formSubmission.update({
         where: { id: submissionId },
         data: { status: "REJECTED" },
-      });
-    } else if (newStatus === "PENDING") {
-      // Rollback scenario: current approval back to PENDING
-      // All later approvals must become WAITING
-      const laterApprovals = approvals.filter(
-        (a) => a.stepOrder > approval.stepOrder
-      );
-      await Promise.all(
-        laterApprovals.map((a) =>
-          prisma.approval.update({
-            where: { id: a.id },
-            data: { status: "WAITING" },
-          })
-        )
-      );
-
-      // Form stays PENDING
-      await prisma.formSubmission.update({
-        where: { id: submissionId },
-        data: { status: "PENDING" },
       });
     }
 
