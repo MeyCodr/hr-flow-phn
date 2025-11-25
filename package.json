@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "cron": "ts-node server/cron.ts"
+    "cron": "ts-node server/cron.ts",
+    "build-cron": "tsc server/cron.ts --outDir dist"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
