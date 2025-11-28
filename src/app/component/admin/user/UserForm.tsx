@@ -160,12 +160,13 @@ function UserForm({
 
               setData((prev) => ({
                 ...prev,
-                division: item
-                  ? {
-                      id: Number(item.id), // ✅ ensure number
-                      name: item.name,
-                    }
-                  : null,
+                // division: item
+                //   ? {
+                //       id: Number(item.id), // ✅ ensure number
+                //       name: item.name,
+                //     }
+                //   : null,
+                divisionId: item ? Number(item.id) : null,
                 department: null,
                 section: null,
               }));
@@ -189,12 +190,13 @@ function UserForm({
 
               setData((prev) => ({
                 ...prev,
-                department: item
-                  ? {
-                      id: Number(item.id),
-                      name: item.name,
-                    }
-                  : null,
+                // department: item
+                //   ? {
+                //       id: Number(item.id),
+                //       name: item.name,
+                //     }
+                //   : null,
+                departmentId: item ? Number(item.id) : null,
                 section: null,
               }));
             }}
@@ -215,12 +217,13 @@ function UserForm({
 
               setData((prev) => ({
                 ...prev,
-                section: item
-                  ? {
-                      id: Number(item.id),
-                      name: item.name,
-                    }
-                  : null,
+                // section: item
+                //   ? {
+                //       id: Number(item.id),
+                //       name: item.name,
+                //     }
+                //   : null,
+                sectionId: item ? Number(item.id) : null,
               }));
             }}
           />

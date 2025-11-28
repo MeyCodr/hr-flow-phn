@@ -69,9 +69,9 @@ export async function PUT(
       email,
       designation,
       workLocation,
-      division,
-      department,
-      section,
+      divisionId,
+      departmentId,
+      sectionId,
       role,
       password,
     } = body;
@@ -107,20 +107,20 @@ export async function PUT(
       workLocation,
     };
 
-    if (department) {
-      const depId = Number(department);
+    if (departmentId) {
+      const depId = Number(departmentId);
       updateData.departmentId = depId > 0 ? depId : null;
     } else {
       updateData.departmentId = null;
     }
 
-    if (division) {
-      const divId = Number(division);
+    if (divisionId) {
+      const divId = Number(divisionId);
       updateData.divisionId = divId > 0 ? divId : null;
     }
 
-    if (section) {
-      const secId = Number(section);
+    if (sectionId) {
+      const secId = Number(sectionId);
       updateData.sectionId = secId > 0 ? secId : null;
     }
 
