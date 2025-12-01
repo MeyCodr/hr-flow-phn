@@ -101,21 +101,24 @@
 
             <!-- NON-OUTLOOK BUTTON -->
             <!--[if !mso]><!-- -->
-              <a 
-                href="{{approvalLink}}" 
-                x-apple-data-detectors="true"
-                style="
-                  background-color:#004aad;
-                  color:#ffffff !important;
-                  padding:10px 18px;
-                  display:inline-block;
-                  border-radius:5px;
-                  font-weight:600;
-                  text-decoration:none !important;
-                  margin-top:15px;
-                ">
-                Review & Approve
-              </a>
+          <a 
+            href="{{approvalLink}}" 
+            x-apple-data-detectors="true"
+            style="
+              background-color:#004aad;
+              color:#ffffff !important;
+              padding:10px 18px;
+              display:inline-block;
+              border-radius:5px;
+              font-weight:600;
+              text-decoration:none !important;
+
+              /* Outlook Fixes */
+              mso-style-textfill-type: none !important;
+              mso-style-textfill-fill-color: #ffffff !important;
+            ">
+            Review & Approve
+          </a>
             <!--<![endif]-->
 
             <p style="margin-top: 20px;">Thank you,<br/>PHN Automation System</p>
