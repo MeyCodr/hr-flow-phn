@@ -30,7 +30,6 @@ export default function Sidebar({
   const { data: session } = useSession();
 
   useEffect(() => setMounted(true), []);
-  console.log("session: ", session);
 
   useEffect(() => {
     if (!session) return;
@@ -39,7 +38,6 @@ export default function Sidebar({
       try {
         const res = await axios.get(`/api/user/${session.user.staffid}`);
         const user = res.data.data;
-        console.log("user: ", user);
         setUser(user);
       } catch (err) {
         console.error("Error fetching user:", err);

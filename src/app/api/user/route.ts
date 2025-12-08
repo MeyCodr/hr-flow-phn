@@ -20,8 +20,6 @@ export async function POST(req: NextRequest) {
       section: body.section === 0 || body.section === "0" ? null : body.section,
     };
 
-    console.log("process body : ", processedBody);
-
     const { password, staffid, email, division, department, section, ...rest } =
       processedBody;
 
@@ -62,10 +60,6 @@ export async function POST(req: NextRequest) {
     const divisionId = division ? Number(division) : null;
     const departmentId = department ? Number(department) : null;
     const sectionId = section ? Number(section) : null;
-
-    console.log("divisionId: ", divisionId);
-    console.log("departmentId: ", departmentId);
-    console.log("sectionId: ", sectionId);
 
     const createUser = await prisma.user.create({
       data: {

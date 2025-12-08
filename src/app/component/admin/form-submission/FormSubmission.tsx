@@ -92,7 +92,6 @@ export default function FormSubmission({
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {form.map((form, i) => {
-                        console.log("form: ", form);
                         return (
                           <tr
                             key={i}

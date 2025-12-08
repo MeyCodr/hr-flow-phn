@@ -1,10 +1,21 @@
 import AdminComponent from "@/app/component/admin/AdminComponent";
 import React from "react";
 import { prisma } from "../../../../lib/prisma";
-import { SelfFormData } from "@/app/types/types";
+import { FormType, SelfFormData } from "@/app/types/types";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import { ApprovalFlowStep } from "@/app/component/admin/approval/ApprovalFlow";
+import {
+  Approval,
+  ApprovalStepApprover,
+  Department,
+  Division,
+  FileAttachment,
+  FormSubmission,
+  Section,
+  User,
+} from "@prisma/client";
 
 export default async function Admin() {
   const session = await getServerSession(authOptions);
@@ -65,39 +76,50 @@ export default async function Admin() {
   const departments = await prisma.department.findMany();
   const sections = await prisma.section.findMany();
 
-  const enrichedSubmissions: SelfFormData[] = formSubmission.map((sub) => {
-    const department = departments.find(
-      (d) => d.id === sub.createdBy.departmentId
-    );
-    const division = divisions.find((d) => d.id === sub.createdBy.divisionId);
-    const section = sections.find((s) => s.id === sub.createdBy.sectionId);
+  const enrichedSubmissions: SelfFormData[] = formSubmission.map(
+    (
+      sub: FormSubmission & {
+        createdBy: User;
+        attachments: FileAttachment[];
+        approvals: Approval[];
+        formType: FormType;
+      }
+    ) => {
+      const department = departments.find(
+        (d: (typeof departments)[number]) => d.id === sub.createdBy.departmentId
+      );
+      const division = divisions.find(
+        (d: (typeof divisions)[number]) => d.id === sub.createdBy.divisionId
+      );
+      const section = sections.find(
+        (s: (typeof sections)[number]) => s.id === sub.createdBy.sectionId
+      );
 
-    return {
-      ...sub,
-      formData:
-        typeof sub.formData === "string"
-          ? JSON.parse(sub.formData)
-          : sub.formData,
-      attachments: sub.attachments.map((att) => ({
-        ...att,
-        fileType: att.fileType ?? "",
-      })),
-      approvals: sub.approvals.map((a) => ({
-        ...a,
-        currentLevel: a.stepOrder,
-        totalLevel: sub.approvals.length,
-        activeLevel: a.status === "PENDING" ? 1 : 0,
-      })),
-      departmentName: department?.name ?? "",
-      divisionName: division?.name ?? "",
-      sectionName: section?.name ?? "",
-    };
-  });
-
-  console.log("approval flow: ", approvalFlow);
-  console.log("form type: ", formType);
-  console.log("suer listing: ", userListing);
-  console.log("form submission: ", formSubmission);
+      return {
+        ...sub,
+        formType: sub.formType,
+        formData:
+          typeof sub.formData === "string"
+            ? JSON.parse(sub.formData)
+            : sub.formData,
+        attachments: sub.attachments.map(
+          (att: (typeof sub.attachments)[number]) => ({
+            ...att,
+            fileType: att.fileType ?? "",
+          })
+        ),
+        approvals: sub.approvals.map((a: (typeof sub.approvals)[number]) => ({
+          ...a,
+          currentLevel: a.stepOrder,
+          totalLevel: sub.approvals.length,
+          activeLevel: a.status === "PENDING" ? 1 : 0,
+        })),
+        departmentName: department?.name ?? "",
+        divisionName: division?.name ?? "",
+        sectionName: section?.name ?? "",
+      };
+    }
+  );
 
   return (
     <div className="w-full font-poppins">

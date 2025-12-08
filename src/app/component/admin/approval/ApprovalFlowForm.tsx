@@ -57,7 +57,6 @@ export default function ApprovalFlowForm({
   const styleLink = `flex flex-col gap-y-2`;
 
   useEffect(() => {
-    console.log("selected step: ", selectedStep);
     if (selectedStep) {
       setData({
         formTypeId: selectedStep.formTypeId.toString(),
@@ -82,8 +81,6 @@ export default function ApprovalFlowForm({
   useEffect(() => {
     const getAllUser = async () => {
       const res = await axios.get("/api/user");
-      console.log("res: ", res.data);
-
       setUsers(res.data);
     };
 
@@ -107,7 +104,6 @@ export default function ApprovalFlowForm({
     setLoading(true);
     try {
       const res = await method(url, data);
-      console.log("Form submitted successfully:", res.data);
       if (method === axios.put) {
         toast.success("Approval Flow Step updated successfully");
       } else {
@@ -279,8 +275,6 @@ export default function ApprovalFlowForm({
               menu={users.map((i) => ({ id: i.id, name: i.fullname }))}
               selectedValues={data.approver}
               onSelect={(items) => {
-                // items are already in click order
-                console.log("items selected: ", items);
                 setData((prev) => ({
                   ...prev,
                   approver: items.map((i) => i.id.toString()),

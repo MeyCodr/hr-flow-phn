@@ -60,7 +60,6 @@ function UserForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Submitting data:", data);
     try {
       await axios.put(`/api/user/${data.staffid}`, data);
       toast.success("Successfully updated user");

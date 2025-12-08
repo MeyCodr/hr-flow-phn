@@ -16,7 +16,6 @@ function StepThreeForm({
   parsedData,
 }: StepThreeProps) {
   const formData = readOnly && parsedData ? parsedData : data;
-  console.log("form data: ", formData);
 
   return (
     <>

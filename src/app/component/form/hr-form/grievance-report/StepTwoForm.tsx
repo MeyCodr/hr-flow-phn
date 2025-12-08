@@ -23,7 +23,6 @@ function StepTwoForm({
   readOnly,
   parsedData,
 }: StepTwo) {
-  console.log("parsed data step 2: ", parsedData);
   const formData = readOnly && parsedData ? parsedData : data;
   return (
     <>

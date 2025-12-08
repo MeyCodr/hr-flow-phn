@@ -20,8 +20,6 @@ export async function GET(
     }
     const { staffid } = await context.params;
 
-    console.log("staff id: ", staffid);
-
     if (!staffid) {
       return NextResponse.json(
         { error: "Staff id is missing" },
@@ -61,7 +59,6 @@ export async function PUT(
     }
     const { staffid } = await context.params;
     const body = await req.json();
-    console.log("user body: ", body);
 
     const {
       fullname,

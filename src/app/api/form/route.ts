@@ -10,9 +10,6 @@ import { Prisma } from "@prisma/client";
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
 
-console.log("email from: ", emailFrom);
-
-
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -176,8 +173,6 @@ export async function POST(req: NextRequest) {
       include: { approver: true },
     });
 
-    console.log("✅ Created approvals:", firstStepApprovers);
-
     const mailOptions = {
       from: emailFrom,
       to: findUser.email,
@@ -260,7 +255,7 @@ export async function GET() {
 
     // Map to flatten division, department, section names
     const mapped = await Promise.all(
-      submissions.map(async (sub) => {
+      submissions.map(async (sub: typeof submissions[number]) => {
         const createdBy = sub.createdBy;
 
         // Fetch related names

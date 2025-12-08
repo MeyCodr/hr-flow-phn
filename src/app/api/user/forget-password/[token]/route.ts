@@ -16,9 +16,6 @@ export async function PUT(
     }
     const { token } = await context.params;
     const { password, cpassword } = await req.json();
-    console.log("password: ", password);
-    console.log("cpassword: ", cpassword);
-    console.log("token: ", token);
 
     if (!token) {
       return NextResponse.json({ error: "Token is missing" }, { status: 400 });

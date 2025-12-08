@@ -19,8 +19,6 @@ export async function PUT(
     const { formTypeId, order, role, division, department, section, approver } =
       body;
 
-    console.log("approver: ", approver);
-
     // Treat "0" or "" as null
     const parseNullableNumber = (value: string) => {
       if (!value || value === "0") return null;

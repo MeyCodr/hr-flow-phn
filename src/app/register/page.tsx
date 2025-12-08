@@ -69,14 +69,12 @@ export default function Register() {
     setSelectedSection("0");
   }, [selectedDepartment]);
   const handleSubmit = async (values: RegisterUser) => {
-    console.log("values: ", values);
 
     const toastId = toast.loading("Creating account . . .");
     setLoading(true);
 
     try {
       const response = await axios.post(`/api/user`, values);
-      console.log("response: ", response);
       if (response.status === 201) {
         toast.success("Account created!", { id: toastId });
 

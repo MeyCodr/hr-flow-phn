@@ -46,30 +46,36 @@ export default async function Approval() {
     },
   });
 
-  const approvalsWithLevels = pendingApprovals.map((approval) => {
-    const allSteps = approval.submission.approvals;
-    const totalLevel = allSteps.length;
+  const approvalsWithLevels = pendingApprovals.map(
+    (approval: (typeof pendingApprovals)[number]) => {
+      const allSteps = approval.submission.approvals;
+      const totalLevel = allSteps.length;
 
-    const activeApproval = allSteps.find((a) => a.status === "PENDING");
-    const activeLevel = activeApproval ? activeApproval.stepOrder : totalLevel;
+      const activeApproval = allSteps.find(
+        (a: (typeof allSteps)[number]) => a.status === "PENDING"
+      );
+      const activeLevel = activeApproval
+        ? activeApproval.stepOrder
+        : totalLevel;
 
-    // ✅ Normalize formData so it’s always an object
-    const normalizedFormData =
-      typeof approval.submission.formData === "string"
-        ? JSON.parse(approval.submission.formData)
-        : approval.submission.formData ?? null;
+      // ✅ Normalize formData so it’s always an object
+      const normalizedFormData =
+        typeof approval.submission.formData === "string"
+          ? JSON.parse(approval.submission.formData)
+          : approval.submission.formData ?? null;
 
-    return {
-      ...approval,
-      totalLevel,
-      currentLevel: approval.stepOrder,
-      activeLevel,
-      submission: {
-        ...approval.submission,
-        formData: normalizedFormData, // ✅ fix type mismatch
-      },
-    };
-  });
+      return {
+        ...approval,
+        totalLevel,
+        currentLevel: approval.stepOrder,
+        activeLevel,
+        submission: {
+          ...approval.submission,
+          formData: normalizedFormData, // ✅ fix type mismatch
+        },
+      };
+    }
+  );
 
   const selfFormsRaw = await prisma.formSubmission.findMany({
     where: {
@@ -83,15 +89,13 @@ export default async function Approval() {
     },
   });
 
-  const selfForms = selfFormsRaw.map((form) => ({
+  const selfForms = selfFormsRaw.map((form: typeof selfFormsRaw[number]) => ({
     ...form,
     formData:
       typeof form.formData === "string"
         ? JSON.parse(form.formData)
         : form.formData,
   }));
-
-  console.log("self fomrs: ", selfForms);
 
   return (
     <div className="w-full font-poppins">

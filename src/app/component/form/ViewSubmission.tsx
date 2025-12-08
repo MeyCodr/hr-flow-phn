@@ -123,8 +123,6 @@ export default function ViewSubmission({
     }
   };
 
-  console.log("form approval: ", form.approvals);
-
   const nextApproval = form.approvals?.find((a) => a.status === "PENDING");
 
   const isFormCompleted =
@@ -188,7 +186,6 @@ export default function ViewSubmission({
     remarks: string
   ) => {
     const edited = editedApprovals[approval.id];
-    console.log("edited approval: ", edited);
     if (!edited?.status) return;
 
     try {

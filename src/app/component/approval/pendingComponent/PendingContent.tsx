@@ -29,8 +29,6 @@ export default function PendingContent({
     (approval) => approval.status === "PENDING"
   );
 
-  console.log("user data: ", user);
-
   const pendingItems: PendingItem[] = [
     ...pendingApprovals.map((approval) => ({
       type: "approval" as const,
@@ -48,16 +46,13 @@ export default function PendingContent({
       items={pendingItems}
       pageSize={10}
       renderItem={(item) => {
-        console.log("item: ", item);
         if (item.type === "approval") {
           const approval = item.data;
           const submission = approval.submission;
           if (!submission) return;
-          console.log("submissino: ", submission);
           const remarks =
             (submission.formData as { remarks?: string } | null)?.remarks ||
             "No remarks yet";
-          console.log("user pending: ", user);
           return (
             <BannerCard
               key={`approval-${approval.id}`}
@@ -80,7 +75,6 @@ export default function PendingContent({
           );
         } else {
           const form = item.data;
-          console.log("form under:", form);
           return (
             <BannerCard
               key={`form-${form.id}`}

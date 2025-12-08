@@ -190,9 +190,6 @@ export default function ApprovalComponent({
       a.status === "ESCALATED"
   );
 
-  console.log("formwith level: ", formsWithLevels);
-  console.log("approvals 2: ", approvals);
-
   const categories: TabItem[] = [
     {
       name: "Pending",

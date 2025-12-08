@@ -52,14 +52,11 @@ export default function GrievanceReport({
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
-  console.log("deaprtmetns here: ", departments);
-
   useEffect(() => {
     if (!user) {
       return;
     }
     const staffid = user.staffid;
-    console.log("staffid admin here: ", staffid);
 
     if (!staffid) {
       return;
@@ -68,7 +65,6 @@ export default function GrievanceReport({
     const fetchUser = async () => {
       try {
         const res = await axios.get(`/api/user/${staffid}`);
-        console.log("res: ", res.data.data);
         const userInfo = res.data.data;
         setData((prev) => ({
           ...prev,
@@ -121,7 +117,6 @@ export default function GrievanceReport({
 
   const submitGrievance = async (remarks: string) => {
     if (!formId) return;
-    console.log("data: ", data);
     const formData = new FormData();
     formData.append("user", JSON.stringify(user));
     formData.append("formId", formId.toString());
@@ -204,7 +199,6 @@ export default function GrievanceReport({
     }
   };
 
-  console.log("self form data here: ", selfForm);
   // const parsedData = selfForm?.formData as unknown as GrievanceReportTypes;
 
   const parsedData: GrievanceReportTypes = {

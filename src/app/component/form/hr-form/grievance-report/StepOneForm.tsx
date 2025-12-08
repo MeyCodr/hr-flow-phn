@@ -139,7 +139,6 @@ function StepOneForm({
               selectedValue={formData ? formData.division : data.division} // ✅ controlled
               onSelect={(item) => {
                 const value = item ? item.id.toString() : "";
-                console.log("value division: ", value);
                 setSelectedDivision(value);
                 setSelectedDepartment("");
                 setSelectedSection("");

@@ -193,9 +193,6 @@ export async function POST(req: NextRequest) {
       include: { approver: true },
     });
 
-    console.log("✅ Created approvals:", firstStepApprovers);
-    console.log("head o division: ", headOfDivision);
-
     const mailOptions = {
       from: emailFrom,
       to: findUser.email,
@@ -255,7 +252,9 @@ export async function POST(req: NextRequest) {
       const approvalMail = {
         from: emailFrom,
         to: firstApprover.approver.email,
-        cc: otherApprovers.map((a) => a.approver.email),
+        cc: otherApprovers.map(
+          (a: { approver: { email: string } }) => a.approver.email
+        ),
         subject: "Action Required: New Request Pending Your Approval",
         template: "FormSubmission",
         context: {

@@ -33,7 +33,6 @@ const loadImage = async (url: string): Promise<string> => {
 };
 
 const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
-  console.log("data: ", data);
   const {
     formData,
     departmentName,
@@ -42,12 +41,6 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
     createdBy,
     approvals,
   } = data;
-
-  console.log("approvals pdf: ", approvals);
-  console.log("department: ", departmentName);
-  console.log("division: ", divisionName);
-  console.log("section: ", sectionName);
-  console.log("createdBy: ", createdBy);
 
   const digitalSignedRow: string[] = new Array(6).fill("");
   digitalSignedRow[0] = "Digital Signed";
@@ -246,7 +239,6 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
   const finalY =
     (doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable
       ?.finalY || 45;
-  console.log("approverNames: ", approverNames);
   // Approval table
 
   const approveData: RowInput[] = [
@@ -348,7 +340,6 @@ const generateGrievancePDF = (doc: jsPDF, data: FormPDFData) => {
 };
 
 export const downloadFormPDF = async (data: FormPDFData) => {
-  console.log("data: ", data);
 
   const logoBase64 = await loadImage(logoUrl);
   const doc = new jsPDF();

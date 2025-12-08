@@ -52,7 +52,6 @@ function ResetPasswordForm({ resetPassword }: ResetPasswordFormProps) {
     }
 
     // Call the reset password function with password data
-    console.log("data: ", data);
     resetPassword(data);
     setData({ password: "", cpassword: "" });
   };

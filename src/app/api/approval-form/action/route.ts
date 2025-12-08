@@ -8,8 +8,6 @@ import { Prisma } from "@prisma/client";
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
 
-
-
 type ApprovalWithSubmission = Prisma.ApprovalGetPayload<{
   include: {
     approver: true;
@@ -30,7 +28,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const { approvalId, action, remarks, user } = await req.json();
-    console.log("user: ", user);
 
     if (!approvalId || !action)
       return NextResponse.json(
@@ -39,20 +36,21 @@ export async function POST(req: NextRequest) {
       );
 
     // 1️⃣ Find approval + submission + user + all approvals
-    const approval:  ApprovalWithSubmission | null = await prisma.approval.findUnique({
-      where: { id: Number(approvalId) },
-      include: {
-        approver: true, // to get approver name/email
-        submission: {
-          include: {
-            approvals: {
-              include: { approver: true },
+    const approval: ApprovalWithSubmission | null =
+      await prisma.approval.findUnique({
+        where: { id: Number(approvalId) },
+        include: {
+          approver: true, // to get approver name/email
+          submission: {
+            include: {
+              approvals: {
+                include: { approver: true },
+              },
+              createdBy: true, // assuming relation to User
             },
-            createdBy: true, // assuming relation to User
           },
         },
-      },
-    });
+      });
 
     if (!approval)
       return NextResponse.json(
@@ -69,8 +67,6 @@ export async function POST(req: NextRequest) {
         id: Number(submission.formTypeId),
       },
     });
-
-    console.log("formType: ", formType);
 
     if (!formType) {
       return NextResponse.json(
@@ -104,7 +100,8 @@ export async function POST(req: NextRequest) {
 
     // 3️⃣ Handle next step
     const nextStep = submission.approvals.find(
-      (a) => a.stepOrder === approval.stepOrder + 1
+      (a: (typeof submission.approvals)[number]) =>
+        a.stepOrder === approval.stepOrder + 1
     );
 
     if (action === "approve") {

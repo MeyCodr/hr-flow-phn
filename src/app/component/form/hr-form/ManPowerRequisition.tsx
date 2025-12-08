@@ -90,7 +90,6 @@ export default function ManPower({
       return;
     }
     const staffid = user.staffid;
-    console.log("staffid: ", staffid);
 
     if (!staffid) {
       return;
@@ -99,7 +98,6 @@ export default function ManPower({
     const fetchUser = async () => {
       try {
         const res = await axios.get(`/api/user/${staffid}`);
-        console.log("res: ", res.data.data);
         const userInfo = res.data.data;
         setData((prev) => ({
           ...prev,
@@ -197,7 +195,6 @@ export default function ManPower({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("data: ", data);
     if (!formId) {
       return;
     }
@@ -224,10 +221,8 @@ export default function ManPower({
     formData.append("user", JSON.stringify(user));
     formData.append("data", JSON.stringify(data));
     if (file) {
-      console.log("file attachement: ", file);
       formData.append("fileAttachment", file);
     }
-    console.log("data: ", data);
     const toastId = "";
 
     try {
@@ -273,8 +268,6 @@ export default function ManPower({
     departmentName: selfForm?.departmentName,
     sectionName: selfForm?.sectionName,
   };
-  console.log("self form mantype: ", selfForm);
-  console.log("parsed Data: ", parsedData);
 
   const formData = readOnly && parsedData ? parsedData : data;
 

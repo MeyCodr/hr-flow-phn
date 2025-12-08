@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
-  console.log("session1234", session);
 
   if (!session) {
     redirect("/"); //protected page
@@ -29,8 +28,6 @@ export default async function DashboardPage() {
   const totalForms = await prisma.formType.count();
 
   const totalMembers = await prisma.user.count();
-
-  console.log("Pending Forms Count:", countPendingForms);
 
   return (
     <DashboardComponent

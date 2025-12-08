@@ -44,7 +44,6 @@ function FormInfo({
       return;
     }
     const staffid = user.staffid;
-    console.log("staffid: ", staffid);
 
     if (!staffid) {
       return;
@@ -53,7 +52,6 @@ function FormInfo({
     const fetchUser = async () => {
       try {
         const res = await axios.get(`/api/user/${staffid}`);
-        console.log("res: ", res.data.data);
         const userInfo = res.data.data;
         setUserInfo(userInfo);
       } catch (error) {
@@ -118,7 +116,6 @@ function FormInfo({
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    console.log("data staff id: ", data);
     const toastId = "";
 
     try {

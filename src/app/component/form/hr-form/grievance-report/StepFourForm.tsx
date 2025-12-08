@@ -28,7 +28,6 @@ function StepFourForm({
   const parsedData = selfForm?.formData as unknown as GrievanceReportTypes;
   const formData = readOnly && parsedData ? parsedData : data;
   const fileData = selfForm?.attachments;
-  console.log("file Data: ", fileData);
 
   return (
     <>

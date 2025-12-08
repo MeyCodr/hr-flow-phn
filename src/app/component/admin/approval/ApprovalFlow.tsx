@@ -67,8 +67,6 @@ export default function ApprovalFlow({
   const [approvalFlow, setApprovalFlow] = useState<ApprovalFlowStep[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  console.log("approval node: ", approvalFlow);
-
   const handleAddForm = () => {
     setSelectedStep(null);
     setIsAdding(true);

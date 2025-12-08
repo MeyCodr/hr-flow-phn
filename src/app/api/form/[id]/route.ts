@@ -155,12 +155,12 @@ export async function PUT(
     // ======================================================
     if (newStatus === "APPROVED" && isGrievance) {
       const laterApprovals = approvals.filter(
-        (a) => a.stepOrder > approval.stepOrder
+        (a: (typeof approvals)[number]) => a.stepOrder > approval.stepOrder
       );
 
       // Approve all future approval steps ONLY
       await Promise.all(
-        laterApprovals.map((a) =>
+        laterApprovals.map((a: (typeof approvals)[number]) =>
           prisma.approval.update({
             where: { id: a.id },
             data: { status: "APPROVED", approvedAt: new Date() },
@@ -186,7 +186,8 @@ export async function PUT(
 
     if (newStatus === "APPROVED") {
       const nextStep = approvals.find(
-        (a) => a.stepOrder === approval.stepOrder + 1
+        (a: (typeof approvals)[number]) =>
+          a.stepOrder === approval.stepOrder + 1
       );
 
       if (nextStep) {
@@ -196,10 +197,10 @@ export async function PUT(
         });
 
         const laterSteps = approvals.filter(
-          (a) => a.stepOrder > nextStep.stepOrder
+          (a: (typeof approvals)[number]) => a.stepOrder > nextStep.stepOrder
         );
         await Promise.all(
-          laterSteps.map((a) =>
+          laterSteps.map((a: (typeof laterSteps)[number]) =>
             prisma.approval.update({
               where: { id: a.id },
               data: { status: "WAITING" },
@@ -222,11 +223,11 @@ export async function PUT(
     // Rejection logic
     else if (newStatus === "REJECTED") {
       const laterApprovals = approvals.filter(
-        (a) => a.stepOrder >= approval.stepOrder
+        (a: (typeof approvals)[number]) => a.stepOrder >= approval.stepOrder
       );
 
       await Promise.all(
-        laterApprovals.map((a) =>
+        laterApprovals.map((a: (typeof laterApprovals)[number]) =>
           prisma.approval.update({
             where: { id: a.id },
             data: { status: "REJECTED" },
