@@ -6,12 +6,19 @@ import { IoReturnDownBack } from "react-icons/io5";
 import Label from "../../ui/Label";
 import { Input } from "../../ui/Input";
 import ComboBox from "../../ui/ComboBox";
-import { Department, Division, FormType, Section } from "@/app/types/types";
+import {
+  Department,
+  Division,
+  FormType,
+  Section,
+  UserType,
+} from "@/app/types/types";
 import { roles } from "../../../../../lib/data";
 import { Role } from "@prisma/client";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { ApprovalFlowStep } from "./ApprovalFlow";
+import MultiComboBox from "../../ui/MultiComboBox";
 
 interface ApprovalFlowFormProps {
   handleBack?: () => void;
@@ -43,12 +50,14 @@ export default function ApprovalFlowForm({
     division: "",
     department: "",
     section: "",
+    approver: [] as string[],
   });
-
+  const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
   const styleLink = `flex flex-col gap-y-2`;
 
   useEffect(() => {
+    console.log("selected step: ", selectedStep);
     if (selectedStep) {
       setData({
         formTypeId: selectedStep.formTypeId.toString(),
@@ -63,9 +72,23 @@ export default function ApprovalFlowForm({
         section: selectedStep.section
           ? selectedStep.section.name.toString()
           : "",
+        approver: selectedStep.approvalStepApprovers
+          ? selectedStep.approvalStepApprovers.map((a) => a.user.id.toString())
+          : [],
       });
     }
   }, [selectedStep]);
+
+  useEffect(() => {
+    const getAllUser = async () => {
+      const res = await axios.get("/api/user");
+      console.log("res: ", res.data);
+
+      setUsers(res.data);
+    };
+
+    getAllUser();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -77,7 +100,6 @@ export default function ApprovalFlowForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const url = selectedStep
       ? `/api/approval-flow/${selectedStep.id}`
       : `/api/approval-flow`;
@@ -244,6 +266,26 @@ export default function ApprovalFlowForm({
                 }));
               }}
               selectedValue={data.section}
+            />
+          </div>
+
+          <div className={styleLink}>
+            <Label
+              name="Approver"
+              htmlFor="approver"
+              className="block text-sm font-medium text-gray-900"
+            />
+            <MultiComboBox
+              menu={users.map((i) => ({ id: i.id, name: i.fullname }))}
+              selectedValues={data.approver}
+              onSelect={(items) => {
+                // items are already in click order
+                console.log("items selected: ", items);
+                setData((prev) => ({
+                  ...prev,
+                  approver: items.map((i) => i.id.toString()),
+                }));
+              }}
             />
           </div>
 

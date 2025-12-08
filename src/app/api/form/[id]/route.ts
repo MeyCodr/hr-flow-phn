@@ -124,7 +124,7 @@ export async function PUT(
       },
     });
 
-    if (!approval) {
+    if (!approval || !approval.submission) {
       return NextResponse.json(
         { error: "Approval not found" },
         { status: 404 }

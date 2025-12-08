@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
     }
     const body = await req.json();
 
-    const { formTypeId, order, role, division, department, section } = body;
+    const { formTypeId, order, role, division, department, section, approver } =
+      body;
 
     // Treat "0" or "" as null
     const parseNullableNumber = (value: string) => {
@@ -31,7 +32,22 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(newApprovalFlow);
+    if (approver && approver.length > 0) {
+      await prisma.approvalStepApprover.createMany({
+        data: approver.map((id: string) => ({
+          stepId: newApprovalFlow.id,
+          userId: Number(id),
+        })),
+        skipDuplicates: true,
+      });
+    }
+
+    const stepWithApprovers = await prisma.approvalFlowStep.findUnique({
+      where: { id: newApprovalFlow.id },
+      include: { approvalStepApprovers: { include: { user: true } } },
+    });
+
+    return NextResponse.json(stepWithApprovers);
   } catch (error) {
     console.error("Error creating approval flow:", error);
     return new Response("Error creating approval flow", { status: 500 });
@@ -51,6 +67,10 @@ export async function GET() {
         division: true,
         department: true,
         section: true,
+        user: true,
+        approvalStepApprovers: {
+          include: { user: true },
+        },
       },
     });
     return NextResponse.json(approvalFlows);

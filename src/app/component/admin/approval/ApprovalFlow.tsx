@@ -1,6 +1,12 @@
 "use client";
 
-import { Department, Division, FormType, Section } from "@/app/types/types";
+import {
+  Department,
+  Division,
+  FormType,
+  Section,
+  UserType,
+} from "@/app/types/types";
 import React, { useEffect, useState } from "react";
 import ApprovalFlowForm from "./ApprovalFlowForm";
 import CheckBox from "../../ui/CheckBox";
@@ -18,11 +24,19 @@ export interface ApprovalFlowStep {
   order: number;
   role: string;
   sectionId: number | null;
-
+  user?: UserType[];
   formType?: FormType;
   division?: Division;
   department?: Department;
   section?: Section;
+  approvalStepApprovers: ApprovalStepApprover[];
+}
+
+export interface ApprovalStepApprover {
+  id: number;
+  stepId: number;
+  userId: number;
+  user: UserType;
 }
 
 interface ApprovalFlowProps {
@@ -52,6 +66,8 @@ export default function ApprovalFlow({
   );
   const [approvalFlow, setApprovalFlow] = useState<ApprovalFlowStep[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  console.log("approval node: ", approvalFlow);
 
   const handleAddForm = () => {
     setSelectedStep(null);
@@ -216,6 +232,7 @@ export default function ApprovalFlow({
                       <th className="px-4 py-3 font-semibold">Division</th>
                       <th className="px-4 py-3 font-semibold">Department</th>
                       <th className="px-4 py-3 font-semibold">Section</th>
+                      <th className="px-4 py-3 font-semibold">Approver</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -256,6 +273,15 @@ export default function ApprovalFlow({
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           {item.section?.name || "-"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {item.approvalStepApprovers
+                            .sort((a, b) => a.id - b.id)
+                            .map((a, index) => (
+                              <div key={a.user.id}>
+                                {index + 1}. {a.user.fullname}
+                              </div>
+                            ))}
                         </td>
                       </tr>
                     ))}

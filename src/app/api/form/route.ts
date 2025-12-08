@@ -27,11 +27,6 @@ export async function POST(req: NextRequest) {
     const formId = Number(formData.get("formId"));
     const data = JSON.parse(formData.get("data") as string);
 
-    console.log("file: ", file);
-    console.log("user: ", user);
-    console.log("formId: ", formId);
-    console.log("data: ", data);
-
     // ✅ Validate user
     if (!user) {
       return NextResponse.json(

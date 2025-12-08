@@ -190,10 +190,6 @@ export default function ManPower({
     { key: "other", label: "Other" },
   ];
 
-  type StringKeys<T> = {
-    [K in keyof T]: T[K] extends string ? K : never;
-  }[keyof T];
-
   type ReasonKey = Extract<
     keyof ManPowerTypes,
     "productionVolumeIncrease" | "newProject" | "machineFaulty" | "other"

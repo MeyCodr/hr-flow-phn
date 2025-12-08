@@ -5,12 +5,12 @@ import path from "path";
 import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { Prisma } from "@prisma/client";
+import { ApprovalStepApprover, Prisma, User } from "@prisma/client";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
 
-console.log("email from: ", emailFrom);
+type ManualApproverWithUser = ApprovalStepApprover & { user: User };
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,11 +25,6 @@ export async function POST(req: NextRequest) {
     const user = JSON.parse(formData.get("user") as string);
     const formId = Number(formData.get("formId"));
     const data = JSON.parse(formData.get("data") as string);
-
-    console.log("file: ", file);
-    console.log("user: ", user);
-    console.log("formId: ", formId);
-    console.log("data: ", data);
 
     // ✅ Validate user
     if (!user) {
@@ -141,14 +136,11 @@ export async function POST(req: NextRequest) {
     const assignedApprovers: number[] = [];
 
     for (const step of approvalFlowSteps) {
-      let approver = null;
-
       const baseWhere: Prisma.UserWhereInput = {
         role: step.role,
-        id: { notIn: assignedApprovers }, // ✅ EXCLUDE already assigned approvers
+        id: { notIn: assignedApprovers },
       };
 
-      // ✅ Dynamic lookup based on flow config
       if (step.divisionId !== null) {
         baseWhere.divisionId = Number(step.divisionId);
       } else if (step.departmentId !== null) {
@@ -156,36 +148,42 @@ export async function POST(req: NextRequest) {
       } else if (step.sectionId !== null) {
         baseWhere.sectionId = Number(step.sectionId);
       } else {
-        baseWhere.divisionId = findUser.divisionId; // fallback to requester division
+        baseWhere.divisionId = findUser.divisionId;
       }
 
-      approver = await prisma.user.findFirst({
-        where: baseWhere,
-        orderBy: { id: "asc" }, // deterministic
+      // 1️⃣ Load manual approvers
+      const manualApprovers = await prisma.approvalStepApprover.findMany({
+        where: { stepId: step.id },
+        include: { user: true },
       });
 
-      if (!approver) {
-        console.warn(
-          `⚠️ No approver found for Role=${step.role} at step ${step.order}`
-        );
-        continue;
+      let approvers = manualApprovers.length
+        ? manualApprovers.map((a: ManualApproverWithUser) => a.user)
+        : await prisma.user.findMany({ where: baseWhere });
+
+      // 2️⃣ Add Head of Division automatically ONLY for step 1
+      if (step.order === 1 && headOfDivision) {
+        approvers.push(headOfDivision);
       }
 
-      assignedApprovers.push(approver.id);
+      // Prevent duplicates
+      approvers = approvers.filter(
+        (a: User) => !assignedApprovers.includes(a.id)
+      );
 
-      await prisma.approval.create({
-        data: {
+      assignedApprovers.push(...approvers.map((a: User) => a.id));
+
+      // 3️⃣ Create all approvals for this step
+      await prisma.approval.createMany({
+        data: approvers.map((u: User) => ({
           submissionId: formSubmission.id,
-          approverId: approver.id,
+          approverId: u.id,
           stepOrder: step.order,
           status: step.order === 1 ? "PENDING" : "WAITING",
           deadline:
-            step.order === 1
-              ? //   ? new Date(Date.now() + 5 * 24 * 60 * 60 * 1000) // 5 days from now
-                new Date(Date.now() + 5 * 60 * 1000)
-              : null,
-          escalated: false, // add the escalated flag
-        },
+            step.order === 1 ? new Date(Date.now() + 5 * 60 * 1000) : null,
+          escalated: false,
+        })),
       });
     }
 
@@ -219,16 +217,50 @@ export async function POST(req: NextRequest) {
 
     await transporter.sendMail(mailOptions);
 
-    for (const approval of firstStepApprovers) {
+    // for (const approval of firstStepApprovers) {
+    //   // Skip sending TO email to Head of Division if they are CC
+    //   const isHead =
+    //     headOfDivision && approval.approver.id === headOfDivision.id;
+
+    //   const approvalMail = {
+    //     from: emailFrom,
+    //     to: isHead ? undefined : approval.approver.email, // skip TO for head
+    //     cc: headOfDivision?.email || undefined,
+    //     subject: "Action Required: New Request Pending Your Approval",
+    //     template: "FormSubmission",
+    //     context: {
+    //       subject: "Action Required: New Request Pending Your Approval",
+    //       recipientName: approval.approver.fullname,
+    //       formTitle: formType?.name,
+    //       requestorName: findUser?.fullname,
+    //       requestorStaffId: findUser?.staffid,
+    //       department: findDepartment?.name,
+    //       submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
+    //       status: formSubmission.status,
+    //       approvalLink: `${webLink}/dashboard/approval?id=${formSubmission.id}&name=${formType.name}`,
+    //       isApprover: true,
+    //     },
+    //   };
+
+    //   // Only send if TO or CC exists
+    //   if (approvalMail.to || approvalMail.cc) {
+    //     await transporter.sendMail(approvalMail);
+    //   }
+    // }
+
+    if (firstStepApprovers.length > 0) {
+      // The first approver goes to TO, rest go to CC
+      const [firstApprover, ...otherApprovers] = firstStepApprovers;
+
       const approvalMail = {
         from: emailFrom,
-        to: approval.approver.email,
-        cc: headOfDivision?.email || undefined,
+        to: firstApprover.approver.email,
+        cc: otherApprovers.map((a) => a.approver.email),
         subject: "Action Required: New Request Pending Your Approval",
         template: "FormSubmission",
         context: {
           subject: "Action Required: New Request Pending Your Approval",
-          recipientName: approval.approver.fullname,
+          recipientName: firstApprover.approver.fullname,
           formTitle: formType?.name,
           requestorName: findUser?.fullname,
           requestorStaffId: findUser?.staffid,

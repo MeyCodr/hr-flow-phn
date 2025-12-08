@@ -8,7 +8,7 @@ if (!link) {
   process.exit(1);
 }
 
-cron.schedule("*/5 * * * *", async () => {
+cron.schedule("*/2 * * * *", async () => {
   try {
     const res = await fetch(`${link}/api/cron/escalate-overdue`);
 

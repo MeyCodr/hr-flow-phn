@@ -29,6 +29,7 @@ export interface Submission {
 }
 
 export interface Approval {
+  stepOrder: number;
   id: number;
   remarks?: string | null;
   currentLevel: number;
@@ -141,27 +142,56 @@ export default function ApprovalComponent({
     exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: "easeIn" } },
   };
 
-  // Process forms with levels
   const formsWithLevels = forms.map((form) => {
     const approvalsList = form.approvals || [];
-    const totalLevel = approvalsList.length;
-    const activeApproval = approvalsList.find((a) => a.status === "PENDING");
-    const activeLevel = activeApproval ? activeApproval.stepOrder : totalLevel;
-    return { ...form, totalLevel, currentLevel: activeLevel || 0, activeLevel };
+
+    const grouped = approvalsList.reduce<Record<number, Approval[]>>(
+      (acc, approval) => {
+        if (!acc[approval.stepOrder]) acc[approval.stepOrder] = [];
+        acc[approval.stepOrder].push(approval as unknown as Approval);
+        return acc;
+      },
+      {}
+    );
+
+    const totalLevel = Object.keys(grouped).length; // unique steps
+
+    // Find active step: first step containing ANY PENDING approval
+    const activeStep = Object.values(grouped).find((stepGroup) =>
+      stepGroup.some((a) => a.status === "PENDING")
+    );
+
+    const activeLevel = activeStep ? activeStep[0].stepOrder : totalLevel; // if none pending, last level is active
+
+    return {
+      ...form,
+      groupedApprovals: grouped, // optional if you need grouped data
+      totalLevel,
+      currentLevel: activeLevel,
+      activeLevel,
+    };
   });
 
   const userPendingForms = formsWithLevels.filter(
     (f) => f.status === "PENDING"
   );
   const userFormsHistory = formsWithLevels.filter(
-    (f) => f.status === "APPROVED" || f.status === "REJECTED" || f.status === "ESCALATED"
+    (f) =>
+      f.status === "APPROVED" ||
+      f.status === "REJECTED" ||
+      f.status === "ESCALATED"
   );
+
+
   const approvalsHistory = approvals.filter(
-    (a) => a.status === "APPROVED" || a.status === "REJECTED" || a.status === "ESCALATED"
+    (a) =>
+      a.status === "APPROVED" ||
+      a.status === "REJECTED" ||
+      a.status === "ESCALATED"
   );
 
-  //if admin
-
+  console.log("formwith level: ", formsWithLevels);
+  console.log("approvals 2: ", approvals);
 
   const categories: TabItem[] = [
     {

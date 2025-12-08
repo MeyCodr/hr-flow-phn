@@ -16,7 +16,10 @@ export async function PUT(
     const body = await req.json();
     const { id } = await context.params;
 
-    const { formTypeId, order, role, division, department, section } = body;
+    const { formTypeId, order, role, division, department, section, approver } =
+      body;
+
+    console.log("approver: ", approver);
 
     // Treat "0" or "" as null
     const parseNullableNumber = (value: string) => {
@@ -35,6 +38,19 @@ export async function PUT(
         sectionId: parseNullableNumber(section),
       },
     });
+
+    await prisma.approvalStepApprover.deleteMany({
+      where: { stepId: Number(id) },
+    });
+
+    if (approver && approver.length > 0) {
+      await prisma.approvalStepApprover.createMany({
+        data: approver.map((id: string) => ({
+          stepId: updatedApprovalFlow.id,
+          userId: Number(id),
+        })),
+      });
+    }
 
     return NextResponse.json(updatedApprovalFlow);
   } catch (error) {

@@ -27,14 +27,26 @@ export default async function Admin() {
     },
   });
 
-  const approvalFlow = await prisma.approvalFlowStep.findMany({
-    include: {
-      formType: true,
-      division: true,
-      department: true,
-      section: true,
-    },
-  });
+  const approvalFlow = (
+    await prisma.approvalFlowStep.findMany({
+      include: {
+        formType: true,
+        division: true,
+        department: true,
+        section: true,
+        approvalStepApprovers: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    })
+  ).map((step) => ({
+    ...step,
+    division: step.division ?? undefined,
+    department: step.department ?? undefined,
+    section: step.section ?? undefined,
+  }));
 
   const formSubmission = await prisma.formSubmission.findMany({
     include: {

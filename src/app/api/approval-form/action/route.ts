@@ -3,9 +3,24 @@ import { prisma } from "../../../../../lib/prisma";
 import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
+import { Prisma } from "@prisma/client";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
+
+
+
+type ApprovalWithSubmission = Prisma.ApprovalGetPayload<{
+  include: {
+    approver: true;
+    submission: {
+      include: {
+        approvals: { include: { approver: true } };
+        createdBy: true;
+      };
+    };
+  };
+}>;
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,7 +39,7 @@ export async function POST(req: NextRequest) {
       );
 
     // 1️⃣ Find approval + submission + user + all approvals
-    const approval = await prisma.approval.findUnique({
+    const approval:  ApprovalWithSubmission | null = await prisma.approval.findUnique({
       where: { id: Number(approvalId) },
       include: {
         approver: true, // to get approver name/email

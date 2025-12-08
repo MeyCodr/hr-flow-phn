@@ -2,6 +2,26 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "../../../../../lib/prisma";
+import { Prisma } from "@prisma/client";
+
+type ApprovalWithSubmission = Prisma.ApprovalGetPayload<{
+  include: {
+    submission: {
+      include: {
+        createdBy: true;
+        formType: { select: { name: true } };
+        approvals: {
+          orderBy: { stepOrder: "asc" };
+          include: { approver: true };
+        };
+      };
+    };
+  };
+}>;
+
+type SubmissionApproval = NonNullable<
+  ApprovalWithSubmission["submission"]
+>["approvals"][number];
 
 export async function GET() {
   try {
@@ -31,29 +51,42 @@ export async function GET() {
           include: {
             createdBy: true,
             formType: { select: { name: true } },
-            approvals: { orderBy: { stepOrder: "asc" } },
+            approvals: {
+              orderBy: { stepOrder: "asc" },
+              include: { approver: true },
+            },
           },
         },
       },
       orderBy: { stepOrder: "asc" },
     });
 
-    // Calculate levels
-    const approvalsWithLevels = approvals.map((approval) => {
-      const allSteps = approval.submission.approvals;
-      const totalLevel = allSteps.length;
-      const activeApproval = allSteps.find((a) => a.status === "PENDING");
-      const activeLevel = activeApproval
-        ? activeApproval.stepOrder
-        : totalLevel;
+    const approvalsWithLevels = approvals.map(
+      (approval: ApprovalWithSubmission) => {
+        const allSteps = approval.submission.approvals;
 
-      return {
-        ...approval,
-        totalLevel,
-        currentLevel: approval.stepOrder,
-        activeLevel,
-      };
-    });
+        const uniqueStepOrders = [
+          ...new Set(allSteps.map((s: SubmissionApproval) => s.stepOrder)),
+        ];
+
+        const totalLevel = uniqueStepOrders.length;
+
+        const activeApproval = allSteps.find(
+          (a: SubmissionApproval) => a.status === "PENDING"
+        );
+
+        const activeLevel = activeApproval
+          ? activeApproval.stepOrder
+          : totalLevel;
+
+        return {
+          ...approval,
+          totalLevel,
+          currentLevel: approval.stepOrder,
+          activeLevel,
+        };
+      }
+    );
 
     // 2️⃣ Fetch this user's own submitted forms
     const selfForms = await prisma.formSubmission.findMany({

@@ -123,6 +123,8 @@ export default function ViewSubmission({
     }
   };
 
+  console.log("form approval: ", form.approvals);
+
   const nextApproval = form.approvals?.find((a) => a.status === "PENDING");
 
   const isFormCompleted =
@@ -185,7 +187,6 @@ export default function ViewSubmission({
     approval: Approval,
     remarks: string
   ) => {
-
     const edited = editedApprovals[approval.id];
     console.log("edited approval: ", edited);
     if (!edited?.status) return;
@@ -220,6 +221,29 @@ export default function ViewSubmission({
       setLoading(false);
     }
   };
+
+  const displayStatus = (status: string) => {
+    const formName = form.formType.name;
+    if (formName === "Grievance Report") {
+      if (status === "APPROVED") return "RESOLVED";
+    } else {
+      return "APPROVED";
+    }
+    return status;
+  };
+
+  const groupedApprovals: Record<number, Approval[]> = form.approvals.reduce(
+    (acc, curr) => {
+      if (!acc[curr.stepOrder]) acc[curr.stepOrder] = [];
+      acc[curr.stepOrder].push(curr);
+      return acc;
+    },
+    {} as Record<number, Approval[]>
+  );
+
+  const uniqueApprovals = (Object.values(groupedApprovals) as Approval[][]).map(
+    (group) => group[0]
+  );
 
   if (!form) {
     return (
@@ -335,7 +359,10 @@ export default function ViewSubmission({
             message={`Please check the details of the form carefully. Once ${
               actionType === "approve" ? "approved" : "rejected"
             }, this action cannot be undone.`}
-            onConfirm={(remarks) => performApproval(remarks)}
+            onConfirm={(remarks) => {
+              performApproval(remarks);
+              setConfirmModalOpen(false);
+            }}
             onCancel={() => setConfirmModalOpen(false)}
             confirmText={actionType === "approve" ? "Approve" : "Reject"}
             cancelText="Cancel"
@@ -356,7 +383,7 @@ export default function ViewSubmission({
           </div>
 
           <div className="relative border-l border-gray-300 pl-6 space-y-8">
-            {form.approvals.map((approval, index) => (
+            {uniqueApprovals.map((approval, index) => (
               <div key={approval.id} className="relative">
                 <div
                   className={`absolute -left-[10px] top-1 w-4 h-4 rounded-full border-2 ${
@@ -413,7 +440,11 @@ export default function ViewSubmission({
                         <option value="PENDING">PENDING</option>
                         <option value="ESCALATED">ESCALATED</option>
                         <option value="WAITING">WAITING</option>
-                        <option value="APPROVED">APPROVED</option>
+                        <option value="APPROVED">
+                          {form.formType.name === "Grievance Report"
+                            ? "RESOLVED"
+                            : "APPROVED"}
+                        </option>
                         <option value="REJECTED">REJECTED</option>
                       </select>
                     ) : (
@@ -430,7 +461,7 @@ export default function ViewSubmission({
                             : "bg-gray-100 text-gray-700"
                         }`}
                       >
-                        {approval.status}
+                        {displayStatus(approval.status)}
                       </span>
                     )}
                   </div>

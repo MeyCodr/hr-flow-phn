@@ -70,8 +70,6 @@ function FormInfo({
 
   useEffect(() => {
     if (!userInfo) return;
-
-    const sectionName = sections.find(s => s.id === userInfo.sectionId)?.name || "";
     setData((prev) => ({
       ...prev,
       division: userInfo.divisionId ? userInfo.divisionId.toString() : "",
