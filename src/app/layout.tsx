@@ -10,7 +10,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "HR Flow",
+  title: "HR FMS",
   description: "Human Resource Forms Management System",
 };
 
