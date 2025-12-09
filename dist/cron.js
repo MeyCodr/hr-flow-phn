@@ -42,7 +42,7 @@ if (!link) {
     console.error("❌ NEXTAUTH_URL is missing. Check your .env");
     process.exit(1);
 }
-cron.schedule("*/5 * * * *", function () { return __awaiter(_this, void 0, void 0, function () {
+cron.schedule("*/2 * * * *", function () { return __awaiter(_this, void 0, void 0, function () {
     var res, data, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {

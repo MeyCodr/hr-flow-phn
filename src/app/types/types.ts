@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/client";
 import { DateValueType } from "../component/ui/DatePicker";
 import { Approval } from "../component/approval/ApprovalComponent";
 

@@ -8,7 +8,8 @@ import PrimaryButton from "../../ui/PrimaryButton";
 import { IoReturnDownBack } from "react-icons/io5";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import { Role } from "@prisma/client";
+import { Role } from "@/generated/client";
+
 
 interface UserFormProps {
   user: UserType;

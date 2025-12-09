@@ -1,0 +1,10 @@
+{
+    "apps": [
+        {
+            "name": "hr-flow-phn",
+            "script": "C:\\Program Files\\nodejs\\node_modules\\npm\\bin",
+            "args" : "<start|run [script]>",
+            "exec_mode": "cluster"
+        }
+    ]
+}

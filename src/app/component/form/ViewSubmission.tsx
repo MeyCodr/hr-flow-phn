@@ -15,7 +15,7 @@ import {
   SelfFormData,
   User,
 } from "@/app/types/types";
-import { FormStatus } from "@prisma/client";
+import { FormStatus } from "@/generated/client";
 import { sanitizeName } from "../../../../lib/utils";
 import { downloadFormPDF } from "../../../../lib/pdfDownloader";
 import { HrFormComponents } from "../../../../lib/hrformcomponents";

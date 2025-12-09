@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { hash } from "bcrypt";
 import { getToken } from "next-auth/jwt";
-import { User } from "@prisma/client";
+import { User } from "@/generated/client";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { getServerSession } from "next-auth";

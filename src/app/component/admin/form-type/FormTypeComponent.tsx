@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FormType } from "@prisma/client";
+import { FormType } from "@/generated/client";
 import FormTypeForm from "./FormTypeForm";
 import axios from "axios";
 import { motion, AnimatePresence, Variants } from "framer-motion";

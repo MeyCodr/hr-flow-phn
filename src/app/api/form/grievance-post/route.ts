@@ -5,7 +5,7 @@ import path from "path";
 import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { ApprovalStepApprover, Prisma, User } from "@prisma/client";
+import { ApprovalStepApprover, Prisma, User } from "@/generated/client";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;

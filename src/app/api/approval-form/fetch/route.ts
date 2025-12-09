@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "../../../../../lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/client";
+
 
 type ApprovalWithSubmission = Prisma.ApprovalGetPayload<{
   include: {

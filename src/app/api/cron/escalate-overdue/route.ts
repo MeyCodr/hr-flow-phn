@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { transporter } from "../../../../../lib/emailService";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/client";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;

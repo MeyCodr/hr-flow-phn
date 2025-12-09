@@ -12,7 +12,7 @@ import {
 } from "@/app/types/types";
 import axios from "axios";
 import FormTypeComponent from "./form-type/FormTypeComponent";
-import { FormType } from "@prisma/client";
+import { FormType } from "@/generated/client";
 import dynamic from "next/dynamic";
 import ApprovalFlow, { ApprovalFlowStep } from "./approval/ApprovalFlow";
 import { motion, Variants } from "framer-motion";

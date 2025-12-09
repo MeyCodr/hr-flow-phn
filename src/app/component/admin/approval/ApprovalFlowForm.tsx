@@ -14,7 +14,7 @@ import {
   UserType,
 } from "@/app/types/types";
 import { roles } from "../../../../../lib/data";
-import { Role } from "@prisma/client";
+import { Role } from "@/generated/client";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { ApprovalFlowStep } from "./ApprovalFlow";

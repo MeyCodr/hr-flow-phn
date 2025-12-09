@@ -3,7 +3,8 @@ import { prisma } from "../../../../../lib/prisma";
 import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/client";
+
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;

@@ -28,6 +28,6 @@
     ".next/types/**/*.ts",
     "lib/**/*",
     "prisma/**/*"
-  ],
+, "ecosystem.config.js"  ],
   "exclude": ["node_modules"]
 }

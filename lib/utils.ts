@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/client";
 import crypto from "crypto";
 
 export function getFirstName(fullName: string | null | undefined): string {

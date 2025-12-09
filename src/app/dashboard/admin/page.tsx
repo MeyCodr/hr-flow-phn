@@ -15,7 +15,8 @@ import {
   FormSubmission,
   Section,
   User,
-} from "@prisma/client";
+} from "@/generated/client";
+
 
 export default async function Admin() {
   const session = await getServerSession(authOptions);

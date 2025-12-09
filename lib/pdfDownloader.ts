@@ -1,5 +1,5 @@
 import { ApprovalUser, ManPowerTypes } from "@/app/types/types";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/client";
 import jsPDF from "jspdf";
 import autoTable, { RowInput } from "jspdf-autotable";
 

@@ -6,7 +6,8 @@ import { IoReturnDownBack } from "react-icons/io5";
 import Label from "../../ui/Label";
 import { Input } from "../../ui/Input";
 import axios from "axios";
-import { FormType } from "@prisma/client";
+import { FormType } from "@/generated/client";
+
 import toast, { Toaster } from "react-hot-toast";
 
 interface FormTypeFormProps {
