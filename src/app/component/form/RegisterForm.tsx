@@ -143,9 +143,9 @@ function RegisterForm({
         <div className="flex flex-col space-y-10 w-full justify-center items-center">
           {/* Header */}
           <div className="flex flex-col space-y-2">
-            <h1 className="font-bold text-3xl text-center">HR FMS</h1>
+            <h1 className="font-bold text-3xl text-center">PHN FMS</h1>
             <p className="text-center text-gray-600">
-              Register and start using this management system
+              Register and start using this form management system
             </p>
           </div>
 

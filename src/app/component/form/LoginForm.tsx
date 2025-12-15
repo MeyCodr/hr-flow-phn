@@ -100,9 +100,9 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
         <div className="flex flex-col space-y-10 w-full justify-center items-center">
           {/* Header */}
           <div className="flex flex-col space-y-2">
-            <h1 className="font-bold text-3xl text-center">HR FMS</h1>
+            <h1 className="font-bold text-3xl text-center">PHN FMS</h1>
             <p className="text-center text-gray-600">
-              Human Resource Forms Management System
+              PHN Forms Management System
             </p>
           </div>
 
