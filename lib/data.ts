@@ -52,3 +52,11 @@ export const reportingToOptions = [
   { id: 3, name: "Head of Section/Assistant Manager" },
   { id: 4, name: "Head of Department/Manager" },
 ];
+
+export const performanceRatings = [
+  { id: 1, name: "Poor" },
+  { id: 2, name: "Fair" },
+  { id: 3, name: "Satisfactory" },
+  { id: 4, name: "Good" },
+  { id: 5, name: "Excellent" },
+];

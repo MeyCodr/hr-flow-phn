@@ -85,6 +85,40 @@ export interface ManPowerTypes {
   sectionName?: string;
 }
 
+export interface EmployeeReviewTypes {
+  staffName: string;
+  jobTitle: string;
+  divisionName?: string;
+  departmentName?: string;
+  sectionName?: string;
+  reviewPeriodFrom: DateValueType;
+  reviewPeriodTo: DateValueType;
+  staffId: string;
+  dateJoin: DateValueType;
+  evaluator: string;
+  monthReview: string;
+  jobKnowledge: string;
+  jobKnowledgeComments: string;
+  workQuality: string;
+  workQualityComments: string;
+  attendancePunctuality: string;
+  attendancePunctualityComments: string;
+  communicationSkills: string;
+  communicationSkillsComments: string;
+  competencyRoles: string;
+  competencyRolesComments: string;
+  averageRating: string;
+  superiorSignature: string;
+  superiorDate: string;
+  hodSignature: string;
+  hodDate: string;
+  employeeComments: string;
+  employeeSignature: string;
+  employeeDate: string;
+  hcdAcknowledgement: string;
+  hcdDate: string;
+}
+
 export interface GrievanceReportTypes {
   fullname: string;
   contactNo: string;
