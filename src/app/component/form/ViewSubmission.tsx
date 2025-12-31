@@ -223,8 +223,6 @@ export default function ViewSubmission({
     const formName = form.formType.name;
     if (formName === "Grievance Report") {
       if (status === "APPROVED") return "RESOLVED";
-    } else {
-      return "APPROVED";
     }
     return status;
   };
@@ -241,6 +239,9 @@ export default function ViewSubmission({
   const uniqueApprovals = (Object.values(groupedApprovals) as Approval[][]).map(
     (group) => group[0]
   );
+
+  console.log("unique approvals: ", uniqueApprovals);
+  console.log("unique approvals each: ", uniqueApprovals[1]);
 
   if (!form) {
     return (
@@ -384,7 +385,9 @@ export default function ViewSubmission({
               <div key={approval.id} className="relative">
                 <div
                   className={`absolute -left-[10px] top-1 w-4 h-4 rounded-full border-2 ${
-                    approval.status === "APPROVED"
+                    approval.status === "PENDING"
+                      ? "border-gray-600 bg-gray-100"
+                      : approval.status === "APPROVED"
                       ? "border-green-600 bg-green-100"
                       : approval.status === "REJECTED"
                       ? "border-red-600 bg-red-100"
@@ -447,7 +450,9 @@ export default function ViewSubmission({
                     ) : (
                       <span
                         className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                          approval.status === "APPROVED"
+                          approval.status === "PENDING"
+                            ? "bg-gray-100 text-gray-700"
+                            : approval.status === "APPROVED"
                             ? "bg-green-100 text-green-700"
                             : approval.status === "REJECTED"
                             ? "bg-red-100 text-red-700"
