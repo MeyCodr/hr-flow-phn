@@ -117,7 +117,6 @@ function FormInfo({
     e.preventDefault();
     setLoading(true);
     const toastId = "";
-
     try {
       const res = await axios.put(`/api/user/${data.staffid}`, data);
       if (res.status === 200) {

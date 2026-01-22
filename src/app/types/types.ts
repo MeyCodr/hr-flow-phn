@@ -180,6 +180,9 @@ export interface UserType {
   division?: Division | null;
   department?: Department | null;
   section?: Section | null;
+  divisionId?: number | null;
+  departmentId?: number | null;
+  sectionId?: number | null;
   designation?: string | null;
   workLocation?: string | null;
   role: string;

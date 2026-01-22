@@ -10,7 +10,7 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ staffid: string }> }
+  context: { params: Promise<{ staffid: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -23,7 +23,7 @@ export async function GET(
     if (!staffid) {
       return NextResponse.json(
         { error: "Staff id is missing" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,13 +34,13 @@ export async function GET(
     if (!findUser) {
       return NextResponse.json(
         { error: "User does not exist" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     return NextResponse.json(
       { message: "Retrieve current user", data: findUser },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
@@ -49,7 +49,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ staffid: string }> }
+  context: { params: Promise<{ staffid: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -60,18 +60,24 @@ export async function PUT(
     const { staffid } = await context.params;
     const body = await req.json();
 
+    console.log("body: ", body);
+
     const {
       fullname,
       staffid: newStaffId,
       email,
       designation,
       workLocation,
-      divisionId,
-      departmentId,
-      sectionId,
+      division,
+      department,
+      section,
       role,
       password,
     } = body;
+
+    console.log("divisionId", division);
+    console.log("departmentId", department);
+    console.log("sectionId", section);
 
     const token = await getToken({ req });
     if (!token?.staffid)
@@ -91,7 +97,7 @@ export async function PUT(
     if (!isAdmin && token.staffid !== staffid) {
       return NextResponse.json(
         { error: "Forbidden: cannot update other users" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -104,21 +110,22 @@ export async function PUT(
       workLocation,
     };
 
-    if (departmentId) {
-      const depId = Number(departmentId);
-      updateData.departmentId = depId > 0 ? depId : null;
-    } else {
-      updateData.departmentId = null;
-    }
-
-    if (divisionId) {
-      const divId = Number(divisionId);
+    if (division) {
+      const divId = Number(division);
       updateData.divisionId = divId > 0 ? divId : null;
+      console.log("divId", updateData.divisionId);
     }
 
-    if (sectionId) {
-      const secId = Number(sectionId);
+    if (department) {
+      const depId = Number(department);
+      updateData.departmentId = depId > 0 ? depId : null;
+      console.log("deptId", updateData.departmentId);
+    }
+
+    if (section) {
+      const secId = Number(section);
       updateData.sectionId = secId > 0 ? secId : null;
+      console.log("secId", updateData.sectionId);
     }
 
     // 🧂 Only admin can update role
@@ -132,6 +139,8 @@ export async function PUT(
       updateData.password = await hash(password, 12);
     }
 
+    console.log("Update Data:", updateData);
+
     // 🛠️ Perform update
     const updatedUser = await prisma.user.update({
       where: { staffid },
@@ -140,7 +149,7 @@ export async function PUT(
 
     return NextResponse.json(
       { message: "Successfully updated", data: updatedUser },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error(error);
@@ -150,7 +159,7 @@ export async function PUT(
 
 export async function POST(
   req: NextRequest,
-  context: { params: Promise<{ staffid: string }> }
+  context: { params: Promise<{ staffid: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);

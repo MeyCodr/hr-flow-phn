@@ -61,8 +61,14 @@ function UserForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formattedData = {
+      ...data,
+      division: data.divisionId?.toString() || "",
+      department: data.departmentId?.toString() || "",
+      section: data.sectionId?.toString() || "",
+    };
     try {
-      await axios.put(`/api/user/${data.staffid}`, data);
+      await axios.put(`/api/user/${data.staffid}`, formattedData);
       toast.success("Successfully updated user");
       onUpdate(); // 👈 notify parent to refresh data
     } catch (error) {
