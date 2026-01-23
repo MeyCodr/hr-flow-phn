@@ -33,6 +33,7 @@ const loadImage = async (url: string): Promise<string> => {
 };
 
 const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
+  console.log("data", data);
   const {
     formData,
     departmentName,
@@ -53,6 +54,7 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
   });
 
   const approverNames: string[] = new Array(6).fill("");
+  const parsedFormData = formData as unknown as ManPowerTypes | null;
 
   approvals.forEach((a) => {
     const index = a.stepOrder; // stepOrder 1 goes to index 1
@@ -69,8 +71,8 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
   const approverDates: string[] = new Array(6).fill("");
 
   // Requested by date (index 0)
-  approverDates[0] = createdBy?.createdAt
-    ? new Date(createdBy.createdAt).toLocaleDateString("en-GB")
+  approverDates[0] = parsedFormData?.createddate
+    ? new Date(parsedFormData.createddate).toLocaleDateString("en-GB")
     : "-";
 
   // Approver dates
@@ -93,8 +95,6 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
     `${checkbox(finalStatus === "APPROVED")} Approved\n` +
     `${checkbox(finalStatus === "KIV")} KIV\n` +
     `${checkbox(finalStatus === "REJECTED")} Rejected`;
-
-  const parsedFormData = formData as unknown as ManPowerTypes | null;
 
   const tableData: RowInput[] = [
     [
@@ -214,7 +214,7 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
       "Last Working Day",
       parsedFormData?.lastWorkingDay ?? "-",
       "New Project",
-      parsedFormData?.newProject ?? "-",
+      parsedFormData?.newProject || "-",
     ],
     [
       { content: "", colSpan: 2, rowSpan: 2 },
@@ -340,7 +340,6 @@ const generateGrievancePDF = (doc: jsPDF, data: FormPDFData) => {
 };
 
 export const downloadFormPDF = async (data: FormPDFData) => {
-
   const logoBase64 = await loadImage(logoUrl);
   const doc = new jsPDF();
 

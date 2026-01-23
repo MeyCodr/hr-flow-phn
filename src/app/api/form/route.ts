@@ -5,10 +5,12 @@ import path from "path";
 import { transporter } from "../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
-import { Prisma } from "@/generated/client";
+import { ApprovalStepApprover, Prisma, User } from "@/generated/client";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
+
+type ManualApproverWithUser = ApprovalStepApprover & { user: User };
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "User session is missing" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
     if (!staffid) {
       return NextResponse.json(
         { error: "Staff id is missing" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -47,7 +49,22 @@ export async function POST(req: NextRequest) {
     if (!findUser) {
       return NextResponse.json(
         { error: "User does not exist" },
-        { status: 404 }
+        { status: 404 },
+      );
+    }
+
+    // // ✅ Find Head of Division
+    const headOfDivision = await prisma.user.findFirst({
+      where: {
+        divisionId: findUser.divisionId,
+        role: "HEAD_OF_DIVISION",
+      },
+    });
+
+    if (!headOfDivision) {
+      return NextResponse.json(
+        { error: "Head of Division not found" },
+        { status: 400 },
       );
     }
 
@@ -58,7 +75,7 @@ export async function POST(req: NextRequest) {
     if (!findDepartment) {
       return NextResponse.json(
         { error: "Department not found" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -69,7 +86,7 @@ export async function POST(req: NextRequest) {
     if (!formType) {
       return NextResponse.json(
         { error: `Invalid form type ID: ${formId}` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -120,52 +137,81 @@ export async function POST(req: NextRequest) {
     const assignedApprovers: number[] = [];
 
     for (const step of approvalFlowSteps) {
-      let approver = null;
-
       const baseWhere: Prisma.UserWhereInput = {
         role: step.role,
-        id: { notIn: assignedApprovers }, // ✅ EXCLUDE already assigned approvers
+        id: { notIn: assignedApprovers },
       };
 
-      // ✅ Dynamic lookup based on flow config
+      console.log("Approval Step:", step);
+      console.log("Base Where Clause:", baseWhere);
+
+      // if (step.divisionId !== null) {
+      //   baseWhere.divisionId = Number(step.divisionId);
+      // } else if (step.departmentId !== null) {
+      //   baseWhere.departmentId = Number(step.departmentId);
+      // } else if (step.sectionId !== null) {
+      //   baseWhere.sectionId = Number(step.sectionId);
+      // } else {
+      //   baseWhere.divisionId = findUser.divisionId;
+      // }
+
       if (step.divisionId !== null) {
         baseWhere.divisionId = Number(step.divisionId);
-      } else if (step.departmentId !== null) {
-        baseWhere.departmentId = Number(step.departmentId);
-      } else if (step.sectionId !== null) {
-        baseWhere.sectionId = Number(step.sectionId);
-      } else {
-        baseWhere.divisionId = findUser.divisionId; // fallback to requester division
       }
 
-      approver = await prisma.user.findFirst({
-        where: baseWhere,
-        orderBy: { id: "asc" }, // deterministic
+      if (step.departmentId !== null) {
+        baseWhere.departmentId = Number(step.departmentId);
+      }
+
+      if (step.sectionId !== null) {
+        baseWhere.sectionId = Number(step.sectionId);
+      }
+
+      // fallback only if NOTHING is defined
+      if (
+        step.divisionId === null &&
+        step.departmentId === null &&
+        step.sectionId === null
+      ) {
+        baseWhere.divisionId = findUser.divisionId;
+      }
+
+      // 1️⃣ Load manual approvers
+      const manualApprovers = await prisma.approvalStepApprover.findMany({
+        where: { stepId: step.id },
+        include: { user: true },
       });
 
-      if (!approver) {
-        console.warn(
-          `⚠️ No approver found for Role=${step.role} at step ${step.order}`
-        );
-        continue;
-      }
+      console.log("Manual Approvers:", manualApprovers);
 
-      assignedApprovers.push(approver.id);
+      let approvers = manualApprovers.length
+        ? manualApprovers.map((a: ManualApproverWithUser) => a.user)
+        : await prisma.user.findMany({ where: baseWhere });
 
-      await prisma.approval.create({
-        data: {
+      // 2️⃣ Add Head of Division automatically ONLY for step 1
+      // if (step.order === 1 && headOfDivision) {
+      //   approvers.push(headOfDivision);
+      // }
+
+      // Prevent duplicates
+      approvers = approvers.filter(
+        (a: User) => !assignedApprovers.includes(a.id),
+      );
+
+      assignedApprovers.push(...approvers.map((a: User) => a.id));
+
+      // 3️⃣ Create all approvals for this step with deadline for step 1
+      await prisma.approval.createMany({
+        data: approvers.map((u: User) => ({
           submissionId: formSubmission.id,
-          approverId: approver.id,
+          approverId: u.id,
           stepOrder: step.order,
           status: step.order === 1 ? "PENDING" : "WAITING",
-        },
+          // deadline: step.order === 1 ? new Date(Date.now() + 5 * 60 * 1000) : null,
+          // escalated: false,
+        })),
       });
     }
-
-    // const createdApprovals = await prisma.approval.findMany({
-    //   where: { submissionId: formSubmission.id },
-    //   include: { approver: true },
-    // });
 
     // ✅ Fetch the first-step approvers (order = 1)
     const firstStepApprovers = await prisma.approval.findMany({
@@ -194,15 +240,22 @@ export async function POST(req: NextRequest) {
 
     await transporter.sendMail(mailOptions);
 
-    for (const approval of firstStepApprovers) {
+    // ✅ Updated email logic: First approver in TO, others in CC
+    if (firstStepApprovers.length > 0) {
+      // The first approver goes to TO, rest go to CC
+      const [firstApprover, ...otherApprovers] = firstStepApprovers;
+
       const approvalMail = {
         from: emailFrom,
-        to: approval.approver.email,
+        to: firstApprover.approver.email,
+        cc: otherApprovers.map(
+          (a: { approver: { email: string } }) => a.approver.email,
+        ),
         subject: "Action Required: New Request Pending Your Approval",
         template: "FormSubmission",
         context: {
           subject: "Action Required: New Request Pending Your Approval",
-          recipientName: approval.approver.fullname,
+          recipientName: firstApprover.approver.fullname,
           formTitle: formType?.name,
           requestorName: findUser?.fullname,
           requestorStaffId: findUser?.staffid,
@@ -222,7 +275,7 @@ export async function POST(req: NextRequest) {
         message: "Form and approvals created successfully",
         data: formSubmission,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error creating form record:", error);
@@ -255,7 +308,7 @@ export async function GET() {
 
     // Map to flatten division, department, section names
     const mapped = await Promise.all(
-      submissions.map(async (sub: typeof submissions[number]) => {
+      submissions.map(async (sub: (typeof submissions)[number]) => {
         const createdBy = sub.createdBy;
 
         // Fetch related names
@@ -281,7 +334,7 @@ export async function GET() {
           divisionName: division?.name || null,
           sectionName: section?.name || null,
         };
-      })
+      }),
     );
 
     return NextResponse.json(mapped);
