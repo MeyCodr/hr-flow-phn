@@ -8,7 +8,7 @@ interface StepFour {
   handleTextAreaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleCheckboxBoolean: (
     name: keyof GrievanceReportTypes,
-    value: boolean
+    value: boolean,
   ) => void;
   handleFileChange: (file: File | null) => void;
   readOnly?: boolean;
@@ -28,6 +28,22 @@ function StepFourForm({
   const parsedData = selfForm?.formData as unknown as GrievanceReportTypes;
   const formData = readOnly && parsedData ? parsedData : data;
   const fileData = selfForm?.attachments;
+
+  const downloadDocument = () => {
+    const doc = fileData && fileData[0]?.fileName;
+    if (!doc) return;
+
+    const url = `/api/uploads/${encodeURIComponent(doc)}`;
+    // console.log("file url1: ", url1);
+    // const url = `/api/uploads/${doc}`;
+    console.log("file url: ", url);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = doc;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
 
   return (
     <>
@@ -90,18 +106,19 @@ function StepFourForm({
               </div>
             )}
 
-            {readOnly &&
-              fileData && parsedData &&
+            {readOnly && fileData && parsedData ? (
               fileData.map((item, i) => (
-                <a
+                <p
                   key={i}
-                  href={`/uploads/${encodeURIComponent(item.fileName)}`} // 👈 direct link to public folder
-                  download={item.fileName} // 👈 triggers browser download
-                  className="mt-1 block w-full rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
+                  onClick={downloadDocument}
+                  className="mt-1 block w-full cursor-pointer rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
                 >
                   📎 <strong>Download:</strong> {item.fileName}
-                </a>
-              ))}
+                </p>
+              ))
+            ) : (
+              <p>{fileData?.map((item) => item.fileName)}</p>
+            )}
           </div>
         </div>
         <div className="text-xs">
