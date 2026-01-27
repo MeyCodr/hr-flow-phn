@@ -4,12 +4,16 @@ import path from "path";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { filename: string } }
+  { params }: { params: Promise<{ filename: string }> },
 ) {
   try {
-    const filename = params.filename;
+    const { filename } = await params;
 
-    if (!filename) {
+    const decodedFilename = decodeURIComponent(filename);
+
+    console.log("Requested filename: ", decodedFilename);
+
+    if (!decodedFilename) {
       return new NextResponse("Filename missing", { status: 400 });
     }
 
@@ -18,7 +22,7 @@ export async function GET(
       process.cwd(),
       "storage",
       "uploads",
-      filename
+      decodedFilename,
     );
 
     console.log("filepath: ", filePath);
@@ -31,7 +35,7 @@ export async function GET(
     const fileBuffer = fs.readFileSync(filePath);
     console.log("fileBuffer: ", fileBuffer);
 
-    const ext = path.extname(filename).toLowerCase();
+    const ext = path.extname(decodedFilename).toLowerCase();
     console.log("file extension: ", ext);
 
     const contentTypeMap: Record<string, string> = {
@@ -44,13 +48,12 @@ export async function GET(
     };
     console.log("contentTypeMap: ", contentTypeMap);
 
-    const contentType =
-      contentTypeMap[ext] || "application/octet-stream";
+    const contentType = contentTypeMap[ext] || "application/octet-stream";
 
     return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": contentType,
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `attachment; filename="${decodedFilename}"`,
         "Cache-Control": "no-store",
       },
     });

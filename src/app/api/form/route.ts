@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
 
     // ✅ Handle file upload (optional)
     if (file) {
-      const uploadDir = path.join(process.cwd(), "public/uploads");
+      const uploadDir = path.join(process.cwd(), "storage/uploads");
       await fs.mkdir(uploadDir, { recursive: true });
 
       const fileName = `${Date.now()}-${file.name}`;
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
         data: {
           formSubmissionId: formSubmission.id,
           fileName: fileName,
-          filePath: `/uploads/${fileName}`,
+          filePath: `/storage/uploads/${fileName}`,
           fileType: file.type || "unknown",
         },
       });

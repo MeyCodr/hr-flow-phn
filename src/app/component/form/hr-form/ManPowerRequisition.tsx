@@ -279,7 +279,9 @@ export default function ManPower({
     const doc = fileData && fileData[0]?.fileName;
     if (!doc) return;
 
-    const url = `/api/uploads/${doc}`;
+    const url = `/api/uploads/${encodeURIComponent(doc)}`;
+    // console.log("file url1: ", url1);
+    // const url = `/api/uploads/${doc}`;
     console.log("file url: ", url);
     const link = document.createElement("a");
     link.href = url;
@@ -1055,12 +1057,13 @@ export default function ManPower({
                 )}
 
                 {selfForm && fileData ? (
-                  fileData.map((item) => (
+                  fileData.map((item, i) => (
                     <p
+                      key={i}
                       // href={`/uploads/${encodeURIComponent(item.fileName)}`} // 👈 direct link to public folder
                       onClick={downloadDocument}
                       // download={item.fileName} // 👈 triggers browser download
-                      className="mt-1 block w-full rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
+                      className="mt-1 block w-full cursor-pointer rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
                     >
                       📎 <strong>Download:</strong> {item.fileName}
                     </p>
