@@ -240,7 +240,7 @@ export default function ManPower({
           error.response?.data?.error ||
             error.message ||
             "Something went wrong",
-          { toasterId: toastId }
+          { toasterId: toastId },
         );
       } else if (error instanceof Error) {
         toast.error(error.message, { toasterId: toastId });
@@ -274,6 +274,20 @@ export default function ManPower({
   const isAdditionalSelected = readOnly
     ? parsedData?.selectedOption === "additional"
     : data.selectedOption === "additional";
+
+  const downloadDocument = () => {
+    const doc = fileData && fileData[0]?.fileName;
+    if (!doc) return;
+
+    const url = `/api/uploads/${doc}`;
+    console.log("file url: ", url);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = doc;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
 
   return (
     <>
@@ -370,7 +384,9 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={addDashOption(departments)}
-                  selectedValue={formData?.departmentName ?? formData.department ?? ""} // ✅ controlled
+                  selectedValue={
+                    formData?.departmentName ?? formData.department ?? ""
+                  } // ✅ controlled
                   onSelect={(item) => {
                     const value =
                       item && item.name !== "-" ? item.id.toString() : "";
@@ -393,7 +409,9 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={addDashOption(sections)}
-                 selectedValue={formData?.sectionName ?? formData.section ?? ""} 
+                  selectedValue={
+                    formData?.sectionName ?? formData.section ?? ""
+                  }
                   onSelect={(item) => {
                     const value =
                       item && item.name !== "-" ? item.id.toString() : "";
@@ -411,7 +429,9 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={reportingToOptions}
-                  selectedValue={parsedData?.reportingTo ?? data.reportingTo ?? "" }
+                  selectedValue={
+                    parsedData?.reportingTo ?? data.reportingTo ?? ""
+                  }
                   onSelect={(item) => {
                     const value = item ? item.name : "";
                     setData((prev) => ({ ...prev, reportingTo: value }));
@@ -925,12 +945,12 @@ export default function ManPower({
                               ] !== undefined &&
                               parsedData?.[
                                 reason.key as keyof ManPowerTypes
-                              ] !== ""
+                              ] !== "",
                           )
                         : reasonOptions
                       ).map((reason) => {
                         const isChecked = data.selectedReasons.includes(
-                          reason.key
+                          reason.key,
                         );
                         // const value = (data as any)[reason.key];
                         // const value = data[reason.key as ReasonKey];
@@ -943,7 +963,7 @@ export default function ManPower({
                                 checked={
                                   readOnly
                                     ? parsedData?.selectedReasons.includes(
-                                        reason.key
+                                        reason.key,
                                       )
                                     : isChecked
                                 }
@@ -1034,18 +1054,20 @@ export default function ManPower({
                   </div>
                 )}
 
-                {selfForm &&
-                  fileData &&
-                  fileData.map((item, i) => (
-                    <a
-                      key={i}
-                      href={`/uploads/${encodeURIComponent(item.fileName)}`} // 👈 direct link to public folder
-                      download={item.fileName} // 👈 triggers browser download
+                {selfForm && fileData ? (
+                  fileData.map((item) => (
+                    <p
+                      // href={`/uploads/${encodeURIComponent(item.fileName)}`} // 👈 direct link to public folder
+                      onClick={downloadDocument}
+                      // download={item.fileName} // 👈 triggers browser download
                       className="mt-1 block w-full rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
                     >
                       📎 <strong>Download:</strong> {item.fileName}
-                    </a>
-                  ))}
+                    </p>
+                  ))
+                ) : (
+                  <p>{fileData?.map((item) => item.fileName)}</p>
+                )}
               </div>
               <div className="flex-1 flex flex-col space-y-2 mb-6">
                 <Label
