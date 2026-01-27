@@ -9,6 +9,7 @@ import axios from "axios";
 import { FormType } from "@/generated/client";
 
 import toast, { Toaster } from "react-hot-toast";
+import ConfirmModal from "../../ui/ConfirmModal";
 
 interface FormTypeFormProps {
   onBack: () => void;
@@ -26,6 +27,8 @@ export default function FormTypeForm({
     description: "",
   });
   const [loading, setLoading] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   const styleLink = `flex flex-col gap-y-2`;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +66,30 @@ export default function FormTypeForm({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+    try {
+      if (!selectedFormType) return;
+      const res = await axios.delete(`/api/form-type/${selectedFormType.id}`);
+      if (res.status === 200) {
+        toast.success("Form type deleted successfully");
+        onSuccess(res.data);
+        onBack();
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleDeleteClick = () => {
+    console.log("selectedFormType", selectedFormType);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setShowConfirmModal(false);
+    await handleDelete();
   };
 
   useEffect(() => {
@@ -128,7 +155,17 @@ export default function FormTypeForm({
           />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-x-2">
+          {selectedFormType && (
+            <PrimaryButton
+              name={loading ? "Deleting" : "Delete"}
+              type="button"
+              disabled={loading}
+              onClick={handleDeleteClick}
+              className="bg-red-600 text-white text-xs px-4 py-2 rounded-sm hover:bg-red-700 transition cursor-pointer"
+            />
+          )}
+
           <PrimaryButton
             name={loading ? "Saving..." : "Save"}
             type="submit"
@@ -137,6 +174,15 @@ export default function FormTypeForm({
           />
         </div>
       </form>
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        message={`Are you sure you want to delete this form?`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowConfirmModal(false)}
+        cancelText="Cancel"
+        okText="Delete"
+        title="Are you sure you want to delete this form?"
+      />
     </div>
   );
 }
