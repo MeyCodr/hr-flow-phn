@@ -1,4 +1,5 @@
-import { Role } from "@prisma/client";
+// import { Role } from "@prisma/client";
+import { Role } from "@/generated/enums";
 import { hash } from "bcrypt";
 import { prisma } from "../lib/prisma";
 
