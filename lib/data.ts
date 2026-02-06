@@ -7,6 +7,7 @@ export const workLocation = [
   { id: 6, name: "PHNPGH" },
   { id: 7, name: "PHNBB" },
   { id: 8, name: "DHMSB" },
+  { id: 9, name: "PHNRASA" },
 ];
 
 export const categoryManPower = [

@@ -53,14 +53,14 @@ export async function GET() {
     const grouped = overdueApprovals.reduce(
       (
         acc: Record<string, ApprovalWithRelations[]>,
-        a: ApprovalWithRelations
+        a: ApprovalWithRelations,
       ) => {
         const key = `${a.submissionId}-${a.stepOrder}`;
         if (!acc[key]) acc[key] = [];
         acc[key].push(a);
         return acc;
       },
-      {}
+      {},
     );
 
     // 3️⃣ Process each step in order
@@ -98,9 +98,16 @@ export async function GET() {
           },
         });
 
-      const intervalMinutes =
+      // const intervalMinutes =
+      //   firstApproval.stepOrder + 1 === maxStep._max.stepOrder ? 7 : 5;
+      // const newDeadline = new Date(Date.now() + intervalMinutes * 60 * 1000);
+
+      const intervalDays =
         firstApproval.stepOrder + 1 === maxStep._max.stepOrder ? 7 : 5;
-      const newDeadline = new Date(Date.now() + intervalMinutes * 60 * 1000);
+
+      const newDeadline = new Date(
+        Date.now() + intervalDays * 24 * 60 * 60 * 1000,
+      );
 
       // 4️⃣ Email recipients
       // TO: first approver in next step
@@ -130,7 +137,7 @@ export async function GET() {
           department:
             firstApproval.submission.createdBy.department?.name || "-",
           submittedAt: new Date(
-            firstApproval.submission.createdAt
+            firstApproval.submission.createdAt,
           ).toLocaleString(),
           approvalLink: `${webLink}/dashboard/approval?id=${firstApproval.submission.id}&name=${firstApproval.submission.formType.name}`,
           previousApproverName: group[0].approver.fullname,

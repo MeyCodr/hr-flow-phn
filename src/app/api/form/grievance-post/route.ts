@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "User session is missing" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     if (!staffid) {
       return NextResponse.json(
         { error: "Staff id is missing" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     if (!findUser) {
       return NextResponse.json(
         { error: "User does not exist" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     if (!headOfDivision) {
       return NextResponse.json(
         { error: "Head of Division not found" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     if (!findDepartment) {
       return NextResponse.json(
         { error: "Department not found" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     if (!formType) {
       return NextResponse.json(
         { error: `Invalid form type ID: ${formId}` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -168,11 +168,11 @@ export async function POST(req: NextRequest) {
 
       // Prevent duplicates
       approvers = approvers.filter(
-        (a: User) => !assignedApprovers.includes(a.id)
+        (a: User) => !assignedApprovers.includes(a.id),
       );
 
       assignedApprovers.push(...approvers.map((a: User) => a.id));
-
+      const DAY = 24 * 60 * 60 * 1000;
       // 3️⃣ Create all approvals for this step
       await prisma.approval.createMany({
         data: approvers.map((u: User) => ({
@@ -180,8 +180,7 @@ export async function POST(req: NextRequest) {
           approverId: u.id,
           stepOrder: step.order,
           status: step.order === 1 ? "PENDING" : "WAITING",
-          deadline:
-            step.order === 1 ? new Date(Date.now() + 5 * 60 * 1000) : null,
+          deadline: step.order === 1 ? new Date(Date.now() + 5 * DAY) : null,
           escalated: false,
         })),
       });
@@ -253,7 +252,7 @@ export async function POST(req: NextRequest) {
         from: emailFrom,
         to: firstApprover.approver.email,
         cc: otherApprovers.map(
-          (a: { approver: { email: string } }) => a.approver.email
+          (a: { approver: { email: string } }) => a.approver.email,
         ),
         subject: "Action Required: New Request Pending Your Approval",
         template: "FormSubmission",
@@ -279,7 +278,7 @@ export async function POST(req: NextRequest) {
         message: "Form and approvals created successfully",
         data: formSubmission,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error creating form record:", error);
