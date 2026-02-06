@@ -62,7 +62,7 @@ export default function ApprovalFlow({
   const [deleteMode, setDeleteMode] = useState(false);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [selectedStep, setSelectedStep] = useState<ApprovalFlowStep | null>(
-    null
+    null,
   );
   const [approvalFlow, setApprovalFlow] = useState<ApprovalFlowStep[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -78,7 +78,7 @@ export default function ApprovalFlow({
 
   const toggleSelect = (id: number) => {
     setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id],
     );
   };
 
@@ -276,8 +276,8 @@ export default function ApprovalFlow({
                           {item.approvalStepApprovers
                             .sort((a, b) => a.id - b.id)
                             .map((a, index) => (
-                              <div key={a.user.id}>
-                                {index + 1}. {a.user.fullname}
+                              <div key={a.user?.id ?? index}>
+                                {index + 1}. {a.user?.fullname ?? "No user"}
                               </div>
                             ))}
                         </td>
