@@ -5,18 +5,12 @@ import { FormType, SelfFormData } from "@/app/types/types";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
-import { ApprovalFlowStep } from "@/app/component/admin/approval/ApprovalFlow";
 import {
   Approval,
-  ApprovalStepApprover,
-  Department,
-  Division,
   FileAttachment,
   FormSubmission,
-  Section,
   User,
 } from "@/generated/client";
-
 
 export default async function Admin() {
   const session = await getServerSession(authOptions);
@@ -84,16 +78,17 @@ export default async function Admin() {
         attachments: FileAttachment[];
         approvals: Approval[];
         formType: FormType;
-      }
+      },
     ) => {
       const department = departments.find(
-        (d: (typeof departments)[number]) => d.id === sub.createdBy.departmentId
+        (d: (typeof departments)[number]) =>
+          d.id === sub.createdBy.departmentId,
       );
       const division = divisions.find(
-        (d: (typeof divisions)[number]) => d.id === sub.createdBy.divisionId
+        (d: (typeof divisions)[number]) => d.id === sub.createdBy.divisionId,
       );
       const section = sections.find(
-        (s: (typeof sections)[number]) => s.id === sub.createdBy.sectionId
+        (s: (typeof sections)[number]) => s.id === sub.createdBy.sectionId,
       );
 
       return {
@@ -107,7 +102,7 @@ export default async function Admin() {
           (att: (typeof sub.attachments)[number]) => ({
             ...att,
             fileType: att.fileType ?? "",
-          })
+          }),
         ),
         approvals: sub.approvals.map((a: (typeof sub.approvals)[number]) => ({
           ...a,
@@ -119,7 +114,7 @@ export default async function Admin() {
         divisionName: division?.name ?? "",
         sectionName: section?.name ?? "",
       };
-    }
+    },
   );
 
   return (

@@ -12,6 +12,54 @@ const webLink = process.env.NEXTAUTH_URL;
 
 type ManualApproverWithUser = ApprovalStepApprover & { user: User };
 
+async function resolveFirstStepApprovers(user: User) {
+  // 1️⃣ Head of Department (main approver)
+  if (user.departmentId) {
+    const hod = await prisma.user.findFirst({
+      where: {
+        role: "HEAD_OF_DEPARTMENT",
+        departmentId: user.departmentId,
+      },
+    });
+
+    if (hod) {
+      // 2️⃣ Head of Division (CC / visibility)
+      const hodiv = user.divisionId
+        ? await prisma.user.findFirst({
+            where: {
+              role: "HEAD_OF_DIVISION",
+              divisionId: user.divisionId,
+            },
+          })
+        : null;
+
+      return {
+        to: hod,
+        cc: hodiv ? [hodiv] : [],
+      };
+    }
+  }
+
+  // 3️⃣ Fallback: Head of Division only
+  if (user.divisionId) {
+    const hodiv = await prisma.user.findFirst({
+      where: {
+        role: "HEAD_OF_DIVISION",
+        divisionId: user.divisionId,
+      },
+    });
+
+    if (hodiv) {
+      return {
+        to: hodiv,
+        cc: [],
+      };
+    }
+  }
+
+  throw new Error("No valid approver found for first step");
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -78,6 +126,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const findHeadofDepartment = await prisma.user.findFirst({
+      where: {
+        departmentId: findDepartment.id,
+        role: "HEAD_OF_DEPARTMENT",
+      },
+    });
+
+    if (!findHeadofDepartment) {
+      return NextResponse.json(
+        { error: "Head of Department is missing" },
+        { status: 400 },
+      );
+    }
+
     const formType = await prisma.formType.findUnique({
       where: { id: formId },
     });
@@ -136,46 +198,47 @@ export async function POST(req: NextRequest) {
     const assignedApprovers: number[] = [];
 
     for (const step of approvalFlowSteps) {
-      const baseWhere: Prisma.UserWhereInput = {
-        role: step.role,
-        id: { notIn: assignedApprovers },
-      };
+      let approvers: User[] = [];
 
-      if (step.divisionId !== null) {
-        baseWhere.divisionId = Number(step.divisionId);
-      } else if (step.departmentId !== null) {
-        baseWhere.departmentId = Number(step.departmentId);
-      } else if (step.sectionId !== null) {
-        baseWhere.sectionId = Number(step.sectionId);
-      } else {
-        baseWhere.divisionId = findUser.divisionId;
-      }
-
-      // 1️⃣ Load manual approvers
       const manualApprovers = await prisma.approvalStepApprover.findMany({
         where: { stepId: step.id },
         include: { user: true },
       });
 
-      let approvers = manualApprovers.length
-        ? manualApprovers.map((a: ManualApproverWithUser) => a.user)
-        : await prisma.user.findMany({ where: baseWhere });
+      if (manualApprovers.length) {
+        approvers = manualApprovers.map((a) => a.user);
+      } else if (step.order === 1) {
+        const { to, cc } = await resolveFirstStepApprovers(findUser);
 
-      // 2️⃣ Add Head of Division automatically ONLY for step 1
-      if (step.order === 1 && headOfDivision) {
-        approvers.push(headOfDivision);
+        approvers = [to, ...cc];
+      } else {
+        const baseWhere: Prisma.UserWhereInput = {
+          role: step.role,
+          id: { notIn: assignedApprovers },
+        };
+
+        if (step.divisionId !== null) {
+          baseWhere.divisionId = step.divisionId;
+        } else if (step.departmentId !== null) {
+          baseWhere.departmentId = step.departmentId;
+        } else if (step.sectionId !== null) {
+          baseWhere.sectionId = step.sectionId;
+        } else {
+          baseWhere.divisionId = findUser.divisionId;
+        }
+
+        approvers = await prisma.user.findMany({ where: baseWhere });
       }
 
-      // Prevent duplicates
-      approvers = approvers.filter(
-        (a: User) => !assignedApprovers.includes(a.id),
-      );
+      // 🚫 Remove duplicates
+      approvers = approvers.filter((a) => !assignedApprovers.includes(a.id));
 
-      assignedApprovers.push(...approvers.map((a: User) => a.id));
+      assignedApprovers.push(...approvers.map((a) => a.id));
+
       const DAY = 24 * 60 * 60 * 1000;
-      // 3️⃣ Create all approvals for this step
+
       await prisma.approval.createMany({
-        data: approvers.map((u: User) => ({
+        data: approvers.map((u) => ({
           submissionId: formSubmission.id,
           approverId: u.id,
           stepOrder: step.order,
@@ -212,37 +275,6 @@ export async function POST(req: NextRequest) {
     };
 
     await transporter.sendMail(mailOptions);
-
-    // for (const approval of firstStepApprovers) {
-    //   // Skip sending TO email to Head of Division if they are CC
-    //   const isHead =
-    //     headOfDivision && approval.approver.id === headOfDivision.id;
-
-    //   const approvalMail = {
-    //     from: emailFrom,
-    //     to: isHead ? undefined : approval.approver.email, // skip TO for head
-    //     cc: headOfDivision?.email || undefined,
-    //     subject: "Action Required: New Request Pending Your Approval",
-    //     template: "FormSubmission",
-    //     context: {
-    //       subject: "Action Required: New Request Pending Your Approval",
-    //       recipientName: approval.approver.fullname,
-    //       formTitle: formType?.name,
-    //       requestorName: findUser?.fullname,
-    //       requestorStaffId: findUser?.staffid,
-    //       department: findDepartment?.name,
-    //       submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
-    //       status: formSubmission.status,
-    //       approvalLink: `${webLink}/dashboard/approval?id=${formSubmission.id}&name=${formType.name}`,
-    //       isApprover: true,
-    //     },
-    //   };
-
-    //   // Only send if TO or CC exists
-    //   if (approvalMail.to || approvalMail.cc) {
-    //     await transporter.sendMail(approvalMail);
-    //   }
-    // }
 
     if (firstStepApprovers.length > 0) {
       // The first approver goes to TO, rest go to CC

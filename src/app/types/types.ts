@@ -141,7 +141,35 @@ export interface GrievanceReportTypes {
   sectionName?: string;
 }
 
+export interface SystemAccountRequest {
+  fullname: string;
+  section: string;
+  department: string;
+  division: string;
+  dateApply: DateValueType;
+  staffNo: string;
+  designation: string;
+  extNo: string;
+  email: string;
+  superiorSignature: string;
+  superiorName: string;
+  dateSuperiorSign: DateValueType;
+  userName: string;
+  effectiveDate: DateValueType;
+  password: string;
+  itPersonnel: string;
+  itPersonnelName: string;
+  itPersonnelDate: DateValueType;
+  remarks: string;
+  pcAvailability: string;
+  signature: string;
+  divisionName?: string;
+  departmentName?: string;
+  sectionName?: string;
+}
+
 export interface UserInfo {
+  id: number;
   departmentId: number;
   divisionId: number;
   role: string;

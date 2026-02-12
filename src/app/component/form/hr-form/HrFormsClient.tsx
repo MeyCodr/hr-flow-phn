@@ -20,6 +20,12 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { sanitizeName } from "../../../../../lib/utils";
+import { Prisma } from "@prisma/client";
+
+type ApprovalWithApprover = Prisma.ApprovalGetPayload<{
+  include: { approver: true };
+}>;
+
 
 export interface DynamicFormProps {
   divisions: Division[];
@@ -34,6 +40,7 @@ export interface DynamicFormProps {
   formId: number | null;
   selfForm?: SelfFormData;
   readOnly?: boolean;
+  approvals?: ApprovalWithApprover[];
 }
 
 interface FlowStep {
@@ -59,13 +66,15 @@ export default function HrFormsClient({
   forms,
   selectedId,
   selectedName,
+  approvals,
 }: {
   forms: FormType[];
   selectedId: number | null;
   selectedName: string | null;
+  approvals: ApprovalWithApprover[];
 }) {
   const [selectedFormName, setSelectedFormName] = useState<string | null>(
-    selectedName
+    selectedName,
   );
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -75,12 +84,13 @@ export default function HrFormsClient({
   const [, setSelectedSection] = useState<string>("");
   const [, setSelectedWorkLocation] = useState<string>("");
   const [selectedFormId, setSelectedFormId] = useState<number | null>(
-    selectedId
+    selectedId,
   );
   const [user, setUser] = useState<User | null>(null);
   const { data: session } = useSession();
   const safeForms = forms ?? [];
   const router = useRouter();
+  console.log("approvals here and there: ", approvals);
 
   useEffect(() => {
     if (session) setUser(session.user);
@@ -96,31 +106,30 @@ export default function HrFormsClient({
       .catch(console.error);
   }, []);
   useEffect(() => {
-    if (selectedDivision) {
-      axios
-        .get(`/api/department?divisionId=${selectedDivision}`)
-        .then((res) => {
-          setDepartments(res.data);
-          setSections([]);
-        })
-        .catch(console.error);
-    } else {
+    if (!selectedDivision) {
       setDepartments([]);
       setSections([]);
+      return;
     }
-    setSelectedDepartment("");
-    setSelectedSection("");
+
+    axios
+      .get(`/api/department?divisionId=${selectedDivision}`)
+      .then((res) => {
+        setDepartments(res.data);
+      })
+      .catch(console.error);
   }, [selectedDivision]);
+
   useEffect(() => {
-    if (selectedDepartment) {
-      axios
-        .get(`/api/section?departmentId=${selectedDepartment}`)
-        .then((res) => setSections(res.data))
-        .catch(console.error);
-    } else {
+    if (!selectedDepartment) {
       setSections([]);
+      return;
     }
-    setSelectedSection("");
+
+    axios
+      .get(`/api/section?departmentId=${selectedDepartment}`)
+      .then((res) => setSections(res.data))
+      .catch(console.error);
   }, [selectedDepartment]);
 
   const handleCardClick = (form: FormType) => {
@@ -241,6 +250,7 @@ export default function HrFormsClient({
               setSelectedWorkLocation={setSelectedWorkLocation}
               user={user}
               onSubmitSuccess={() => setSelectedFormName(null)}
+              approvals={approvals}
             />
           </motion.div>
         )}

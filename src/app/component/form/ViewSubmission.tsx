@@ -32,6 +32,7 @@ interface ViewSubmissionProps {
   onBack?: () => void;
   selfForm: SelfFormData;
   onActionComplete?: () => void;
+  approvals?: Approval[];
 }
 
 type EditedApproval = {
@@ -43,6 +44,7 @@ export default function ViewSubmission({
   onBack,
   selfForm,
   onActionComplete,
+  approvals,
 }: ViewSubmissionProps) {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -55,9 +57,10 @@ export default function ViewSubmission({
   const { data: session } = useSession();
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(
-    null
+    null,
   );
   const [userSession, setUserSession] = useState<fullUserInfo>();
+  const [approve, setApprove] = useState<boolean>(false);
   const [editedApprovals, setEditedApprovals] = useState<
     Record<number, EditedApproval>
   >({});
@@ -114,6 +117,25 @@ export default function ViewSubmission({
     if (user) findUser();
   }, [user]);
 
+  useEffect(() => {
+    if (!userSession || !form?.approvals) return;
+    console.log("approvalssssss: ", approvals);
+    const isFormCompleted =
+      form.status === "APPROVED" || form.status === "REJECTED";
+
+    const hasPendingApproval = form.approvals.some(
+      (a) => a.approverId === userSession.id && a.status === "PENDING",
+    );
+
+    const canApprove = !isFormCompleted && hasPendingApproval;
+
+    console.log("userSession:", userSession.id);
+    console.log("hasPendingApproval:", hasPendingApproval);
+    console.log("canApprove:", canApprove);
+
+    setApprove(canApprove);
+  }, [userSession, form]);
+
   const findUser = async () => {
     try {
       const res = await axios.get(`/api/user/${user?.staffid}`);
@@ -124,12 +146,13 @@ export default function ViewSubmission({
   };
 
   const nextApproval = form.approvals?.find((a) => a.status === "PENDING");
+  console.log("next approval: ", nextApproval);
 
-  const isFormCompleted =
-    form.status === "APPROVED" || form.status === "REJECTED";
+  const myApproval = form.approvals?.find(
+    (a) => a.approverId === userSession?.id && a.status === "PENDING",
+  );
 
-  const canApprove =
-    !isFormCompleted && nextApproval?.approverId === userSession?.id;
+  console.log("my approval: ", myApproval);
 
   const handleActionClick = (type: "approve" | "reject") => {
     setActionType(type);
@@ -141,8 +164,9 @@ export default function ViewSubmission({
     setLoading(true);
     try {
       await axios.post("/api/approval-form/action", {
-        approvalId: nextApproval?.id,
+        approvalId: myApproval?.id,
         action: actionType,
+        user: userSession?.id,
         remarks: remarks,
       });
       if (onActionComplete) await onActionComplete();
@@ -183,7 +207,7 @@ export default function ViewSubmission({
 
   const handleAdminApprovalSave = async (
     approval: Approval,
-    remarks: string
+    remarks: string,
   ) => {
     const edited = editedApprovals[approval.id];
     if (!edited?.status) return;
@@ -233,11 +257,11 @@ export default function ViewSubmission({
       acc[curr.stepOrder].push(curr);
       return acc;
     },
-    {} as Record<number, Approval[]>
+    {} as Record<number, Approval[]>,
   );
 
   const uniqueApprovals = (Object.values(groupedApprovals) as Approval[][]).map(
-    (group) => group[0]
+    (group) => group[0],
   );
 
   console.log("unique approvals: ", uniqueApprovals);
@@ -271,10 +295,10 @@ export default function ViewSubmission({
                 form.status === "APPROVED"
                   ? "bg-green-100 text-green-700"
                   : form.status === "REJECTED"
-                  ? "bg-red-100 text-red-700"
-                  : form.status === "WAITING"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-gray-100 text-gray-700"
+                    ? "bg-red-100 text-red-700"
+                    : form.status === "WAITING"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-gray-100 text-gray-700"
               }`}
             >
               {form.status}
@@ -332,7 +356,7 @@ export default function ViewSubmission({
           )}
 
           {/* Approve / Reject Buttons */}
-          {canApprove && (
+          {approve && (
             <div className="flex gap-x-4 justify-end mt-4">
               <PrimaryButton
                 name="Reject"
@@ -388,14 +412,14 @@ export default function ViewSubmission({
                     approval.status === "PENDING"
                       ? "border-gray-600 bg-gray-100"
                       : approval.status === "APPROVED"
-                      ? "border-green-600 bg-green-100"
-                      : approval.status === "REJECTED"
-                      ? "border-red-600 bg-red-100"
-                      : approval.status === "ESCALATED"
-                      ? "border-orange-600 bg-orange-100"
-                      : approval.status === "WAITING"
-                      ? "border-yellow-600 bg-yellow-100"
-                      : "border-gray-600 bg-gray-100"
+                        ? "border-green-600 bg-green-100"
+                        : approval.status === "REJECTED"
+                          ? "border-red-600 bg-red-100"
+                          : approval.status === "ESCALATED"
+                            ? "border-orange-600 bg-orange-100"
+                            : approval.status === "WAITING"
+                              ? "border-yellow-600 bg-yellow-100"
+                              : "border-gray-600 bg-gray-100"
                   }`}
                 ></div>
 
@@ -417,7 +441,7 @@ export default function ViewSubmission({
                                 hour: "2-digit",
                                 minute: "2-digit",
                                 hour12: false,
-                              }
+                              },
                             )
                           : "Pending approval"}
                       </p>
@@ -433,7 +457,7 @@ export default function ViewSubmission({
                         onChange={(e) =>
                           handleAdminStatusChange(
                             approval.id,
-                            e.target.value as FormStatus
+                            e.target.value as FormStatus,
                           )
                         }
                       >
@@ -453,14 +477,14 @@ export default function ViewSubmission({
                           approval.status === "PENDING"
                             ? "bg-gray-100 text-gray-700"
                             : approval.status === "APPROVED"
-                            ? "bg-green-100 text-green-700"
-                            : approval.status === "REJECTED"
-                            ? "bg-red-100 text-red-700"
-                            : approval.status === "ESCALATED"
-                            ? "bg-orange-100 text-orange-700"
-                            : approval.status === "WAITING"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-gray-100 text-gray-700"
+                              ? "bg-green-100 text-green-700"
+                              : approval.status === "REJECTED"
+                                ? "bg-red-100 text-red-700"
+                                : approval.status === "ESCALATED"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : approval.status === "WAITING"
+                                    ? "bg-yellow-100 text-yellow-700"
+                                    : "bg-gray-100 text-gray-700"
                         }`}
                       >
                         {displayStatus(approval.status)}

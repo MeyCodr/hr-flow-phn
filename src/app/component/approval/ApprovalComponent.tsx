@@ -239,6 +239,7 @@ export default function ApprovalComponent({
             className="w-full"
           >
             <ViewSubmission
+            approvals={approvals}
               selfForm={viewedFormData}
               onBack={handleBack}
               onActionComplete={refreshData}
