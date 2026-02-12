@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { sanitizeName } from "../../../../../lib/utils";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/client";
 
 type ApprovalWithApprover = Prisma.ApprovalGetPayload<{
   include: { approver: true };
