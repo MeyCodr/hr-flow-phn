@@ -105,9 +105,6 @@ export default function BannerCard({
   const isMyApproval = approvalUserId === currentUserId;
   const canApprove =
     isMyApproval && status === "PENDING" && currentLevel === activeLevel;
-  console.log("approvalUser id: ", approvalUserId);
-  console.log("current user id: ", currentUserId);
-    console.log("can approve: ", canApprove);
 
   const parts = name.trim().split(/\s+/);
   const initials =

@@ -38,7 +38,6 @@ export default function AdminComponent({
   const [sections, setSections] = useState<Section[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
-  
 
   useEffect(() => {
     axios

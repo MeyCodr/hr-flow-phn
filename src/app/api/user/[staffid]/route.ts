@@ -60,8 +60,6 @@ export async function PUT(
     const { staffid } = await context.params;
     const body = await req.json();
 
-    console.log("body: ", body);
-
     const {
       fullname,
       staffid: newStaffId,
@@ -74,10 +72,6 @@ export async function PUT(
       role,
       password,
     } = body;
-
-    console.log("divisionId", division);
-    console.log("departmentId", department);
-    console.log("sectionId", section);
 
     const token = await getToken({ req });
     if (!token?.staffid)
@@ -113,19 +107,16 @@ export async function PUT(
     if (division) {
       const divId = Number(division);
       updateData.divisionId = divId > 0 ? divId : null;
-      console.log("divId", updateData.divisionId);
     }
 
     if (department) {
       const depId = Number(department);
       updateData.departmentId = depId > 0 ? depId : null;
-      console.log("deptId", updateData.departmentId);
     }
 
     if (section) {
       const secId = Number(section);
       updateData.sectionId = secId > 0 ? secId : null;
-      console.log("secId", updateData.sectionId);
     }
 
     // 🧂 Only admin can update role
@@ -138,8 +129,6 @@ export async function PUT(
       // hash only if not already hashed
       updateData.password = await hash(password, 12);
     }
-
-    console.log("Update Data:", updateData);
 
     // 🛠️ Perform update
     const updatedUser = await prisma.user.update({

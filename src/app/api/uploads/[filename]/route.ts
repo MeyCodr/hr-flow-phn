@@ -11,8 +11,6 @@ export async function GET(
 
     const decodedFilename = decodeURIComponent(filename);
 
-    console.log("Requested filename: ", decodedFilename);
-
     if (!decodedFilename) {
       return new NextResponse("Filename missing", { status: 400 });
     }
@@ -25,18 +23,14 @@ export async function GET(
       decodedFilename,
     );
 
-    console.log("filepath: ", filePath);
-
     // Check file exists
     if (!fs.existsSync(filePath)) {
       return new NextResponse("File not found", { status: 404 });
     }
 
     const fileBuffer = fs.readFileSync(filePath);
-    console.log("fileBuffer: ", fileBuffer);
 
     const ext = path.extname(decodedFilename).toLowerCase();
-    console.log("file extension: ", ext);
 
     const contentTypeMap: Record<string, string> = {
       ".png": "image/png",
@@ -46,7 +40,6 @@ export async function GET(
       ".docx":
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     };
-    console.log("contentTypeMap: ", contentTypeMap);
 
     const contentType = contentTypeMap[ext] || "application/octet-stream";
 

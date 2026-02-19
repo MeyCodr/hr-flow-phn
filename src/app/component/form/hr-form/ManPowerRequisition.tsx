@@ -117,6 +117,7 @@ export default function ManPower({
   }, [user]);
 
   useEffect(() => {
+    if (readOnly) return;
     if (!userInfo) return;
 
     setData((prev) => ({
@@ -138,6 +139,7 @@ export default function ManPower({
       setSelectedWorkLocation(userInfo.workLocation.toString());
   }, [
     userInfo,
+    readOnly, // ✅ add this
     setSelectedDivision,
     setSelectedDepartment,
     setSelectedSection,
@@ -362,7 +364,11 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={divisions}
-                  selectedValue={data.division} // ✅ controlled
+                  selectedValue={
+                    readOnly
+                      ? (parsedData?.divisionName ?? parsedData?.division ?? "")
+                      : data.division
+                  }
                   onSelect={(item) => {
                     const value = item ? item.id.toString() : "";
                     setSelectedDivision(value);

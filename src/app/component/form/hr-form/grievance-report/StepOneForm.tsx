@@ -136,7 +136,7 @@ function StepOneForm({
             />
             <ComboBox
               menu={divisions}
-              selectedValue={formData ? formData.division : data.division} // ✅ controlled
+              selectedValue={formData?.divisionName ?? formData.division ?? ""}
               onSelect={(item) => {
                 const value = item ? item.id.toString() : "";
                 setSelectedDivision(value);
@@ -254,7 +254,7 @@ function StepOneForm({
                 type="text"
                 value={
                   readOnly
-                    ? parsedData?.dateOfComplaint ?? ""
+                    ? (parsedData?.dateOfComplaint ?? "")
                     : getCurrentDateTime()
                 }
                 onChange={readOnly ? () => {} : handleChange}

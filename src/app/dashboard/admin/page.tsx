@@ -12,6 +12,12 @@ import {
   User,
 } from "@/generated/client";
 
+type FormData = {
+  division: string;
+  department: string;
+  section: string;
+};
+
 export default async function Admin() {
   const session = await getServerSession(authOptions);
 
@@ -71,6 +77,8 @@ export default async function Admin() {
   const departments = await prisma.department.findMany();
   const sections = await prisma.section.findMany();
 
+  console.log("form submission: ", formSubmission);
+
   const enrichedSubmissions: SelfFormData[] = formSubmission.map(
     (
       sub: FormSubmission & {
@@ -80,31 +88,32 @@ export default async function Admin() {
         formType: FormType;
       },
     ) => {
-      const department = departments.find(
-        (d: (typeof departments)[number]) =>
-          d.id === sub.createdBy.departmentId,
-      );
+      const parsedFormData: FormData =
+        typeof sub.formData === "string"
+          ? JSON.parse(sub.formData)
+          : (sub.formData as FormData);
+
       const division = divisions.find(
-        (d: (typeof divisions)[number]) => d.id === sub.createdBy.divisionId,
+        (d) => d.id === Number(parsedFormData?.division),
       );
+
+      const department = departments.find(
+        (d) => d.id === Number(parsedFormData?.department),
+      );
+
       const section = sections.find(
-        (s: (typeof sections)[number]) => s.id === sub.createdBy.sectionId,
+        (s) => s.id === Number(parsedFormData?.section),
       );
 
       return {
         ...sub,
         formType: sub.formType,
-        formData:
-          typeof sub.formData === "string"
-            ? JSON.parse(sub.formData)
-            : sub.formData,
-        attachments: sub.attachments.map(
-          (att: (typeof sub.attachments)[number]) => ({
-            ...att,
-            fileType: att.fileType ?? "",
-          }),
-        ),
-        approvals: sub.approvals.map((a: (typeof sub.approvals)[number]) => ({
+        formData: parsedFormData,
+        attachments: sub.attachments.map((att) => ({
+          ...att,
+          fileType: att.fileType ?? "",
+        })),
+        approvals: sub.approvals.map((a) => ({
           ...a,
           currentLevel: a.stepOrder,
           totalLevel: sub.approvals.length,
@@ -116,6 +125,8 @@ export default async function Admin() {
       };
     },
   );
+
+  console.log("enrinched submission: ", enrichedSubmissions);
 
   return (
     <div className="w-full font-poppins">

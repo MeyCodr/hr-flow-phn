@@ -33,7 +33,6 @@ const loadImage = async (url: string): Promise<string> => {
 };
 
 const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
-  console.log("data", data);
   const {
     formData,
     departmentName,

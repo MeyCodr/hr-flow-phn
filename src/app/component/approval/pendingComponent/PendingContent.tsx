@@ -45,10 +45,8 @@ export default function PendingContent({
       items={pendingItems}
       pageSize={10}
       renderItem={(item) => {
-        console.log("item: ", item);
         if (item.type === "approval") {
           const approval = item.data;
-          console.log("approval: ", approval);
           const submission = approval.submission;
           if (!submission) return;
           const remarks =

@@ -84,7 +84,6 @@ export default function EmployeeReview({
       user: user,
       formTypeId: formId,
     };
-    console.log("payload: ", payload);
     const toastId = "";
     try {
       const res = await axios.post(

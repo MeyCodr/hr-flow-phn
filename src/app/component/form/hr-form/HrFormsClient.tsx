@@ -38,6 +38,9 @@ export interface DynamicFormProps {
   user: User | null;
   onSubmitSuccess?: () => void;
   formId: number | null;
+  selectedDivision?: string;
+  selectedDepartment?: string;
+  selectedSection?: string;
   selfForm?: SelfFormData;
   readOnly?: boolean;
   approvals?: ApprovalWithApprover[];
@@ -90,7 +93,6 @@ export default function HrFormsClient({
   const { data: session } = useSession();
   const safeForms = forms ?? [];
   const router = useRouter();
-  console.log("approvals here and there: ", approvals);
 
   useEffect(() => {
     if (session) setUser(session.user);
@@ -111,7 +113,6 @@ export default function HrFormsClient({
       setSections([]);
       return;
     }
-
     axios
       .get(`/api/department?divisionId=${selectedDivision}`)
       .then((res) => {

@@ -11,6 +11,11 @@ const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
 
 type ManualApproverWithUser = ApprovalStepApprover & { user: User };
+type FormData = {
+  division: string;
+  department: string;
+  section: string;
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -141,19 +146,6 @@ export async function POST(req: NextRequest) {
         role: step.role,
         id: { notIn: assignedApprovers },
       };
-
-      console.log("Approval Step:", step);
-      console.log("Base Where Clause:", baseWhere);
-
-      // if (step.divisionId !== null) {
-      //   baseWhere.divisionId = Number(step.divisionId);
-      // } else if (step.departmentId !== null) {
-      //   baseWhere.departmentId = Number(step.departmentId);
-      // } else if (step.sectionId !== null) {
-      //   baseWhere.sectionId = Number(step.sectionId);
-      // } else {
-      //   baseWhere.divisionId = findUser.divisionId;
-      // }
 
       if (step.divisionId !== null) {
         baseWhere.divisionId = Number(step.divisionId);
@@ -309,22 +301,27 @@ export async function GET() {
     // Map to flatten division, department, section names
     const mapped = await Promise.all(
       submissions.map(async (sub: (typeof submissions)[number]) => {
-        const createdBy = sub.createdBy;
+        const parsedFormData: FormData =
+          typeof sub.formData === "string"
+            ? JSON.parse(sub.formData)
+            : (sub.formData as FormData);
 
         // Fetch related names
         const [division, department, section] = await Promise.all([
-          createdBy.divisionId
+          Number(parsedFormData.division)
             ? prisma.division.findUnique({
-                where: { id: createdBy.divisionId },
+                where: { id: Number(parsedFormData.division) },
               })
             : null,
-          createdBy.departmentId
+          Number(parsedFormData.department)
             ? prisma.department.findUnique({
-                where: { id: createdBy.departmentId },
+                where: { id: Number(parsedFormData.department) },
               })
             : null,
-          createdBy.sectionId
-            ? prisma.section.findUnique({ where: { id: createdBy.sectionId } })
+          Number(parsedFormData.section)
+            ? prisma.section.findUnique({
+                where: { id: Number(parsedFormData.section) },
+              })
             : null,
         ]);
 

@@ -35,6 +35,12 @@ interface ViewSubmissionProps {
   approvals?: Approval[];
 }
 
+type FormData = {
+  division: string;
+  department: string;
+  section: string;
+};
+
 type EditedApproval = {
   status: FormStatus;
   remarks?: string | null;
@@ -51,7 +57,7 @@ export default function ViewSubmission({
   const [sections, setSections] = useState<Section[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
-  const [, setSelectedSection] = useState<string>("");
+  const [selectedSection, setSelectedSection] = useState<string>("");
   const [, setSelectedWorkLocation] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
   const { data: session } = useSession();
@@ -75,43 +81,17 @@ export default function ViewSubmission({
     if (session) setUser(session.user);
   }, [session]);
 
-  useEffect(() => {
-    axios
-      .get("/api/division")
-      .then((res) => setDivisions(res.data))
-      .catch(console.error);
-  }, []);
+  // useEffect(() => {
+  //   if (!selfForm) return;
+  //   const formData = selfForm.formData as FormData | null; // ✅ cast here
+  //   console.log("selfForm: ", selfForm);
+  //   console.log("formData: ", formData);
 
-  useEffect(() => {
-    if (selectedDivision) {
-      axios
-        .get(`/api/department?divisionId=${selectedDivision}`)
-        .then((res) => {
-          setDepartments(res.data);
-          setSections([]);
-        })
-        .catch(console.error);
-    } else {
-      setDepartments([]);
-      setSections([]);
-    }
-
-    setSelectedDepartment("");
-    setSelectedSection("");
-  }, [selectedDivision]);
-
-  useEffect(() => {
-    if (selectedDepartment) {
-      axios
-        .get(`/api/section?departmentId=${selectedDepartment}`)
-        .then((res) => setSections(res.data))
-        .catch(console.error);
-    } else {
-      setSections([]);
-    }
-
-    setSelectedSection("");
-  }, [selectedDepartment]);
+  //   setSelectedDivision(formData?.division ?? "");
+  //   setSelectedDepartment(formData?.department ?? "");
+  //   setSelectedSection(formData?.section ?? "");
+  //   if (!formData) return;
+  // }, [selfForm]);
 
   useEffect(() => {
     if (user) findUser();
@@ -119,7 +99,6 @@ export default function ViewSubmission({
 
   useEffect(() => {
     if (!userSession || !form?.approvals) return;
-    console.log("approvalssssss: ", approvals);
     const isFormCompleted =
       form.status === "APPROVED" || form.status === "REJECTED";
 
@@ -128,10 +107,6 @@ export default function ViewSubmission({
     );
 
     const canApprove = !isFormCompleted && hasPendingApproval;
-
-    console.log("userSession:", userSession.id);
-    console.log("hasPendingApproval:", hasPendingApproval);
-    console.log("canApprove:", canApprove);
 
     setApprove(canApprove);
   }, [userSession, form]);
@@ -145,14 +120,9 @@ export default function ViewSubmission({
     }
   };
 
-  const nextApproval = form.approvals?.find((a) => a.status === "PENDING");
-  console.log("next approval: ", nextApproval);
-
   const myApproval = form.approvals?.find(
     (a) => a.approverId === userSession?.id && a.status === "PENDING",
   );
-
-  console.log("my approval: ", myApproval);
 
   const handleActionClick = (type: "approve" | "reject") => {
     setActionType(type);
@@ -263,9 +233,6 @@ export default function ViewSubmission({
   const uniqueApprovals = (Object.values(groupedApprovals) as Approval[][]).map(
     (group) => group[0],
   );
-
-  console.log("unique approvals: ", uniqueApprovals);
-  console.log("unique approvals each: ", uniqueApprovals[1]);
 
   if (!form) {
     return (
