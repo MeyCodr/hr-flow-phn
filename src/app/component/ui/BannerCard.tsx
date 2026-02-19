@@ -9,6 +9,8 @@ import toast, { Toaster } from "react-hot-toast";
 
 export interface BannerCardProps {
   approvalId?: number;
+  approvalUserId?: number;
+  currentUserId?: number;
   title: string;
   name: string;
   createddate: string;
@@ -25,6 +27,8 @@ export interface BannerCardProps {
 
 export default function BannerCard({
   approvalId,
+  approvalUserId,
+  currentUserId,
   title,
   name,
   createddate,
@@ -42,7 +46,7 @@ export default function BannerCard({
   const [loading, setLoading] = useState<boolean>(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -62,8 +66,8 @@ export default function BannerCard({
     status === "APPROVED"
       ? "bg-green-100 text-green-700"
       : status === "REJECTED"
-      ? "bg-red-100 text-red-700"
-      : "bg-yellow-100 text-yellow-700"; // Pending or other
+        ? "bg-red-100 text-red-700"
+        : "bg-yellow-100 text-yellow-700"; // Pending or other
 
   const performApproval = async (remarks: string) => {
     if (!approvalId || !actionType) return;
@@ -97,6 +101,13 @@ export default function BannerCard({
       onClick();
     }
   };
+
+  const isMyApproval = approvalUserId === currentUserId;
+  const canApprove =
+    isMyApproval && status === "PENDING" && currentLevel === activeLevel;
+  console.log("approvalUser id: ", approvalUserId);
+  console.log("current user id: ", currentUserId);
+    console.log("can approve: ", canApprove);
 
   const parts = name.trim().split(/\s+/);
   const initials =
@@ -197,7 +208,7 @@ export default function BannerCard({
             ) : (
               <>
                 {/* Actions */}
-                {roles && roles !== "ADMIN" && (
+                {canApprove && (
                   <div className="flex flex-col items-end gap-1">
                     <div className="flex gap-2">
                       <PrimaryButton

@@ -24,9 +24,8 @@ export default function PendingContent({
   onActionComplete,
   onViewForm,
 }: PendingContentProps) {
-
   const pendingApprovals = approvals.filter(
-    (approval) => approval.status === "PENDING"
+    (approval) => approval.status === "PENDING",
   );
 
   const pendingItems: PendingItem[] = [
@@ -46,8 +45,10 @@ export default function PendingContent({
       items={pendingItems}
       pageSize={10}
       renderItem={(item) => {
+        console.log("item: ", item);
         if (item.type === "approval") {
           const approval = item.data;
+          console.log("approval: ", approval);
           const submission = approval.submission;
           if (!submission) return;
           const remarks =
@@ -57,6 +58,7 @@ export default function PendingContent({
             <BannerCard
               key={`approval-${approval.id}`}
               approvalId={approval.id}
+              approvalUserId={approval.approverId}
               profileImg={submission.createdBy.attachment || ""}
               title={submission.formType.name}
               name={submission.createdBy.fullname}
@@ -65,6 +67,7 @@ export default function PendingContent({
               currentLevel={approval.currentLevel}
               totalLevel={approval.totalLevel}
               activeLevel={approval.activeLevel}
+              currentUserId={user.id}
               roles={user.role}
               status={approval.status}
               onActionComplete={onActionComplete}
@@ -75,9 +78,23 @@ export default function PendingContent({
           );
         } else {
           const form = item.data;
+
+          // Find this user's approval inside the form
+          const myApproval = form.approvals?.find(
+            (a) => a.approverId === user.id,
+          );
+
+          const canApprove =
+            myApproval &&
+            myApproval.status === "PENDING" &&
+            form.activeLevel === myApproval.stepOrder;
+
           return (
             <BannerCard
               key={`form-${form.id}`}
+              approvalId={myApproval?.id} // 👈 important
+              approvalUserId={myApproval?.approverId}
+              currentUserId={user.id}
               profileImg={user.attachment || ""}
               title={form.formType.name}
               name={"You"}
