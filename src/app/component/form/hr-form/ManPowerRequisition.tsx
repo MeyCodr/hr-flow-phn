@@ -429,6 +429,24 @@ export default function ManPower({
                   disabled={readOnly}
                 />
               </div>
+               <div className="flex flex-col space-y-2">
+                <Label
+                  name="Designation"
+                  htmlFor="designation"
+                  className="block text-sm font-medium text-gray-900"
+                />
+                <Input
+                  id="designation"
+                  name="designation"
+                  type="text"
+                  value={readOnly ? parsedData?.designation : data.designation}
+                  disabled={readOnly}
+                  onChange={readOnly ? () => {} : handleChange}
+                  placeholder="Designation"
+                  required
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
               <div className="flex flex-col space-y-2">
                 <Label
                   name="Reporting To"
@@ -525,7 +543,10 @@ export default function ManPower({
                 />
                 <ComboBox
                   menu={workLocation}
-                  selectedValue={data.workLocation}
+                  // selectedValue={data.workLocation}
+                  selectedValue={
+                    parsedData?.workLocation ?? data.workLocation ?? ""
+                  }
                   onSelect={(item) => {
                     const value = item ? item.name : "";
                     setSelectedWorkLocation(value);
