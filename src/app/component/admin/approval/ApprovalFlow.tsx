@@ -158,6 +158,16 @@ export default function ApprovalFlow({
     exit: { opacity: 0, y: -20, transition: { duration: 0.3, ease: "easeIn" } },
   };
 
+  const groupedByFormType = approvalFlow.reduce(
+    (acc, step) => {
+      const formName = step.formType?.name ?? "No Form Type";
+      if (!acc[formName]) acc[formName] = [];
+      acc[formName].push(step);
+      return acc;
+    },
+    {} as Record<string, ApprovalFlowStep[]>,
+  );
+
   return (
     <div className="p-6 w-full bg-white rounded-lg border border-gray-300">
       <AnimatePresence mode="wait">
@@ -234,55 +244,74 @@ export default function ApprovalFlow({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {approvalFlow.map((item) => (
-                      <tr
-                        key={item.id}
-                        className={`transition cursor-pointer ${
-                          deleteMode
-                            ? selectedRows.includes(item.id)
-                              ? "bg-red-50"
-                              : "hover:bg-red-100"
-                            : "hover:bg-indigo-50"
-                        }`}
-                        onClick={() => handleRowClick(item)}
-                      >
-                        {deleteMode && (
-                          <td className="px-4 py-3">
-                            <CheckBox
-                              checked={selectedRows.includes(item.id)}
-                              onChange={() => toggleSelect(item.id)}
-                            />
-                          </td>
-                        )}
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {item.formType?.name}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {item.order}
-                        </td>
-                        <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">
-                          {item.role}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {item.division?.name || "-"}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {item.department?.name || "-"}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {item.section?.name || "-"}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          {item.approvalStepApprovers
-                            .sort((a, b) => a.id - b.id)
-                            .map((a, index) => (
-                              <div key={a.user?.id ?? index}>
-                                {index + 1}. {a.user?.fullname ?? "No user"}
-                              </div>
+                    {Object.entries(groupedByFormType).map(
+                      ([formTypeName, steps]) => (
+                        <React.Fragment key={formTypeName}>
+                          {/* Optional: Form Type Header Row */}
+                          <tr className="bg-gray-100 font-semibold text-gray-700">
+                            <td
+                              className="px-4 py-2"
+                              colSpan={deleteMode ? 8 : 7}
+                            >
+                              {formTypeName}
+                            </td>
+                          </tr>
+
+                          {/* Render Steps */}
+                          {steps
+                            .sort((a, b) => a.order - b.order) // ensure steps are sorted by order
+                            .map((item, index) => (
+                              <tr
+                                key={item.id}
+                                className={`transition cursor-pointer ${
+                                  deleteMode
+                                    ? selectedRows.includes(item.id)
+                                      ? "bg-red-50"
+                                      : "hover:bg-red-100"
+                                    : "hover:bg-indigo-50"
+                                }`}
+                                onClick={() => handleRowClick(item)}
+                              >
+                                {deleteMode && (
+                                  <td className="px-4 py-3">
+                                    <CheckBox
+                                      checked={selectedRows.includes(item.id)}
+                                      onChange={() => toggleSelect(item.id)}
+                                    />
+                                  </td>
+                                )}
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  {item.formType?.name}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  {item.order}
+                                </td>
+                                <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">
+                                  {item.role}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  {item.division?.name || "-"}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  {item.department?.name || "-"}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  {item.section?.name || "-"}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  {item.approvalStepApprovers
+                                    .sort((a, b) => a.id - b.id)
+                                    .map((a, i) => (
+                                      <div key={a.user?.id ?? i}>
+                                        {i + 1}. {a.user?.fullname ?? "No user"}
+                                      </div>
+                                    ))}
+                                </td>
+                              </tr>
                             ))}
-                        </td>
-                      </tr>
-                    ))}
+                        </React.Fragment>
+                      ),
+                    )}
                   </tbody>
                 </table>
               </div>
