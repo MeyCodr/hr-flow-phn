@@ -61,3 +61,28 @@ export const performanceRatings = [
   { id: 4, name: "Good" },
   { id: 5, name: "Excellent" },
 ];
+
+export const designation = [
+  { id: 1, name: "Assistant" },
+  { id: 2, name: "Assistant Manager" },
+  { id: 3, name: "Clerk" },
+  { id: 4, name: "Data Entry" },
+  { id: 5, name: "Deputy Manager" },
+  { id: 6, name: "Executive" },
+  { id: 7, name: "Forklift Driver" },
+  { id: 8, name: "General Manager" },
+  { id: 9, name: "Head Of Department" },
+  { id: 10, name: "Head Of Division" },
+  { id: 11, name: "Head Of Section" },
+  { id: 12, name: "Junior Assistant" },
+  { id: 13, name: "Manager" },
+  { id: 14, name: "Operator" },
+  { id: 15, name: "QC Inspector" },
+  { id: 16, name: "Security" },
+  { id: 17, name: "Senior Manager" },
+  { id: 18, name: "Shift Leader" },
+  { id: 19, name: "Sr. Assistant" },
+  { id: 20, name: "Sr. Executive" },
+  { id: 21, name: "Supervisor" },
+  { id: 22, name: "Technician" },
+];

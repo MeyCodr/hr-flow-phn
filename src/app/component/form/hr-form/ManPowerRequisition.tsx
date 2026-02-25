@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Dropdown from "../../ui/Dropdown";
 import {
   categoryManPower,
+  designation,
   reportingToOptions,
   workLocation,
 } from "../../../../../lib/data";
@@ -20,6 +21,11 @@ import toast, { Toaster } from "react-hot-toast";
 import LoadingScreen from "../../ui/LoadingScreen";
 import { useRouter } from "next/navigation";
 import { TextArea } from "../../ui/TextArea";
+
+export type ReasonKey = Extract<
+  keyof ManPowerTypes,
+  "productionVolumeIncrease" | "newProject" | "machineFaulty" | "other"
+>;
 
 export default function ManPower({
   divisions,
@@ -73,12 +79,16 @@ export default function ManPower({
     approvedby: "",
     fileAttachment: null,
     remarks: "",
-    selectedReasons: [] as string[],
+    selectedReasons: [] as ReasonKey[],
   });
   // const [formId, setFormId] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{
+    dateOfSubmission?: string;
     category?: string;
+    designation?: string;
+    additionalReason?: string;
+    selectedOption?: string;
     fileAttachment?: string;
   }>({});
   const [userInfo, setUserInfo] = useState<UserInfo>();
@@ -99,10 +109,6 @@ export default function ManPower({
       try {
         const res = await axios.get(`/api/user/${staffid}`);
         const userInfo = res.data.data;
-        setData((prev) => ({
-          ...prev,
-          designation: userInfo.designation,
-        }));
         setUserInfo(userInfo);
       } catch (error) {
         if (error instanceof Error) {
@@ -169,7 +175,7 @@ export default function ManPower({
     }));
   };
 
-  const handleReasonCheck = (reason: string) => {
+  const handleReasonCheck = (reason: ReasonKey) => {
     setData((prev) => {
       const isSelected = prev.selectedReasons.includes(reason);
       const updated = isSelected
@@ -190,22 +196,60 @@ export default function ManPower({
     { key: "other", label: "Other" },
   ];
 
-  type ReasonKey = Extract<
-    keyof ManPowerTypes,
-    "productionVolumeIncrease" | "newProject" | "machineFaulty" | "other"
-  >;
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formId) {
       return;
     }
 
-    const newErrors: { category?: string; fileAttachment?: string } = {};
+    const newErrors: {
+      dateOfSubmission?: string;
+      category?: string;
+      fileAttachment?: string;
+      designation?: string;
+      additionalReason?: string;
+      selectedOption?: string;
+    } = {};
+
+    if (!data.createddate) {
+      newErrors.dateOfSubmission = "Date Of Submission is required";
+      toast.error("Date Of Submission is required");
+    }
 
     if (!data.category) {
       newErrors.category = "Category is required";
       toast.error("Category is required!");
+    }
+
+    if (!data.designation) {
+      newErrors.designation = "Designation is required";
+      toast.error("Designation is required!");
+    }
+
+    if (!data.selectedOption) {
+      newErrors.selectedOption = "Please select the reason of requisition!";
+      toast.error("Please select the reason of requisition!");
+    }
+
+    if (data.selectedOption === "additional") {
+      if (!data.selectedReasons || data.selectedReasons.length === 0) {
+        newErrors.additionalReason =
+          "Please select at least one reason for Additional request!";
+        toast.error(
+          "Please select at least one reason for Additional request!",
+        );
+      }
+
+      const emptyReason = data.selectedReasons.find((key: ReasonKey) => {
+        const value = data[key];
+        return !value || value.trim() === "";
+      });
+
+      if (emptyReason) {
+        newErrors.additionalReason =
+          "Please fill in the selected reason details!";
+        toast.error("Please fill in the selected reason details.");
+      }
     }
 
     if (!data.fileAttachment) {
@@ -353,7 +397,11 @@ export default function ManPower({
                     readOnly ? () => {} : handleDateChange("createddate")
                   }
                   disabled={readOnly}
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={`w-full border ${
+                    errors.dateOfSubmission
+                      ? "border border-red-500 rounded-md"
+                      : ""
+                  } border-gray-300  rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -429,22 +477,27 @@ export default function ManPower({
                   disabled={readOnly}
                 />
               </div>
-               <div className="flex flex-col space-y-2">
+              <div className="flex flex-col space-y-2">
                 <Label
                   name="Designation"
                   htmlFor="designation"
                   className="block text-sm font-medium text-gray-900"
                 />
-                <Input
-                  id="designation"
-                  name="designation"
-                  type="text"
-                  value={readOnly ? parsedData?.designation : data.designation}
+                <ComboBox
+                  menu={designation}
+                  selectedValue={
+                    parsedData?.designation ?? data.designation ?? ""
+                  }
+                  onSelect={(item) => {
+                    const value = item ? item.name : "";
+                    setData((prev) => ({ ...prev, designation: value }));
+                  }}
                   disabled={readOnly}
-                  onChange={readOnly ? () => {} : handleChange}
-                  placeholder="Designation"
-                  required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={`${
+                    errors.designation
+                      ? "border border-red-500"
+                      : "border-gray-300"
+                  } `}
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -465,6 +518,9 @@ export default function ManPower({
                   disabled={readOnly}
                 />
               </div>
+            </div>
+
+            <div className="flex flex-col gap-y-6">
               <div className="flex flex-col space-y-2">
                 <Label
                   name="No Requested"
@@ -483,9 +539,6 @@ export default function ManPower({
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-            </div>
-
-            <div className="flex flex-col gap-y-6">
               <div className="flex items-center space-x-2">
                 <div className="flex-1 flex flex-col space-y-2">
                   <Label
@@ -775,7 +828,7 @@ export default function ManPower({
                 </div>
               </div>
 
-              <div className="flex flex-col space-y-2">
+              {/* <div className="flex flex-col space-y-2">
                 <Label
                   name="Approved AMP"
                   htmlFor="approvedAmp"
@@ -792,7 +845,7 @@ export default function ManPower({
                   required
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -981,8 +1034,6 @@ export default function ManPower({
                         const isChecked = data.selectedReasons.includes(
                           reason.key,
                         );
-                        // const value = (data as any)[reason.key];
-                        // const value = data[reason.key as ReasonKey];
                         const value = data[reason.key];
 
                         return (
@@ -1029,6 +1080,11 @@ export default function ManPower({
                         );
                       })}
                     </div>
+                  )}
+                  {errors.additionalReason && (
+                    <p className="text-xs text-red-600 mt-1">
+                      {errors.additionalReason}
+                    </p>
                   )}
                 </div>
               </div>

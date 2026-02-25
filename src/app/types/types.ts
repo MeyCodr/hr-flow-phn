@@ -1,6 +1,7 @@
 import { Prisma } from "@/generated/client";
 import { DateValueType } from "../component/ui/DatePicker";
 import { Approval } from "../component/approval/ApprovalComponent";
+import { ReasonKey } from "../component/form/hr-form/ManPowerRequisition";
 
 export interface Division {
   id: number;
@@ -79,7 +80,7 @@ export interface ManPowerTypes {
   approvedby: string;
   fileAttachment?: File | null;
   remarks: string;
-  selectedReasons: string[];
+  selectedReasons: ReasonKey[];
   divisionName?: string;
   departmentName?: string;
   sectionName?: string;

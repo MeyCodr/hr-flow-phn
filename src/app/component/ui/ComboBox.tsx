@@ -14,6 +14,7 @@ interface ComboBoxProps {
   onSelect?: (item: { id: string | number; name: string } | null) => void;
   selectedValue?: string | null;
   disabled?: boolean;
+  className?: string;
 }
 
 export default function ComboBox({
@@ -21,6 +22,7 @@ export default function ComboBox({
   onSelect,
   selectedValue,
   disabled = false,
+  className,
 }: ComboBoxProps) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -85,7 +87,7 @@ export default function ComboBox({
               displayValue={displayValue}
               onChange={(event) => setQuery(event.target.value)}
               onClick={() => !disabled && setOpen((prev) => !prev)}
-              className={`w-full rounded-sm border px-3 py-2 pr-10 text-xs outline-none transition duration-150 ease-in-out
+              className={`w-full rounded-sm border px-3 py-2 pr-10 text-xs outline-none transition duration-150 ease-in-out ${className}
                 ${
                   disabled
                     ? "bg-gray-200 cursor-not-allowed border-gray-300 text-black"

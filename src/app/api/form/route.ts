@@ -58,21 +58,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // // ✅ Find Head of Division
-    const headOfDivision = await prisma.user.findFirst({
-      where: {
-        divisionId: findUser.divisionId,
-        role: "HEAD_OF_DIVISION",
-      },
-    });
-
-    if (!headOfDivision) {
-      return NextResponse.json(
-        { error: "Head of Division not found" },
-        { status: 400 },
-      );
-    }
-
     const findDepartment = await prisma.department.findUnique({
       where: { id: Number(findUser.departmentId) },
     });
@@ -159,22 +144,24 @@ export async function POST(req: NextRequest) {
         baseWhere.sectionId = Number(step.sectionId);
       }
 
-      // fallback only if NOTHING is defined
       if (
         step.divisionId === null &&
         step.departmentId === null &&
         step.sectionId === null
       ) {
-        baseWhere.divisionId = findUser.divisionId;
+        if (step.role === "HEAD_OF_DEPARTMENT") {
+          baseWhere.departmentId = findUser.departmentId;
+        } else if (step.role === "HEAD_OF_DIVISION") {
+          baseWhere.divisionId = findUser.divisionId;
+        } else if (step.role === "HEAD_OF_SECTION") {
+          baseWhere.sectionId = findUser.sectionId;
+        }
       }
-
       // 1️⃣ Load manual approvers
       const manualApprovers = await prisma.approvalStepApprover.findMany({
         where: { stepId: step.id },
         include: { user: true },
       });
-
-      console.log("Manual Approvers:", manualApprovers);
 
       let approvers = manualApprovers.length
         ? manualApprovers.map((a: ManualApproverWithUser) => a.user)
@@ -225,7 +212,7 @@ export async function POST(req: NextRequest) {
         department: findDepartment?.name,
         submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
         status: formSubmission.status,
-        requestLink: `${webLink}/approval?id=${formSubmission.id}&name=${formType.name}`,
+        requestLink: `${webLink}/dashboard/approval?id=${formSubmission.id}&name=${formType.name}`,
         isApprover: false,
       },
     };
@@ -254,7 +241,7 @@ export async function POST(req: NextRequest) {
           department: findDepartment?.name,
           submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
           status: formSubmission.status,
-          approvalLink: `${webLink}/approval?id=${formSubmission.id}&name=${formType.name}`,
+          approvalLink: `${webLink}/dashboard/approval?id=${formSubmission.id}&name=${formType.name}`,
           isApprover: true,
         },
       };
