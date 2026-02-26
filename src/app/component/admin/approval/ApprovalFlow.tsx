@@ -13,7 +13,12 @@ import CheckBox from "../../ui/CheckBox";
 import axios from "axios";
 import toast from "react-hot-toast";
 import ConfirmModal from "../../ui/ConfirmModal";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  Variants,
+  Reorder,
+} from "framer-motion";
 
 export interface ApprovalFlowStep {
   id: number;
@@ -66,6 +71,8 @@ export default function ApprovalFlow({
   );
   const [approvalFlow, setApprovalFlow] = useState<ApprovalFlowStep[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragMode, setDragMode] = useState(false);
 
   const handleAddForm = () => {
     setSelectedStep(null);
@@ -158,15 +165,35 @@ export default function ApprovalFlow({
     exit: { opacity: 0, y: -20, transition: { duration: 0.3, ease: "easeIn" } },
   };
 
-  const groupedByFormType = approvalFlow.reduce(
+  const grouped = approvalFlow.reduce(
     (acc, step) => {
-      const formName = step.formType?.name ?? "No Form Type";
-      if (!acc[formName]) acc[formName] = [];
-      acc[formName].push(step);
+      const key = step.formTypeId;
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(step);
       return acc;
     },
-    {} as Record<string, ApprovalFlowStep[]>,
+    {} as Record<number, ApprovalFlowStep[]>,
   );
+
+  const handleSaveOrder = async (newOrder: ApprovalFlowStep[]) => {
+    try {
+      console.log("new order: ", newOrder);
+      const updated = newOrder.map((item, index) => ({
+        id: item.id,
+        order: index + 1,
+      }));
+
+      console.log("update: ", updated);
+
+      await axios.post("/api/approval-flow/update-order", {
+        steps: updated,
+      });
+
+      toast.success("Order updated");
+    } catch (err) {
+      toast.error("Failed to update order");
+    }
+  };
 
   return (
     <div className="p-6 w-full bg-white rounded-lg border border-gray-300">
@@ -206,6 +233,16 @@ export default function ApprovalFlow({
                 ) : (
                   <>
                     <button
+                      onClick={() => setDragMode((prev) => !prev)}
+                      className={`text-xs px-4 py-2 rounded-sm transition cursor-pointer ${
+                        dragMode
+                          ? "bg-green-600 text-white hover:bg-green-700"
+                          : "bg-gray-600 text-white hover:bg-gray-700"
+                      }`}
+                    >
+                      {dragMode ? "Disable Reorder" : "Enable Reorder"}
+                    </button>
+                    <button
                       onClick={handleDeleteClick}
                       className="bg-red-600 text-white text-xs px-4 py-2 rounded-sm hover:bg-red-700 transition cursor-pointer"
                     >
@@ -228,92 +265,150 @@ export default function ApprovalFlow({
               </p>
             ) : (
               <div className="w-full overflow-x-auto">
-                <table className="min-w-[700px] w-full text-xs text-left border border-gray-300 rounded-lg overflow-hidden">
-                  <thead>
-                    <tr className="bg-indigo-800 text-white">
-                      {deleteMode && (
-                        <th className="px-4 py-3 font-semibold">Select</th>
-                      )}
-                      <th className="px-4 py-3 font-semibold">Form Type</th>
-                      <th className="px-4 py-3 font-semibold">Order</th>
-                      <th className="px-4 py-3 font-semibold">Role</th>
-                      <th className="px-4 py-3 font-semibold">Division</th>
-                      <th className="px-4 py-3 font-semibold">Department</th>
-                      <th className="px-4 py-3 font-semibold">Section</th>
-                      <th className="px-4 py-3 font-semibold">Approver</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {Object.entries(groupedByFormType).map(
-                      ([formTypeName, steps]) => (
-                        <React.Fragment key={formTypeName}>
-                          {/* Optional: Form Type Header Row */}
-                          <tr className="bg-gray-100 font-semibold text-gray-700">
-                            <td
-                              className="px-4 py-2"
-                              colSpan={deleteMode ? 8 : 7}
-                            >
-                              {formTypeName}
-                            </td>
-                          </tr>
+                {/* Header Row */}
+                <div
+                  className={`w-full grid ${
+                    deleteMode ? "grid-cols-8" : "grid-cols-7"
+                  } bg-indigo-800 text-white text-xs text-center font-semibold`}
+                >
+                  {deleteMode && <div className="px-4 py-3">Select</div>}
+                  <div className="px-4 py-3 w-full">Form Type</div>
+                  <div className="px-4 py-3 w-full">Order</div>
+                  <div className="px-4 py-3 w-full">Role</div>
+                  <div className="px-4 py-3 w-full">Division</div>
+                  <div className="px-4 py-3 w-full">Department</div>
+                  <div className="px-4 py-3 w-full">Section</div>
+                  <div className="px-4 py-3 w-full">Approver</div>
+                </div>
 
-                          {/* Render Steps */}
-                          {steps
-                            .sort((a, b) => a.order - b.order) // ensure steps are sorted by order
-                            .map((item, index) => (
-                              <tr
-                                key={item.id}
-                                className={`transition cursor-pointer ${
-                                  deleteMode
-                                    ? selectedRows.includes(item.id)
-                                      ? "bg-red-50"
-                                      : "hover:bg-red-100"
-                                    : "hover:bg-indigo-50"
-                                }`}
-                                onClick={() => handleRowClick(item)}
-                              >
-                                {deleteMode && (
-                                  <td className="px-4 py-3">
-                                    <CheckBox
-                                      checked={selectedRows.includes(item.id)}
-                                      onChange={() => toggleSelect(item.id)}
-                                    />
-                                  </td>
-                                )}
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  {item.formType?.name}
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  {item.order}
-                                </td>
-                                <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">
-                                  {item.role}
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  {item.division?.name || "-"}
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  {item.department?.name || "-"}
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  {item.section?.name || "-"}
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  {item.approvalStepApprovers
-                                    .sort((a, b) => a.id - b.id)
-                                    .map((a, i) => (
-                                      <div key={a.user?.id ?? i}>
-                                        {i + 1}. {a.user?.fullname ?? "No user"}
-                                      </div>
-                                    ))}
-                                </td>
-                              </tr>
-                            ))}
-                        </React.Fragment>
-                      ),
-                    )}
-                  </tbody>
-                </table>
+                {/* Body - Optimized for smooth drag control */}
+                {Object.entries(grouped).map(([formTypeId, steps]) => {
+                  const sortedSteps = [...steps].sort(
+                    (a, b) => a.order - b.order,
+                  );
+
+                  return (
+                    <div
+                      key={formTypeId}
+                      className="border border-gray-300 mb-4"
+                    >
+                      {/* Form Type Header */}
+                      <div className="bg-gray-100 font-semibold text-gray-700 px-4 py-2 text-sm">
+                        {sortedSteps[0]?.formType?.name ?? "No Form Type"}
+                      </div>
+
+                      <Reorder.Group
+                        axis="y"
+                        values={sortedSteps}
+                        onReorder={(newSteps) => {
+                          const updatedSteps = newSteps.map((step, index) => ({
+                            ...step,
+                            order: index + 1, // <-- update order here
+                          }));
+
+                          setApprovalFlow((prev) => {
+                            const others = prev.filter(
+                              (s) => s.formTypeId !== Number(formTypeId),
+                            );
+                            return [...others, ...updatedSteps];
+                          });
+
+                          handleSaveOrder(updatedSteps); // save updated order
+                        }}
+                        className="divide-y divide-gray-200"
+                      >
+                        {sortedSteps.map((item, index) => (
+                          <Reorder.Item
+                            key={item.id}
+                            value={item}
+                            transition={{
+                              type: "spring",
+                              stiffness: 400,
+                              damping: 40,
+                              mass: 0.8,
+                            }}
+                            dragListener={dragMode && !deleteMode}
+                            dragMomentum={false}
+                            whileDrag={{
+                              scale: 1.02,
+                              boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                              zIndex: 100,
+                            }}
+                            style={{
+                              touchAction: dragMode ? "none" : "auto",
+                              cursor: dragMode ? "grab" : "default",
+                            }}
+                            onDragStart={() => setIsDragging(true)}
+                            onDragEnd={() => {
+                              setTimeout(() => setIsDragging(false), 50);
+                            }}
+                            onClick={() => {
+                              if (!isDragging && !dragMode) {
+                                handleRowClick(item);
+                              }
+                            }}
+                            className={`grid ${
+                              deleteMode ? "grid-cols-8" : "grid-cols-7"
+                            } items-center text-xs text-center transition-colors ${
+                              deleteMode
+                                ? selectedRows.includes(item.id)
+                                  ? "bg-red-50"
+                                  : "hover:bg-red-100"
+                                : "hover:bg-indigo-50"
+                            } ${
+                              dragMode
+                                ? "cursor-grab active:cursor-grabbing"
+                                : ""
+                            }`}
+                          >
+                            {deleteMode && (
+                              <div className="px-4 py-3">
+                                <CheckBox
+                                  checked={selectedRows.includes(item.id)}
+                                  onChange={() => toggleSelect(item.id)}
+                                />
+                              </div>
+                            )}
+
+                            <div className="px-4 py-3 text-nowrap text-center">
+                              {item.formType?.name}
+                            </div>
+
+                            <div className="px-4 py-3 text-center">
+                              {index + 1}
+                            </div>
+
+                            <div className="px-4 py-3 text-indigo-700 font-medium text-center">
+                              {item.role}
+                            </div>
+
+                            <div className="px-4 py-3 text-center">
+                              {item.division?.name || "-"}
+                            </div>
+
+                            <div className="px-4 py-3">
+                              {item.department?.name || "-"}
+                            </div>
+
+                            <div className="px-4 py-3 text-center">
+                              {item.section?.name || "-"}
+                            </div>
+
+                            <div className="px-4 py-3 text-center">
+                              {item.approvalStepApprovers
+                                .sort((a, b) => a.id - b.id)
+                                .map((a, i) => (
+                                  <div key={a.user?.id ?? i}>
+                                    {i + 1}. {a.user?.fullname ?? "No user"}
+                                  </div>
+                                ))}
+                            </div>
+                          </Reorder.Item>
+                        ))}
+                      </Reorder.Group>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </motion.div>
