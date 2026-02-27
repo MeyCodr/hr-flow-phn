@@ -12,54 +12,6 @@ const webLink = process.env.NEXTAUTH_URL;
 
 type ManualApproverWithUser = ApprovalStepApprover & { user: User };
 
-async function resolveFirstStepApprovers(user: User) {
-  // 1️⃣ Head of Department (main approver)
-  if (user.departmentId) {
-    const hod = await prisma.user.findFirst({
-      where: {
-        role: "HEAD_OF_DEPARTMENT",
-        departmentId: user.departmentId,
-      },
-    });
-
-    if (hod) {
-      // 2️⃣ Head of Division (CC / visibility)
-      const hodiv = user.divisionId
-        ? await prisma.user.findFirst({
-            where: {
-              role: "HEAD_OF_DIVISION",
-              divisionId: user.divisionId,
-            },
-          })
-        : null;
-
-      return {
-        to: hod,
-        cc: hodiv ? [hodiv] : [],
-      };
-    }
-  }
-
-  // 3️⃣ Fallback: Head of Division only
-  if (user.divisionId) {
-    const hodiv = await prisma.user.findFirst({
-      where: {
-        role: "HEAD_OF_DIVISION",
-        divisionId: user.divisionId,
-      },
-    });
-
-    if (hodiv) {
-      return {
-        to: hodiv,
-        cc: [],
-      };
-    }
-  }
-
-  throw new Error("No valid approver found for first step");
-}
-
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -200,6 +152,7 @@ export async function POST(req: NextRequest) {
     for (const step of approvalFlowSteps) {
       let approvers: User[] = [];
 
+      // Load manual approvers if any
       const manualApprovers = await prisma.approvalStepApprover.findMany({
         where: { stepId: step.id },
         include: { user: true },
@@ -208,35 +161,50 @@ export async function POST(req: NextRequest) {
       if (manualApprovers.length) {
         approvers = manualApprovers.map((a) => a.user);
       } else if (step.order === 1) {
-        const { to, cc } = await resolveFirstStepApprovers(findUser);
+        // Step 1: TO = HOD, CC = HODiv (both can approve)
+        if (!findUser.departmentId) throw new Error("User has no departmentId");
 
-        approvers = [to, ...cc];
+        const hod = await prisma.user.findFirst({
+          where: {
+            role: "HEAD_OF_DEPARTMENT",
+            departmentId: findUser.departmentId,
+          },
+        });
+
+        if (!hod) throw new Error("Head of Department not found");
+
+        approvers.push(hod);
+
+        if (findUser.divisionId) {
+          const hodiv = await prisma.user.findFirst({
+            where: {
+              role: "HEAD_OF_DIVISION",
+              divisionId: findUser.divisionId,
+            },
+          });
+          if (hodiv) approvers.push(hodiv);
+        }
       } else {
+        // Steps > 1: find by role/department/division/section
         const baseWhere: Prisma.UserWhereInput = {
           role: step.role,
           id: { notIn: assignedApprovers },
         };
 
-        if (step.divisionId !== null) {
-          baseWhere.divisionId = step.divisionId;
-        } else if (step.departmentId !== null) {
+        if (step.divisionId !== null) baseWhere.divisionId = step.divisionId;
+        if (step.departmentId !== null)
           baseWhere.departmentId = step.departmentId;
-        } else if (step.sectionId !== null) {
-          baseWhere.sectionId = step.sectionId;
-        } else {
-          baseWhere.divisionId = findUser.divisionId;
-        }
+        if (step.sectionId !== null) baseWhere.sectionId = step.sectionId;
 
         approvers = await prisma.user.findMany({ where: baseWhere });
       }
 
-      // 🚫 Remove duplicates
+      // Remove duplicates
       approvers = approvers.filter((a) => !assignedApprovers.includes(a.id));
-
       assignedApprovers.push(...approvers.map((a) => a.id));
 
       const DAY = 24 * 60 * 60 * 1000;
-
+      // Create approvals (all as PENDING)
       await prisma.approval.createMany({
         data: approvers.map((u) => ({
           submissionId: formSubmission.id,
@@ -248,7 +216,6 @@ export async function POST(req: NextRequest) {
         })),
       });
     }
-
     // ✅ Fetch the first-step approvers (order = 1)
     const firstStepApprovers = await prisma.approval.findMany({
       where: { submissionId: formSubmission.id, stepOrder: 1 },
@@ -316,4 +283,31 @@ export async function POST(req: NextRequest) {
     console.error("Error creating form record:", error);
     return NextResponse.json({ error: error }, { status: 500 });
   }
+}
+
+async function resolveStep1Approvers(user: User) {
+  if (!user.departmentId) {
+    throw new Error("User has no departmentId for step 1");
+  }
+
+  // Head of Department (TO)
+  const hod = await prisma.user.findFirst({
+    where: { role: "HEAD_OF_DEPARTMENT", departmentId: user.departmentId },
+  });
+
+  if (!hod) {
+    throw new Error("Head of Department not found for user's department");
+  }
+
+  // Head of Division (CC)
+  const hodiv = user.divisionId
+    ? await prisma.user.findFirst({
+        where: { role: "HEAD_OF_DIVISION", divisionId: user.divisionId },
+      })
+    : null;
+
+  return {
+    to: hod,
+    cc: hodiv ? [hodiv] : [],
+  };
 }

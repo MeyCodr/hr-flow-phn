@@ -287,7 +287,7 @@ export async function POST(req: NextRequest) {
       });
 
       await prisma.approval.updateMany({
-        where: { submissionId, stepOrder: { gt: approval.stepOrder } },
+        where: { submissionId, stepOrder: { gte: approval.stepOrder } },
         data: { status: "REJECTED" },
       });
 

@@ -42,32 +42,29 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
     approvals,
   } = data;
 
-  const digitalSignedRow: string[] = new Array(6).fill("");
+  const digitalSignedRow: string[] = new Array(5).fill("");
   digitalSignedRow[0] = "Digital Signed";
 
   approvals.forEach((a) => {
     const index = a.stepOrder;
     if (index >= 1 && index <= 5) {
-      digitalSignedRow[index] = a.status === "APPROVED" ? "Digital Signed" : "";
+      digitalSignedRow[index - 1] = a.status === "APPROVED" ? "Digital Signed" : "";
     }
   });
 
-  const approverNames: string[] = new Array(6).fill("");
+  const approverNames: string[] = new Array(5).fill("");
   const parsedFormData = formData as unknown as ManPowerTypes | null;
 
   approvals.forEach((a) => {
     const index = a.stepOrder; // stepOrder 1 goes to index 1
-
-    if (index >= 1 && index < 6) {
-      approverNames[index] =
+    if (index >= 1 && index <= 5) {
+      approverNames[index - 1] =
         a.status === "APPROVED" ? a.approver?.name || "-" : "";
     }
   });
 
-  approverNames[0] = createdBy.fullname || "-";
-
   // Dates row
-  const approverDates: string[] = new Array(6).fill("");
+  const approverDates: string[] = new Array(5).fill("");
 
   // Requested by date (index 0)
   approverDates[0] = parsedFormData?.createddate
@@ -78,7 +75,7 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
   approvals.forEach((a) => {
     const index = a.stepOrder; // stepOrder: 1..5 for approvers
     if (index >= 1 && index <= 5) {
-      approverDates[index] = a.approvedAt
+      approverDates[index - 1] = a.approvedAt
         ? new Date(a.approvedAt).toLocaleDateString("en-GB")
         : "";
     }

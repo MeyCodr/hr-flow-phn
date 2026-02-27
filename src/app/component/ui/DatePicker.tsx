@@ -156,7 +156,7 @@ export default function DatePicker({
 
         {/* Calendar Popup */}
         {isOpen && !disabled && (
-          <div className="absolute top-full left-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-gray-300 p-6 w-80 animate-in fade-in-50 zoom-in-95">
+          <div className="absolute top-full left-0 mt-2 z-10 bg-white rounded-2xl shadow-2xl border border-gray-300 p-6 w-80 animate-in fade-in-50 zoom-in-95">
             {/* Calendar Header */}
             <div className="flex items-center justify-between mb-4">
               <button

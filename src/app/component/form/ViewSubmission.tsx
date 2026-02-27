@@ -81,18 +81,6 @@ export default function ViewSubmission({
     if (session) setUser(session.user);
   }, [session]);
 
-  // useEffect(() => {
-  //   if (!selfForm) return;
-  //   const formData = selfForm.formData as FormData | null; // ✅ cast here
-  //   console.log("selfForm: ", selfForm);
-  //   console.log("formData: ", formData);
-
-  //   setSelectedDivision(formData?.division ?? "");
-  //   setSelectedDepartment(formData?.department ?? "");
-  //   setSelectedSection(formData?.section ?? "");
-  //   if (!formData) return;
-  // }, [selfForm]);
-
   useEffect(() => {
     if (user) findUser();
   }, [user]);
