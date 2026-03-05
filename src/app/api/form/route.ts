@@ -163,15 +163,34 @@ export async function POST(req: NextRequest) {
         include: { user: true },
       });
 
-      let approvers = manualApprovers.length
-        ? manualApprovers.map((a: ManualApproverWithUser) => a.user)
-        : await prisma.user.findMany({ where: baseWhere });
+      let approvers: User[] = [];
 
-      // 2️⃣ Add Head of Division automatically ONLY for step 1
-      // if (step.order === 1 && headOfDivision) {
-      //   approvers.push(headOfDivision);
-      // }
+      // 1️⃣ If manual approvers exist → use them
+      if (manualApprovers.length > 0) {
+        approvers = manualApprovers.map((a: ManualApproverWithUser) => a.user);
+      } else {
+        // 2️⃣ Try to find normal approvers based on role
+        approvers = await prisma.user.findMany({ where: baseWhere });
 
+        // 3️⃣ 🔥 Fallback logic for STEP 1
+        if (
+          approvers.length === 0 &&
+          step.order === 1 &&
+          step.role === "HEAD_OF_DEPARTMENT"
+        ) {
+          console.warn(
+            `⚠️ No HEAD_OF_DEPARTMENT found. Falling back to HEAD_OF_DIVISION`,
+          );
+
+          approvers = await prisma.user.findMany({
+            where: {
+              role: "HEAD_OF_DIVISION",
+              divisionId: findUser.divisionId,
+              id: { notIn: assignedApprovers },
+            },
+          });
+        }
+      }
       // Prevent duplicates
       approvers = approvers.filter(
         (a: User) => !assignedApprovers.includes(a.id),
@@ -217,7 +236,7 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
 
     // ✅ Updated email logic: First approver in TO, others in CC
     if (firstStepApprovers.length > 0) {
@@ -246,7 +265,7 @@ export async function POST(req: NextRequest) {
         },
       };
 
-      await transporter.sendMail(approvalMail);
+      // await transporter.sendMail(approvalMail);
     }
 
     return NextResponse.json(
