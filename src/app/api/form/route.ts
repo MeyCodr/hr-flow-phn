@@ -236,7 +236,7 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    // await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
 
     // ✅ Updated email logic: First approver in TO, others in CC
     if (firstStepApprovers.length > 0) {
@@ -265,7 +265,7 @@ export async function POST(req: NextRequest) {
         },
       };
 
-      // await transporter.sendMail(approvalMail);
+      await transporter.sendMail(approvalMail);
     }
 
     return NextResponse.json(
