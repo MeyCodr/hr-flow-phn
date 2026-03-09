@@ -78,7 +78,7 @@ export interface ManPowerTypes {
   reviewedBy: string;
   verifiedBy: string;
   approvedby: string;
-  fileAttachment?: File | null;
+  fileAttachment: File[] | null;
   remarks: string;
   selectedReasons: ReasonKey[];
   divisionName?: string;

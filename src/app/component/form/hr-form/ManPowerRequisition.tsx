@@ -92,7 +92,8 @@ export default function ManPower({
     fileAttachment?: string;
   }>({});
   const [userInfo, setUserInfo] = useState<UserInfo>();
-  const [file, setFile] = useState<File | null>(null);
+  // const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -266,9 +267,9 @@ export default function ManPower({
     formData.append("formId", formId.toString());
     formData.append("user", JSON.stringify(user));
     formData.append("data", JSON.stringify(data));
-    if (file) {
-      formData.append("fileAttachment", file);
-    }
+    files.forEach((f) => {
+      formData.append("fileAttachment", f);
+    });
     const toastId = "";
 
     try {
@@ -1106,7 +1107,9 @@ export default function ManPower({
                   } ${errors.fileAttachment ? "border-red-500" : ""}`}
                 >
                   <span className="truncate">
-                    {file ? file.name : "Choose a file or drag & drop"}
+                    {files.length > 0
+                      ? `${files.length} file(s) selected`
+                      : "Choose a file or drag & drop"}
                   </span>
                   <span
                     className={`ml-2 rounded px-3 py-1 text-xs font-medium text-white ${
@@ -1121,21 +1124,24 @@ export default function ManPower({
                     name="fileAttachment"
                     className="hidden"
                     onChange={(e) => {
-                      const selectedFile = e.target.files?.[0] || null;
-                      setFile(selectedFile);
+                      const selectedFiles = Array.from(e.target.files || []);
+                      setFiles(selectedFiles);
 
                       setData((prev) => ({
                         ...prev,
-                        fileAttachment: selectedFile,
+                        fileAttachment: selectedFiles,
                       }));
                     }}
+                    multiple
                     disabled={readOnly}
                   />
                 </label>
 
-                {file && (
+                {files.length > 0 && (
                   <div className="mt-1 w-full rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300">
-                    📎 <strong>Selected:</strong> {file.name}
+                    {files.map((f, i) => (
+                      <p key={i}>📎 {f.name}</p>
+                    ))}
                   </div>
                 )}
 

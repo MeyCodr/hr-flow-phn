@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
     }
     const formData = await req.formData();
 
-    const file = formData.get("fileAttachment") as File | null;
+    // const file = formData.get("fileAttachment") as File | null;
+    const files = formData.getAll("fileAttachment");
     const user = JSON.parse(formData.get("user") as string);
     const formId = Number(formData.get("formId"));
     const data = JSON.parse(formData.get("data") as string);
@@ -90,28 +91,33 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // ✅ Handle file upload (optional)
-    if (file) {
+    // ✅ Handle multiple file upload
+    if (files.length > 0) {
       const uploadDir = path.join(process.cwd(), "storage/uploads");
       await fs.mkdir(uploadDir, { recursive: true });
 
-      const fileName = `${Date.now()}-${file.name}`;
-      const filePath = path.join(uploadDir, fileName);
+      for (const entry of files) {
+        if (!(entry instanceof File)) continue;
 
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
+        const file = entry;
 
-      await fs.writeFile(filePath, buffer);
+        const fileName = `${Date.now()}-${file.name}`;
+        const filePath = path.join(uploadDir, fileName);
 
-      // Save file metadata
-      await prisma.fileAttachment.create({
-        data: {
-          formSubmissionId: formSubmission.id,
-          fileName: fileName,
-          filePath: `/storage/uploads/${fileName}`,
-          fileType: file.type || "unknown",
-        },
-      });
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        await fs.writeFile(filePath, buffer);
+
+        await prisma.fileAttachment.create({
+          data: {
+            formSubmissionId: formSubmission.id,
+            fileName: fileName,
+            filePath: `/storage/uploads/${fileName}`,
+            fileType: file.type || "unknown",
+          },
+        });
+      }
     }
 
     // ✅ Fetch Approval Flow Steps for this form
