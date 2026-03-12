@@ -9,6 +9,48 @@ type FormDataType = Record<string, unknown> & {
   section?: string;
 };
 
+async function normalizeApprovalQueue(submissionId: number) {
+  const remainingApprovals = await prisma.approval.findMany({
+    where: {
+      submissionId,
+      status: {
+        notIn: ["APPROVED", "REJECTED"],
+      },
+    },
+    orderBy: { stepOrder: "asc" },
+  });
+
+  if (remainingApprovals.length === 0) {
+    return null;
+  }
+
+  const nextStepOrder = remainingApprovals[0].stepOrder;
+
+  await prisma.approval.updateMany({
+    where: {
+      submissionId,
+      status: {
+        notIn: ["APPROVED", "REJECTED"],
+      },
+      stepOrder: nextStepOrder,
+    },
+    data: { status: "PENDING" },
+  });
+
+  await prisma.approval.updateMany({
+    where: {
+      submissionId,
+      status: {
+        notIn: ["APPROVED", "REJECTED"],
+      },
+      stepOrder: { gt: nextStepOrder },
+    },
+    data: { status: "WAITING" },
+  });
+
+  return remainingApprovals[0];
+}
+
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -148,19 +190,18 @@ export async function PUT(
       },
     });
 
-    const approvals = submission.approvals;
-
     // ======================================================
     // ⭐ SPECIAL LOGIC FOR GRIEVANCE (auto-approve remaining)
     // ======================================================
     if (newStatus === "APPROVED" && isGrievance) {
-      const laterApprovals = approvals.filter(
-        (a: (typeof approvals)[number]) => a.stepOrder > approval.stepOrder
+      const laterApprovals = submission.approvals.filter(
+        (a: (typeof submission.approvals)[number]) =>
+          a.stepOrder > approval.stepOrder
       );
 
       // Approve all future approval steps ONLY
       await Promise.all(
-        laterApprovals.map((a: (typeof approvals)[number]) =>
+        laterApprovals.map((a: (typeof submission.approvals)[number]) =>
           prisma.approval.update({
             where: { id: a.id },
             data: { status: "APPROVED", approvedAt: new Date() },
@@ -185,29 +226,9 @@ export async function PUT(
     // ======================================================
 
     if (newStatus === "APPROVED") {
-      const nextStep = approvals.find(
-        (a: (typeof approvals)[number]) =>
-          a.stepOrder === approval.stepOrder + 1
-      );
+      const nextStep = await normalizeApprovalQueue(submissionId);
 
       if (nextStep) {
-        await prisma.approval.update({
-          where: { id: nextStep.id },
-          data: { status: "PENDING" },
-        });
-
-        const laterSteps = approvals.filter(
-          (a: (typeof approvals)[number]) => a.stepOrder > nextStep.stepOrder
-        );
-        await Promise.all(
-          laterSteps.map((a: (typeof laterSteps)[number]) =>
-            prisma.approval.update({
-              where: { id: a.id },
-              data: { status: "WAITING" },
-            })
-          )
-        );
-
         await prisma.formSubmission.update({
           where: { id: submissionId },
           data: { status: "PENDING" },
@@ -222,8 +243,9 @@ export async function PUT(
 
     // Rejection logic
     else if (newStatus === "REJECTED") {
-      const laterApprovals = approvals.filter(
-        (a: (typeof approvals)[number]) => a.stepOrder >= approval.stepOrder
+      const laterApprovals = submission.approvals.filter(
+        (a: (typeof submission.approvals)[number]) =>
+          a.stepOrder >= approval.stepOrder
       );
 
       await Promise.all(

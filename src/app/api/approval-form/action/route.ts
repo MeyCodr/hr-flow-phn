@@ -20,13 +20,54 @@ type ApprovalWithSubmission = Prisma.ApprovalGetPayload<{
   };
 }>;
 
-interface SystemRequestFormData {
-  superiorSignature?: string;
-  superiorName?: string;
-  dateSuperiorSign?: string;
-  itPersonnelName?: string;
-  itPersonnel?: string;
-  itPersonnelDate?: string;
+async function normalizeApprovalQueue(submissionId: number) {
+  const remainingApprovals = await prisma.approval.findMany({
+    where: {
+      submissionId,
+      status: {
+        notIn: ["APPROVED", "REJECTED"],
+      },
+    },
+    orderBy: { stepOrder: "asc" },
+  });
+
+  if (remainingApprovals.length === 0) {
+    return null;
+  }
+
+  const nextStepOrder = remainingApprovals[0].stepOrder;
+
+  await prisma.approval.updateMany({
+    where: {
+      submissionId,
+      status: {
+        notIn: ["APPROVED", "REJECTED"],
+      },
+      stepOrder: nextStepOrder,
+    },
+    data: { status: "PENDING" },
+  });
+
+  await prisma.approval.updateMany({
+    where: {
+      submissionId,
+      status: {
+        notIn: ["APPROVED", "REJECTED"],
+      },
+      stepOrder: { gt: nextStepOrder },
+    },
+    data: { status: "WAITING" },
+  });
+
+  return prisma.approval.findFirst({
+    where: {
+      submissionId,
+      stepOrder: nextStepOrder,
+      status: "PENDING",
+    },
+    include: { approver: true },
+    orderBy: { id: "asc" },
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -108,16 +149,9 @@ export async function POST(req: NextRequest) {
     });
 
     // 3️⃣ Handle next step
-    const nextStep = submission.approvals.find(
-      (a: (typeof submission.approvals)[number]) =>
-        a.stepOrder === approval.stepOrder + 1,
-    );
-
     if (action === "approve") {
       const isGrievance =
         formType.name.trim().toLowerCase() === "grievance report";
-      const isSystemRequest =
-        formType.name.trim().toLowerCase() === "system account request";
 
       if (isGrievance) {
         // Mark submission as approved
@@ -160,80 +194,9 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // #region FORM SYSTEM ACCOUNT REQUEST APPROVAL
-      if (isSystemRequest) {
-        const findSubmission = await prisma.formSubmission.findUnique({
-          where: {
-            id: submissionId,
-          },
-        });
-
-        if (!findSubmission) {
-          return NextResponse.json(
-            { error: "Form Submission do not found" },
-            { status: 401 },
-          );
-        }
-        const approverId = approval.approverId;
-
-        const findApproverDetails = await prisma.user.findUnique({
-          where: {
-            id: approverId,
-          },
-        });
-
-        if (!findApproverDetails) {
-          return NextResponse.json(
-            { error: "Unable to get approver details" },
-            { status: 400 },
-          );
-        }
-
-        const approvals = submission.approvals;
-        const steps = approvals.map((a) => a.stepOrder);
-        const firstStep = Math.min(...steps);
-        const isFirstStep = approval.stepOrder === firstStep;
-        const updatedFormData: SystemRequestFormData = {
-          ...(findSubmission.formData as SystemRequestFormData),
-        };
-
-        if (isFirstStep) {
-          updatedFormData.superiorSignature = findApproverDetails.fullname;
-          updatedFormData.superiorName = findApproverDetails.fullname;
-          updatedFormData.dateSuperiorSign = new Date()
-            .toISOString()
-            .split("T")[0];
-        } else {
-          updatedFormData.itPersonnelName = findApproverDetails.fullname;
-          updatedFormData.itPersonnel = findApproverDetails.fullname;
-          updatedFormData.itPersonnelDate = new Date()
-            .toISOString()
-            .split("T")[0];
-        }
-
-        await prisma.$transaction([
-          prisma.formSubmission.update({
-            where: { id: submissionId },
-            data: { formData: updatedFormData as Prisma.InputJsonValue },
-          }),
-          prisma.approval.updateMany({
-            where: { submissionId },
-            data: {
-              status: "APPROVED",
-              approvedAt: new Date(),
-            },
-          }),
-        ]);
-      }
-      //#endregion FORM SYSTEM ACCOUNT REQUEST APPROVAL
+      const nextStep = await normalizeApprovalQueue(submissionId);
 
       if (nextStep) {
-        // Next approver pending
-        await prisma.approval.updateMany({
-          where: { submissionId, stepOrder: approval.stepOrder + 1 },
-          data: { status: "PENDING" },
-        });
-
         const mailOptions = {
           from: emailFrom,
           to: nextStep.approver.email,
