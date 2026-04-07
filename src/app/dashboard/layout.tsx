@@ -28,10 +28,12 @@ export default function DashboardLayout({
   const getPageName = () => {
     const parts = pathname.split("/").filter(Boolean);
     if (parts.length <= 1) return "Dashboard";
-    return (
-      parts[parts.length - 1].charAt(0).toUpperCase() +
-      parts[parts.length - 1].slice(1)
-    );
+
+    return parts[parts.length - 1]
+      .split("-")
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
   };
 
   useEffect(() => {

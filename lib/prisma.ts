@@ -15,9 +15,21 @@ const adapter = new PrismaMariaDb({
   connectionLimit: 10, // increase for VPS
 });
 
-// use shared client
-export const prisma =
-  global.prisma ||
-  new PrismaClient({ adapter, log: ["query", "warn", "error"] });
+function createPrismaClient() {
+  return new PrismaClient({ adapter, log: ["query", "warn", "error"] });
+}
+
+function hasExpectedModels(
+  client: PrismaClient | undefined,
+): client is PrismaClient {
+  return Boolean(client && "manpowerUpload" in client);
+}
+
+// Recreate the cached client if it was initialized before a new Prisma model existed.
+const prismaClient = hasExpectedModels(global.prisma)
+  ? global.prisma
+  : createPrismaClient();
+
+export const prisma: PrismaClient = prismaClient;
 
 if (process.env.NODE_ENV !== "production") global.prisma = prisma;

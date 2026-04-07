@@ -1,7 +1,7 @@
 import HrFormsClient from "@/app/component/form/hr-form/HrFormsClient";
 import { prisma } from "../../../../lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 import { redirect } from "next/navigation";
 
 export default async function Forms(props: {
@@ -32,3 +32,4 @@ export default async function Forms(props: {
 
   return <HrFormsClient forms={forms} selectedId={id} selectedName={name} approvals={approvals}/>;
 }
+

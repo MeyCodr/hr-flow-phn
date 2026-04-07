@@ -5,6 +5,7 @@ import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
 import LoadingScreen from "./LoadingScreen";
+import { withBasePath } from "@/lib/base-path";
 
 interface AccountDropdownProps {
   onClose?: () => void;
@@ -21,7 +22,7 @@ export default function AccountDropdown({
   const handleSignOut = () => {
     if (onClose) onClose();
     setLoading(true);
-    signOut({ callbackUrl: "/" });
+    signOut({ callbackUrl: withBasePath("/") });
   };
 
   const handleTab = (tab: string) => {

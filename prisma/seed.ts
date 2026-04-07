@@ -1,7 +1,19 @@
 // import { Role } from "@prisma/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaClient } from "@/generated/client";
 import { Role } from "@/generated/enums";
 import { hash } from "bcrypt";
-import { prisma } from "../lib/prisma";
+
+const prisma = new PrismaClient({
+  adapter: new PrismaMariaDb({
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE_NAME,
+    connectionLimit: 10,
+  }),
+  log: ["query", "warn", "error"],
+});
 
 const division = [
   { id: 1, name: "BUSINESS DEVELOPMENT & STRATEGY" },

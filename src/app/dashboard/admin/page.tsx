@@ -3,7 +3,7 @@ import React from "react";
 import { prisma } from "../../../../lib/prisma";
 import { FormType, SelfFormData } from "@/app/types/types";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 import { redirect } from "next/navigation";
 import {
   Approval,
@@ -144,3 +144,4 @@ export default async function Admin() {
     </div>
   );
 }
+

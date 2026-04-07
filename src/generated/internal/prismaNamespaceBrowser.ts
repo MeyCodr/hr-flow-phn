@@ -58,6 +58,7 @@ export const ModelName = {
   FormType: 'FormType',
   FormSubmission: 'FormSubmission',
   FileAttachment: 'FileAttachment',
+  ManpowerUpload: 'ManpowerUpload',
   ApprovalFlowStep: 'ApprovalFlowStep',
   Approval: 'Approval',
   PasswordResetToken: 'PasswordResetToken',
@@ -165,6 +166,22 @@ export const FileAttachmentScalarFieldEnum = {
 } as const
 
 export type FileAttachmentScalarFieldEnum = (typeof FileAttachmentScalarFieldEnum)[keyof typeof FileAttachmentScalarFieldEnum]
+
+
+export const ManpowerUploadScalarFieldEnum = {
+  id: 'id',
+  fileName: 'fileName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  fileContent: 'fileContent',
+  employeeData: 'employeeData',
+  recordCount: 'recordCount',
+  uploadedById: 'uploadedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ManpowerUploadScalarFieldEnum = (typeof ManpowerUploadScalarFieldEnum)[keyof typeof ManpowerUploadScalarFieldEnum]
 
 
 export const ApprovalFlowStepScalarFieldEnum = {
@@ -308,6 +325,14 @@ export const FileAttachmentOrderByRelevanceFieldEnum = {
 } as const
 
 export type FileAttachmentOrderByRelevanceFieldEnum = (typeof FileAttachmentOrderByRelevanceFieldEnum)[keyof typeof FileAttachmentOrderByRelevanceFieldEnum]
+
+
+export const ManpowerUploadOrderByRelevanceFieldEnum = {
+  fileName: 'fileName',
+  fileType: 'fileType'
+} as const
+
+export type ManpowerUploadOrderByRelevanceFieldEnum = (typeof ManpowerUploadOrderByRelevanceFieldEnum)[keyof typeof ManpowerUploadOrderByRelevanceFieldEnum]
 
 
 export const ApprovalOrderByRelevanceFieldEnum = {

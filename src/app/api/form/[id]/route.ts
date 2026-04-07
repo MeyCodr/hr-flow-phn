@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 import { getServerSession } from "next-auth";
 
 type FormDataType = Record<string, unknown> & {

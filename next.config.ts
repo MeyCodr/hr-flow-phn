@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.replace(/\/+$/, "") || "";
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  basePath,
+  assetPrefix: basePath || undefined,
+  experimental: {
+    webpackBuildWorker: false,
+  },
 };
 
 export default nextConfig;

@@ -1,4 +1,4 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 import { getServerSession } from "next-auth";
 import { prisma } from "../../../../lib/prisma";
 import ApprovalComponent from "@/app/component/approval/ApprovalComponent";
@@ -114,3 +114,4 @@ export default async function Approval() {
     </div>
   );
 }
+

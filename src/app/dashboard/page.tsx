@@ -1,7 +1,7 @@
 import DashboardComponent from "../component/dashboard/DashboardComponent";
 import { prisma } from "../../../lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {

@@ -75,6 +75,11 @@ export type FormSubmission = Prisma.FormSubmissionModel
  */
 export type FileAttachment = Prisma.FileAttachmentModel
 /**
+ * Model ManpowerUpload
+ * 
+ */
+export type ManpowerUpload = Prisma.ManpowerUploadModel
+/**
  * Model ApprovalFlowStep
  * 
  */

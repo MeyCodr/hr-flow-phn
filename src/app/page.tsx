@@ -1,7 +1,7 @@
 // src/app/page.tsx or Home.tsx
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "./api/auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);

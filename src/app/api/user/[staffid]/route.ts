@@ -6,7 +6,7 @@ import { User } from "@/generated/client";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 
 export async function GET(
   req: NextRequest,

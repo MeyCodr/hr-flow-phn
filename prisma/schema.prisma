@@ -30,6 +30,7 @@ model User {
   section    Section?         @relation(fields: [sectionId], references: [id])
   approvals  Approval[]
   forms      FormSubmission[]
+  manpowerUploads ManpowerUpload[]
 
   PasswordResetToken    PasswordResetToken[]
   approvalFlowSteps     ApprovalFlowStep[]
@@ -114,6 +115,21 @@ model FileAttachment {
 
   // Relation
   formSubmission FormSubmission @relation(fields: [formSubmissionId], references: [id])
+}
+
+model ManpowerUpload {
+  id           Int      @id @default(autoincrement())
+  fileName     String
+  fileType     String?
+  fileSize     Int
+  fileContent  Bytes
+  employeeData Json
+  recordCount  Int
+  uploadedById Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
 }
 
 model ApprovalFlowStep {

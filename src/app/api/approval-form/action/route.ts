@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 import { Prisma } from "@/generated/client";
 
 const emailFrom = process.env.EMAIL;
@@ -283,3 +283,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

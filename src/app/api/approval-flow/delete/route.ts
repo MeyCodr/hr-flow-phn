@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,3 +29,4 @@ export async function POST(req: NextRequest) {
     return new Response("Error deleting approval flows", { status: 500 });
   }
 }
+

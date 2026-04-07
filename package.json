@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev --turbopack -p 3000",
+    "build": "next build",
     "start": "next start -p 3000",
-    "lint": "eslint",
+    "lint": "eslint .",
     "cron": "ts-node server/cron.ts",
     "build-cron": "tsc server/cron.ts --outDir dist"
   },
@@ -41,7 +41,10 @@
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
-    "react-tailwindcss-datepicker": "^2.0.0"
+    "react-tailwindcss-datepicker": "^2.0.0",
+    "recharts": "^3.8.1",
+    "tesseract.js": "^7.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

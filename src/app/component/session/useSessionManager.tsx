@@ -1,6 +1,7 @@
 "use client";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 interface UseSessionManagerOptions {
   timeout?: number; // In milliseconds, default 1 hour
@@ -39,7 +40,7 @@ export default function useSessionManager({ timeout = 60 * 60 * 1000 }: UseSessi
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    signOut({ redirect: true, callbackUrl: "/login" });
+    signOut({ redirect: true, callbackUrl: withBasePath("/login") });
   };
 
   return {

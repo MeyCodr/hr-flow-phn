@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 import { getServerSession } from "next-auth";
 
 export async function POST(req: NextRequest) {
@@ -35,3 +35,4 @@ export async function GET() {
     return NextResponse.json({ error: error }, { status: 500 });
   }
 }
+

@@ -4,7 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 import { ApprovalStepApprover, Prisma, User } from "@/generated/client";
 
 const emailFrom = process.env.EMAIL;
@@ -311,3 +311,4 @@ async function resolveStep1Approvers(user: User) {
     cc: hodiv ? [hodiv] : [],
   };
 }
+

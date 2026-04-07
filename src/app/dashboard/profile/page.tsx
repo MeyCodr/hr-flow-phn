@@ -2,7 +2,7 @@
 import ProfileComponent from "@/app/component/profile/ProfileComponent";
 import { prisma } from "../../../../lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/auth-options";
 import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {
@@ -75,3 +75,4 @@ export default async function ProfilePage() {
     </div>
   );
 }
+

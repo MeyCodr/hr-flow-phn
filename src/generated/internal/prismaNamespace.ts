@@ -391,6 +391,7 @@ export const ModelName = {
   FormType: 'FormType',
   FormSubmission: 'FormSubmission',
   FileAttachment: 'FileAttachment',
+  ManpowerUpload: 'ManpowerUpload',
   ApprovalFlowStep: 'ApprovalFlowStep',
   Approval: 'Approval',
   PasswordResetToken: 'PasswordResetToken',
@@ -410,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "division" | "department" | "section" | "formType" | "formSubmission" | "fileAttachment" | "approvalFlowStep" | "approval" | "passwordResetToken" | "approvalStepApprover"
+    modelProps: "user" | "division" | "department" | "section" | "formType" | "formSubmission" | "fileAttachment" | "manpowerUpload" | "approvalFlowStep" | "approval" | "passwordResetToken" | "approvalStepApprover"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -876,6 +877,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ManpowerUpload: {
+      payload: Prisma.$ManpowerUploadPayload<ExtArgs>
+      fields: Prisma.ManpowerUploadFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ManpowerUploadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManpowerUploadPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ManpowerUploadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManpowerUploadPayload>
+        }
+        findFirst: {
+          args: Prisma.ManpowerUploadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManpowerUploadPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ManpowerUploadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManpowerUploadPayload>
+        }
+        findMany: {
+          args: Prisma.ManpowerUploadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManpowerUploadPayload>[]
+        }
+        create: {
+          args: Prisma.ManpowerUploadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManpowerUploadPayload>
+        }
+        createMany: {
+          args: Prisma.ManpowerUploadCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ManpowerUploadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManpowerUploadPayload>
+        }
+        update: {
+          args: Prisma.ManpowerUploadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManpowerUploadPayload>
+        }
+        deleteMany: {
+          args: Prisma.ManpowerUploadDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ManpowerUploadUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ManpowerUploadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManpowerUploadPayload>
+        }
+        aggregate: {
+          args: Prisma.ManpowerUploadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateManpowerUpload>
+        }
+        groupBy: {
+          args: Prisma.ManpowerUploadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ManpowerUploadGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ManpowerUploadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ManpowerUploadCountAggregateOutputType> | number
+        }
+      }
+    }
     ApprovalFlowStep: {
       payload: Prisma.$ApprovalFlowStepPayload<ExtArgs>
       fields: Prisma.ApprovalFlowStepFieldRefs
@@ -1266,6 +1333,22 @@ export const FileAttachmentScalarFieldEnum = {
 export type FileAttachmentScalarFieldEnum = (typeof FileAttachmentScalarFieldEnum)[keyof typeof FileAttachmentScalarFieldEnum]
 
 
+export const ManpowerUploadScalarFieldEnum = {
+  id: 'id',
+  fileName: 'fileName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  fileContent: 'fileContent',
+  employeeData: 'employeeData',
+  recordCount: 'recordCount',
+  uploadedById: 'uploadedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ManpowerUploadScalarFieldEnum = (typeof ManpowerUploadScalarFieldEnum)[keyof typeof ManpowerUploadScalarFieldEnum]
+
+
 export const ApprovalFlowStepScalarFieldEnum = {
   id: 'id',
   formTypeId: 'formTypeId',
@@ -1409,6 +1492,14 @@ export const FileAttachmentOrderByRelevanceFieldEnum = {
 export type FileAttachmentOrderByRelevanceFieldEnum = (typeof FileAttachmentOrderByRelevanceFieldEnum)[keyof typeof FileAttachmentOrderByRelevanceFieldEnum]
 
 
+export const ManpowerUploadOrderByRelevanceFieldEnum = {
+  fileName: 'fileName',
+  fileType: 'fileType'
+} as const
+
+export type ManpowerUploadOrderByRelevanceFieldEnum = (typeof ManpowerUploadOrderByRelevanceFieldEnum)[keyof typeof ManpowerUploadOrderByRelevanceFieldEnum]
+
+
 export const ApprovalOrderByRelevanceFieldEnum = {
   status: 'status',
   remarks: 'remarks'
@@ -1476,6 +1567,13 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'Bytes'
+ */
+export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
     
 
 
@@ -1594,6 +1692,7 @@ export type GlobalOmitConfig = {
   formType?: Prisma.FormTypeOmit
   formSubmission?: Prisma.FormSubmissionOmit
   fileAttachment?: Prisma.FileAttachmentOmit
+  manpowerUpload?: Prisma.ManpowerUploadOmit
   approvalFlowStep?: Prisma.ApprovalFlowStepOmit
   approval?: Prisma.ApprovalOmit
   passwordResetToken?: Prisma.PasswordResetTokenOmit
