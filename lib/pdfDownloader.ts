@@ -19,8 +19,8 @@ export interface FormPDFData {
   };
   approvals: ApprovalUser[];
 }
-
-const logoUrl = "/company-logo-phn.png";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH;
+const logoUrl = `${basePath}/company-logo-phn.png`;
 
 const loadImage = async (url: string): Promise<string> => {
   const res = await fetch(url);
