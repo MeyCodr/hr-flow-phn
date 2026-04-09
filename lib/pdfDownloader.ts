@@ -42,29 +42,30 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
     approvals,
   } = data;
 
-  const digitalSignedRow: string[] = new Array(5).fill("");
+  const digitalSignedRow: string[] = new Array(7).fill("");
   digitalSignedRow[0] = "Digital Signed";
 
   approvals.forEach((a) => {
     const index = a.stepOrder;
-    if (index >= 1 && index <= 5) {
-      digitalSignedRow[index - 1] = a.status === "APPROVED" ? "Digital Signed" : "";
+    if (index >= 1 && index <= 6) {
+      digitalSignedRow[index] = a.status === "APPROVED" ? "Digital Signed" : "";
     }
   });
 
-  const approverNames: string[] = new Array(5).fill("");
   const parsedFormData = formData as unknown as ManPowerTypes | null;
+  const approverNames: string[] = new Array(7).fill("");
+  approverNames[0] = createdBy.fullname || "-";
 
   approvals.forEach((a) => {
-    const index = a.stepOrder; // stepOrder 1 goes to index 1
-    if (index >= 1 && index <= 5) {
-      approverNames[index - 1] =
+    const index = a.stepOrder; // stepOrder 1 → column 1, 2 → column 2, etc.
+    if (index >= 1 && index <= 6) {
+      approverNames[index] =
         a.status === "APPROVED" ? a.approver?.name || "-" : "";
     }
   });
 
   // Dates row
-  const approverDates: string[] = new Array(5).fill("");
+  const approverDates: string[] = new Array(7).fill("");
 
   // Requested by date (index 0)
   approverDates[0] = parsedFormData?.createddate
@@ -73,9 +74,9 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
 
   // Approver dates
   approvals.forEach((a) => {
-    const index = a.stepOrder; // stepOrder: 1..5 for approvers
-    if (index >= 1 && index <= 5) {
-      approverDates[index - 1] = a.approvedAt
+    const index = a.stepOrder; // stepOrder: 1..6 for approvers
+    if (index >= 1 && index <= 6) {
+      approverDates[index] = a.approvedAt
         ? new Date(a.approvedAt).toLocaleDateString("en-GB")
         : "";
     }
@@ -242,13 +243,15 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
       "Requested by:",
       "Recommended by:",
       "Reviewed by:",
+      "Validated by:",
       "Verified by (Level 1):",
       "Verified by (Level 2):",
       "Approved by:",
     ],
     approverNames,
     [
-      "Head Section/Department",
+      "Form Requestor",
+      "Head of Department",
       "Head Division",
       "Head Talent/Acquisition",
       "Head Culture & Talent Management",
@@ -259,7 +262,7 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
     digitalSignedRow,
 
     [
-      { content: "", colSpan: 5 },
+      { content: "", colSpan: 6 },
       { content: approvalStatusBlock, styles: { halign: "left" } },
     ],
   ];
@@ -267,7 +270,7 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 14;
   const usableWidth = pageWidth - margin * 2;
-  const colWidth = usableWidth / 6;
+  const colWidth = usableWidth / 7;
 
   autoTable(doc, {
     startY: finalY,
@@ -280,7 +283,8 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
       // 2: { cellWidth: colWidth },
       // 3: { cellWidth: colWidth },
       // 4: { cellWidth: colWidth },
-      5: { cellWidth: colWidth, halign: "left" },
+      // 5: { cellWidth: colWidth },
+      6: { cellWidth: colWidth, halign: "left" },
     },
 
     didParseCell: (data) => {

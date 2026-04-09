@@ -39,9 +39,11 @@ export default function AdminComponent({
   const [selectedDivision, setSelectedDivision] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
 
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
   useEffect(() => {
     axios
-      .get("/api/division")
+      .get(`${basePath}/api/division`)
       .then((res) => setDivisions(res.data))
       .catch(console.error);
   }, []);
@@ -49,7 +51,7 @@ export default function AdminComponent({
   useEffect(() => {
     if (selectedDivision) {
       axios
-        .get(`/api/department?divisionId=${selectedDivision}`)
+        .get(`${basePath}/api/department?divisionId=${selectedDivision}`)
         .then((res) => setDepartments(res.data))
         .catch(console.error);
     } else {
@@ -61,7 +63,7 @@ export default function AdminComponent({
   useEffect(() => {
     if (selectedDepartment) {
       axios
-        .get(`/api/section?departmentId=${selectedDepartment}`)
+        .get(`${basePath}/api/section?departmentId=${selectedDepartment}`)
         .then((res) => setSections(res.data))
         .catch(console.error);
     } else {
