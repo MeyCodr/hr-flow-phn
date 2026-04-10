@@ -5,6 +5,7 @@ import { Department, Division, Section, UserType } from "@/app/types/types";
 import { UserForm } from "./UserForm";
 import axios from "axios";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { withBasePath } from "@/lib/base-path";
 
 interface UserListingProps {
   userListing: UserType[];
@@ -40,7 +41,7 @@ export default function UserListing({
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/user");
+      const res = await axios.get(withBasePath("/api/user"));
       const data = res.data;
       setUsers(Array.isArray(data) ? data : []);
     } catch (error) {

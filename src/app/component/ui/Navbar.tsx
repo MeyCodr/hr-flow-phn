@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import AccountDropdown from "./AccountDropdown";
@@ -68,11 +69,14 @@ export default function Navbar({
             {user ? getFirstName(user.fullname) : "Account"}
           </span>
           {user?.attachment ? (
-         <img
-                src={user.attachment}
-                alt="Profile"
-                className="object-cover w-8 h-8 rounded-full"
-              />
+            <Image
+              src={user.attachment}
+              alt="Profile"
+              width={32}
+              height={32}
+              sizes="32px"
+              className="object-cover w-8 h-8 rounded-full"
+            />
           ) : (
             <FaUserCircle className="text-2xl text-gray-300 hover:text-white transition-colors" />
           )}

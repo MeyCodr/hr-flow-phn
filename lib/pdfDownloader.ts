@@ -42,47 +42,56 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
     approvals,
   } = data;
 
-  const digitalSignedRow: string[] = new Array(7).fill("");
-  digitalSignedRow[0] = "Digital Signed";
+  const parsedFormData = formData as unknown as ManPowerTypes | null;
+  const uniqueStepOrders = [...new Set(approvals.map((a) => a.stepOrder))].sort(
+    (a, b) => a - b,
+  );
+  const hasRecommendedColumn = uniqueStepOrders.length === 6;
+  const colCount = hasRecommendedColumn ? 7 : 6;
+  const stepOrderToColumn = new Map(
+    uniqueStepOrders.map((stepOrder, index) => [stepOrder, index + 1]),
+  );
 
+  // When skipRecommended: stepOrder 2..6 → col 1..5 (offset = -1)
+  // Otherwise:           stepOrder 1..6 → col 1..6 (offset = 0)
+  const approverColIndex = (stepOrder: number) =>
+    stepOrderToColumn.get(stepOrder) ?? -1;
+
+  const digitalSignedRow: string[] = new Array(colCount).fill("");
+  digitalSignedRow[0] = "Digital Signed";
   approvals.forEach((a) => {
-    const index = a.stepOrder;
-    if (index >= 1 && index <= 6) {
-      digitalSignedRow[index] = a.status === "APPROVED" ? "Digital Signed" : "";
+    const col = approverColIndex(a.stepOrder);
+    if (col >= 1 && col < colCount) {
+      digitalSignedRow[col] = a.status === "APPROVED" ? "Digital Signed" : "";
     }
   });
 
-  const parsedFormData = formData as unknown as ManPowerTypes | null;
-  const approverNames: string[] = new Array(7).fill("");
+  const approverNames: string[] = new Array(colCount).fill("");
   approverNames[0] = createdBy.fullname || "-";
-
   approvals.forEach((a) => {
-    const index = a.stepOrder; // stepOrder 1 → column 1, 2 → column 2, etc.
-    if (index >= 1 && index <= 6) {
-      approverNames[index] =
+    const col = approverColIndex(a.stepOrder);
+    if (col >= 1 && col < colCount) {
+      approverNames[col] =
         a.status === "APPROVED" ? a.approver?.name || "-" : "";
     }
   });
 
-  // Dates row
-  const approverDates: string[] = new Array(7).fill("");
-
-  // Requested by date (index 0)
+  const approverDates: string[] = new Array(colCount).fill("");
   approverDates[0] = parsedFormData?.createddate
     ? new Date(parsedFormData.createddate).toLocaleDateString("en-GB")
     : "-";
-
-  // Approver dates
   approvals.forEach((a) => {
-    const index = a.stepOrder; // stepOrder: 1..6 for approvers
-    if (index >= 1 && index <= 6) {
-      approverDates[index] = a.approvedAt
+    const col = approverColIndex(a.stepOrder);
+    if (col >= 1 && col < colCount) {
+      approverDates[col] = a.approvedAt
         ? new Date(a.approvedAt).toLocaleDateString("en-GB")
         : "";
     }
   });
 
-  const finalStatus = approvals.find((a) => a.stepOrder === 5)?.status || "";
+  const finalStepOrder = uniqueStepOrders[uniqueStepOrders.length - 1];
+  const finalStatus =
+    approvals.find((a) => a.stepOrder === finalStepOrder)?.status || "";
 
   // Checkbox helper
   const checkbox = (selected: boolean) => (selected ? "[X]" : "[ ]");
@@ -239,30 +248,48 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
   // Approval table
 
   const approveData: RowInput[] = [
-    [
-      "Requested by:",
-      "Recommended by:",
-      "Reviewed by:",
-      "Validated by:",
-      "Verified by (Level 1):",
-      "Verified by (Level 2):",
-      "Approved by:",
-    ],
+    hasRecommendedColumn
+      ? [
+          "Requested by:",
+          "Recommended by:",
+          "Reviewed by:",
+          "Validated by:",
+          "Verified by (Level 1):",
+          "Verified by (Level 2):",
+          "Approved by:",
+        ]
+      : [
+          "Requested by:",
+          "Reviewed by:",
+          "Validated by:",
+          "Verified by (Level 1):",
+          "Verified by (Level 2):",
+          "Approved by:",
+        ],
     approverNames,
-    [
-      "Form Requestor",
-      "Head of Department",
-      "Head Division",
-      "Head Talent/Acquisition",
-      "Head Culture & Talent Management",
-      "Head Human Capital & ESG",
-      "Chief Executive Officer",
-    ],
+    hasRecommendedColumn
+      ? [
+          "Form Requestor",
+          "Head of Department",
+          "Head Division",
+          "Head Talent/Acquisition",
+          "Head Culture & Talent Management",
+          "Head Human Capital & ESG",
+          "Chief Executive Officer",
+        ]
+      : [
+          "Form Requestor",
+          "Head Division",
+          "Head Talent/Acquisition",
+          "Head Culture & Talent Management",
+          "Head Human Capital & ESG",
+          "Chief Executive Officer",
+        ],
     approverDates.map((d) => `Date: ${d}`),
     digitalSignedRow,
 
     [
-      { content: "", colSpan: 6 },
+      { content: "", colSpan: colCount - 1 },
       { content: approvalStatusBlock, styles: { halign: "left" } },
     ],
   ];
@@ -270,7 +297,7 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 14;
   const usableWidth = pageWidth - margin * 2;
-  const colWidth = usableWidth / 7;
+  const colWidth = usableWidth / colCount;
 
   autoTable(doc, {
     startY: finalY,
@@ -284,7 +311,7 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
       // 3: { cellWidth: colWidth },
       // 4: { cellWidth: colWidth },
       // 5: { cellWidth: colWidth },
-      6: { cellWidth: colWidth, halign: "left" },
+      [colCount - 1]: { cellWidth: colWidth, halign: "left" },
     },
 
     didParseCell: (data) => {

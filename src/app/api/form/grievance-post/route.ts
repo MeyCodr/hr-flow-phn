@@ -5,12 +5,10 @@ import path from "path";
 import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
-import { ApprovalStepApprover, Prisma, User } from "@/generated/client";
+import { Prisma, User } from "@/generated/client";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
-
-type ManualApproverWithUser = ApprovalStepApprover & { user: User };
 
 export async function POST(req: NextRequest) {
   try {
@@ -283,32 +281,5 @@ export async function POST(req: NextRequest) {
     console.error("Error creating form record:", error);
     return NextResponse.json({ error: error }, { status: 500 });
   }
-}
-
-async function resolveStep1Approvers(user: User) {
-  if (!user.departmentId) {
-    throw new Error("User has no departmentId for step 1");
-  }
-
-  // Head of Department (TO)
-  const hod = await prisma.user.findFirst({
-    where: { role: "HEAD_OF_DEPARTMENT", departmentId: user.departmentId },
-  });
-
-  if (!hod) {
-    throw new Error("Head of Department not found for user's department");
-  }
-
-  // Head of Division (CC)
-  const hodiv = user.divisionId
-    ? await prisma.user.findFirst({
-        where: { role: "HEAD_OF_DIVISION", divisionId: user.divisionId },
-      })
-    : null;
-
-  return {
-    to: hod,
-    cc: hodiv ? [hodiv] : [],
-  };
 }
 

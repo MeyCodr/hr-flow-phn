@@ -2,7 +2,7 @@
 
 import { SelfForm, SelfFormData, UserType } from "@/app/types/types";
 import Tabs, { TabItem } from "../ui/Tabs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import PendingContent from "./pendingComponent/PendingContent";
 import SubmissionContent from "./submissionComponent/SubmissionContent";
@@ -10,6 +10,8 @@ import HistoryContent from "./historyComponent/HistoryContent";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import ViewSubmission from "../form/ViewSubmission";
+import { withBasePath } from "@/lib/base-path";
+import { Toaster } from "react-hot-toast";
 
 interface User {
   fullname: string;
@@ -54,6 +56,8 @@ interface ApprovalComponentProps {
   user: UserType;
 }
 
+type ViewSource = "pending" | "submissions" | "history";
+
 export default function ApprovalComponent({
   pendingApprovals,
   selfForms,
@@ -65,28 +69,24 @@ export default function ApprovalComponent({
   const [viewedFormData, setViewedFormData] = useState<SelfFormData | null>(
     null
   );
+  const [viewSource, setViewSource] = useState<ViewSource>("pending");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const approvalRoute = "/dashboard/approval";
+  const approvalPagePath = withBasePath(approvalRoute);
 
   useEffect(() => {
     const id = searchParams.get("id");
-    if (!id && pathname === "/dashboard/approval") {
+    if (!id && (pathname === approvalRoute || pathname === approvalPagePath)) {
       setIsViewing(false);
       setViewedFormData(null);
+      setViewSource("pending");
     }
-  }, [pathname, searchParams]);
+  }, [approvalPagePath, approvalRoute, pathname, searchParams]);
 
-  useEffect(() => {
-    const id = searchParams.get("id");
-    const name = searchParams.get("name");
-    if (id && name && (!viewedFormData || viewedFormData.id !== Number(id))) {
-      handleViewForm(Number(id), name);
-    }
-  }, [searchParams]);
-
-  const refreshData = async () => {
-    const res = await axios.get("/api/approval-form/fetch");
+  const refreshData = useCallback(async () => {
+    const res = await axios.get(withBasePath("/api/approval-form/fetch"));
     if (res.data) {
       setApprovals(res.data.pendingApprovals);
       setForms(
@@ -96,34 +96,47 @@ export default function ApprovalComponent({
         }))
       );
     }
-  };
+  }, []);
 
   useEffect(() => {
     refreshData();
-  }, []);
+  }, [refreshData]);
 
-  const handleViewForm = async (formId: number, formName: string) => {
-    setIsViewing(true);
-    try {
-      const [formRes, approvalRes] = await Promise.all([
-        axios.get(`/api/form/${formId}`),
-        axios.get(`/api/get-approval/${formId}`),
-      ]);
-      const formData = formRes.data;
-      const approvalsWithNames = approvalRes.data.approvals;
+  const handleViewForm = useCallback(
+    async (formId: number, formName: string, source: ViewSource) => {
+      setIsViewing(true);
+      setViewSource(source);
+      try {
+        const [formRes, approvalRes] = await Promise.all([
+          axios.get(withBasePath(`/api/form/${formId}`)),
+          axios.get(withBasePath(`/api/get-approval/${formId}`)),
+        ]);
+        const formData = formRes.data;
+        const approvalsWithNames = approvalRes.data.approvals;
 
-      router.replace(`/dashboard/approval?id=${formId}&name=${formName}`);
+        router.replace(`${approvalRoute}?id=${formId}&name=${formName}`);
 
-      setViewedFormData({ ...formData, approvals: approvalsWithNames });
-    } catch (error) {
-      console.error(error);
+        setViewedFormData({ ...formData, approvals: approvalsWithNames });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [approvalRoute, router],
+  );
+
+  useEffect(() => {
+    const id = searchParams.get("id");
+    const name = searchParams.get("name");
+    if (id && name && (!viewedFormData || viewedFormData.id !== Number(id))) {
+      handleViewForm(Number(id), name, viewSource);
     }
-  };
+  }, [handleViewForm, searchParams, viewSource, viewedFormData]);
 
   const handleBack = () => {
     setIsViewing(false);
     setViewedFormData(null);
-    router.push(`/dashboard/approval`);
+    setViewSource("pending");
+    router.push(approvalRoute);
   };
 
   const contentVariants: Variants = {
@@ -154,14 +167,22 @@ export default function ApprovalComponent({
       {}
     );
 
-    const totalLevel = Object.keys(grouped).length; // unique steps
+    const uniqueStepOrders = Object.keys(grouped)
+      .map(Number)
+      .sort((a, b) => a - b);
+    const stepOrderToLevel = new Map(
+      uniqueStepOrders.map((stepOrder, index) => [stepOrder, index + 1]),
+    );
+    const totalLevel = uniqueStepOrders.length; // unique steps
 
     // Find active step: first step containing ANY PENDING approval
     const activeStep = Object.values(grouped).find((stepGroup) =>
       stepGroup.some((a) => a.status === "PENDING")
     );
 
-    const activeLevel = activeStep ? activeStep[0].stepOrder : totalLevel; // if none pending, last level is active
+    const activeLevel = activeStep
+      ? (stepOrderToLevel.get(activeStep[0].stepOrder) ?? totalLevel)
+      : totalLevel; // if none pending, last level is active
 
     return {
       ...form,
@@ -228,6 +249,9 @@ export default function ApprovalComponent({
 
   return (
     <div className="flex my-6 w-full max-w-6xl">
+      <div className="text-sm">
+        <Toaster position="top-right" />
+      </div>
       <AnimatePresence mode="wait">
         {isViewing && viewedFormData ? (
           <motion.div
@@ -239,10 +263,10 @@ export default function ApprovalComponent({
             className="w-full"
           >
             <ViewSubmission
-            approvals={approvals}
               selfForm={viewedFormData}
               onBack={handleBack}
               onActionComplete={refreshData}
+              allowActions={viewSource === "pending"}
             />
           </motion.div>
         ) : (

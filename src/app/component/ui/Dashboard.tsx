@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { UserType } from "@/app/types/types";
 import { useSession } from "next-auth/react";
 import axios from "axios";
+import { withBasePath } from "@/lib/base-path";
 
 // Dummy tab components
 function DashboardTab() {
@@ -43,10 +44,6 @@ export default function Dashboard() {
     profile: "/profile",
     setting: "/setting",
   };
-
-  useEffect(() => {
-    getUser();
-  }, [session]);
 
   // derive tab name from current pathname
   const getTabFromPath = useCallback((): string => {
@@ -86,15 +83,21 @@ export default function Dashboard() {
     setting: <SettingTab />,
   };
 
-  const getUser = async () => {
+  const getUser = useCallback(async () => {
     if (!session) return;
     try {
-      const res = await axios.get(`/api/user/${session.user.staffid}`);
+      const res = await axios.get(
+        withBasePath(`/api/user/${session.user.staffid}`),
+      );
       setUser(res.data.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [session]);
+
+  useEffect(() => {
+    getUser();
+  }, [getUser]);
 
   return (
     <div className="flex min-h-screen bg-gray-100 relative overflow-hidden">

@@ -6,7 +6,7 @@ import PaginatedList from "../../ui/PaginatedList";
 interface SubmissionContentProps {
   formsWithLevels: SelfForm[];
   user: UserType;
-  onViewForm: (formId: number, formName: string) => void;
+  onViewForm: (formId: number, formName: string, source: "submissions") => void;
 }
 
 export default function SubmissionContent({
@@ -35,7 +35,7 @@ export default function SubmissionContent({
           activeLevel={form.activeLevel ?? 0}
           roles={user.role}
           status={form.status}
-          onClick={() => onViewForm(form.id, form.formType.name)}
+          onClick={() => onViewForm(form.id, form.formType.name, "submissions")}
         />
       )}
     />

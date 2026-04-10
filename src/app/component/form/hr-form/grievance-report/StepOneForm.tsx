@@ -64,6 +64,7 @@ function StepOneForm({
       setSelectedDepartment(userInfo.departmentId.toString());
     if (userInfo.sectionId) setSelectedSection(userInfo.sectionId.toString());
   }, [
+    setData,
     userInfo,
     setSelectedDivision,
     setSelectedDepartment,

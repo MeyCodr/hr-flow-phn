@@ -6,6 +6,7 @@ import { transporter } from "../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
 import { ApprovalStepApprover, Prisma, User } from "@/generated/client";
+import { formatFileSize, MAX_FORM_ATTACHMENT_BYTES } from "@/lib/uploadLimits";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -31,6 +32,20 @@ export async function POST(req: NextRequest) {
     const user = JSON.parse(formData.get("user") as string);
     const formId = Number(formData.get("formId"));
     const data = JSON.parse(formData.get("data") as string);
+    const totalFileSize = files.reduce((sum, entry) => {
+      return entry instanceof File ? sum + entry.size : sum;
+    }, 0);
+
+    if (totalFileSize > MAX_FORM_ATTACHMENT_BYTES) {
+      return NextResponse.json(
+        {
+          error: `Total attachment size must be ${formatFileSize(
+            MAX_FORM_ATTACHMENT_BYTES,
+          )} or less.`,
+        },
+        { status: 413 },
+      );
+    }
 
     // ✅ Validate user
     if (!user) {
@@ -131,8 +146,23 @@ export async function POST(req: NextRequest) {
     }
 
     const assignedApprovers: number[] = [];
+    const shouldSkipFirstDepartmentApprovalForManpower =
+      formType.name === "Man Power Requisition" &&
+      findUser.role === "HEAD_OF_DEPARTMENT";
+    let firstActiveStepOrder: number | null = null;
+    let hasSkippedInitialDepartmentStep = false;
 
     for (const step of approvalFlowSteps) {
+      if (
+        shouldSkipFirstDepartmentApprovalForManpower &&
+        !hasSkippedInitialDepartmentStep &&
+        firstActiveStepOrder === null &&
+        step.role === "HEAD_OF_DEPARTMENT"
+      ) {
+        hasSkippedInitialDepartmentStep = true;
+        continue;
+      }
+
       const baseWhere: Prisma.UserWhereInput = {
         role: step.role,
         id: { notIn: assignedApprovers },
@@ -199,10 +229,18 @@ export async function POST(req: NextRequest) {
       }
       // Prevent duplicates
       approvers = approvers.filter(
-        (a: User) => !assignedApprovers.includes(a.id),
+        (a: User) => a.id !== findUser.id && !assignedApprovers.includes(a.id),
       );
 
+      if (approvers.length === 0) {
+        continue;
+      }
+
       assignedApprovers.push(...approvers.map((a: User) => a.id));
+
+      if (firstActiveStepOrder === null) {
+        firstActiveStepOrder = step.order;
+      }
 
       // 3️⃣ Create all approvals for this step with deadline for step 1
       await prisma.approval.createMany({
@@ -210,16 +248,26 @@ export async function POST(req: NextRequest) {
           submissionId: formSubmission.id,
           approverId: u.id,
           stepOrder: step.order,
-          status: step.order === 1 ? "PENDING" : "WAITING",
+          status: step.order === firstActiveStepOrder ? "PENDING" : "WAITING",
           // deadline: step.order === 1 ? new Date(Date.now() + 5 * 60 * 1000) : null,
           // escalated: false,
         })),
       });
     }
 
-    // ✅ Fetch the first-step approvers (order = 1)
+    if (firstActiveStepOrder === null) {
+      return NextResponse.json(
+        { error: "No valid approvers found for this form submission." },
+        { status: 400 },
+      );
+    }
+
+    // ✅ Fetch the first active approvers
     const firstStepApprovers = await prisma.approval.findMany({
-      where: { submissionId: formSubmission.id, stepOrder: 1 },
+      where: {
+        submissionId: formSubmission.id,
+        stepOrder: firstActiveStepOrder,
+      },
       include: { approver: true },
     });
 

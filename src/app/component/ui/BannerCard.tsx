@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { FaClipboardList } from "react-icons/fa6";
@@ -5,12 +6,14 @@ import { FaCalendarAlt } from "react-icons/fa";
 import PrimaryButton from "./PrimaryButton";
 import axios from "axios";
 import ActionModal from "./ActionModal";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
+import { withBasePath } from "@/lib/base-path";
 
 export interface BannerCardProps {
   approvalId?: number;
   approvalUserId?: number;
   currentUserId?: number;
+  allowActions?: boolean;
   title: string;
   name: string;
   createddate: string;
@@ -29,6 +32,7 @@ export default function BannerCard({
   approvalId,
   approvalUserId,
   currentUserId,
+  allowActions = false,
   title,
   name,
   createddate,
@@ -74,16 +78,22 @@ export default function BannerCard({
 
     setLoading(true);
     try {
-      await axios.post("/api/approval-form/action", {
+      await axios.post(withBasePath("/api/approval-form/action"), {
         approvalId,
         action: actionType,
         remarks,
       });
-      toast.success("Form has been processed successfully.");
+      toast.success("Form has been processed successfully.", {
+        id: `approval-success-${approvalId}`,
+        duration: 3000,
+      });
       if (onActionComplete) await onActionComplete();
     } catch (error) {
       console.error("Error handling approval action:", error);
-      toast.error("There was an error processing the form. Please try again.");
+      toast.error("There was an error processing the form. Please try again.", {
+        id: `approval-error-${approvalId}`,
+        duration: 4000,
+      });
     } finally {
       setLoading(false);
       setConfirmModalOpen(false);
@@ -104,7 +114,10 @@ export default function BannerCard({
 
   const isMyApproval = approvalUserId === currentUserId;
   const canApprove =
-    isMyApproval && status === "PENDING" && currentLevel === activeLevel;
+    allowActions &&
+    isMyApproval &&
+    status === "PENDING" &&
+    currentLevel === activeLevel;
 
   const parts = name.trim().split(/\s+/);
   const initials =
@@ -114,9 +127,6 @@ export default function BannerCard({
 
   return (
     <>
-      <div className="text-sm">
-        <Toaster position="top-right" />
-      </div>
       <div
         onClick={openForm}
         className="bg-white w-full rounded-xl border border-gray-300 shadow-sm hover:shadow-md hover:bg-indigo-50 transition-all duration-200 p-4 cursor-pointer"
@@ -126,9 +136,12 @@ export default function BannerCard({
           <div className="flex items-start gap-3 w-full">
             <div className="bg-indigo-700 text-white font-semibold w-10 h-10 flex items-center justify-center rounded-full text-sm overflow-hidden">
               {profileImg ? (
-                <img
+                <Image
                   src={profileImg}
                   alt="Profile"
+                  width={40}
+                  height={40}
+                  sizes="40px"
                   className="w-full h-full object-cover"
                 />
               ) : (

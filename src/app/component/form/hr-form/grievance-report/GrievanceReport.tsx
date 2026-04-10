@@ -13,6 +13,7 @@ import { DynamicFormProps } from "../HrFormsClient";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import ActionModal from "@/app/component/ui/ActionModal";
+import { withBasePath } from "@/lib/base-path";
 
 export default function GrievanceReport({
   divisions,
@@ -64,7 +65,7 @@ export default function GrievanceReport({
 
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`/api/user/${staffid}`);
+        const res = await axios.get(withBasePath(`/api/user/${staffid}`));
         const userInfo = res.data.data;
         setData((prev) => ({
           ...prev,
@@ -127,7 +128,7 @@ export default function GrievanceReport({
 
     setLoading(true);
     try {
-      await axios.post(`/api/form/grievance-post`, formData, {
+      await axios.post(withBasePath(`/api/form/grievance-post`), formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Form submitted successfully!");

@@ -13,6 +13,7 @@ import { fullUserInfo } from "@/app/types/types";
 import LoadingScreen from "../ui/LoadingScreen";
 import toast, { Toaster } from "react-hot-toast";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 function FormInfo({
   divisions,
@@ -51,7 +52,7 @@ function FormInfo({
 
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`/api/user/${staffid}`);
+        const res = await axios.get(withBasePath(`/api/user/${staffid}`));
         const userInfo = res.data.data;
         setUserInfo(userInfo);
       } catch (error) {
@@ -118,12 +119,14 @@ function FormInfo({
     setLoading(true);
     const toastId = "";
     try {
-      const res = await axios.put(`/api/user/${data.staffid}`, data);
+      const res = await axios.put(withBasePath(`/api/user/${data.staffid}`), data);
       if (res.status === 200) {
         toast.success("Information has been updated", { id: toastId });
 
         // ✅ manually re-fetch the updated user info
-        const updatedRes = await axios.get(`/api/user/${data.staffid}`);
+        const updatedRes = await axios.get(
+          withBasePath(`/api/user/${data.staffid}`),
+        );
         setUserInfo(updatedRes.data.data);
       }
     } catch (error) {

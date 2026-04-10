@@ -5,6 +5,7 @@ import { SelfFormData } from "@/app/types/types";
 import ViewSubmission from "../../form/ViewSubmission";
 import axios from "axios";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { withBasePath } from "@/lib/base-path";
 
 interface FormSubmissionProps {
   formSubmission: SelfFormData[];
@@ -29,7 +30,7 @@ export default function FormSubmission({
   const fetchFormSubmission = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/form`);
+      const res = await axios.get(withBasePath(`/api/form`));
       console.log("res: ", res.data);
       setForm(res.data);
     } catch (error) {

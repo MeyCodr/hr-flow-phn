@@ -8,7 +8,11 @@ interface HistoryContentProps {
   approvalsHistory: Approval[];
   userFormsHistory: SelfForm[];
   user: UserType;
-  onViewForm: (formId: number, formName: string) => void;
+  onViewForm: (
+    formId: number,
+    formName: string,
+    source: "history",
+  ) => void;
 }
 
 // Define a unified item type for pagination
@@ -67,7 +71,7 @@ export default function HistoryContent({
               roles={user.role}
               status={approval.status}
               onClick={() =>
-                onViewForm(submission.id, submission.formType.name)
+                onViewForm(submission.id, submission.formType.name, "history")
               }
             />
           );
@@ -86,7 +90,7 @@ export default function HistoryContent({
               activeLevel={form.activeLevel ?? 0}
               roles={user.role}
               status={form.status}
-              onClick={() => onViewForm(form.id, form.formType.name)}
+              onClick={() => onViewForm(form.id, form.formType.name, "history")}
             />
           );
         }

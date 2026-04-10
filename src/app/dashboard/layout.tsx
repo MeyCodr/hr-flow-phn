@@ -3,12 +3,13 @@
 import Sidebar from "@/app/component/ui/Sidebar";
 import Navbar from "@/app/component/ui/Navbar";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { UserType } from "../types/types";
 import useSessionManager from "../component/session/useSessionManager";
+import { withBasePath } from "@/lib/base-path";
 
 export default function DashboardLayout({
   children,
@@ -37,10 +38,6 @@ export default function DashboardLayout({
   };
 
   useEffect(() => {
-    getUser();
-  }, [session]);
-
-  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -51,15 +48,21 @@ export default function DashboardLayout({
     router.push(`/dashboard/${tab}`);
   };
 
-  const getUser = async () => {
+  const getUser = useCallback(async () => {
     if (!session) return;
     try {
-      const res = await axios.get(`/api/user/${session.user.staffid}`);
+      const res = await axios.get(
+        withBasePath(`/api/user/${session.user.staffid}`),
+      );
       setUser(res.data.data);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [session]);
+
+  useEffect(() => {
+    getUser();
+  }, [getUser]);
 
   return (
     <>

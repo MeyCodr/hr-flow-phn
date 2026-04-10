@@ -3,9 +3,6 @@ import { prisma } from "../../../../../lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
 
-const emailFrom = process.env.EMAIL;
-const webLink = process.env.NEXTAUTH_URL;
-
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
@@ -64,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(createEmployeeReview);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

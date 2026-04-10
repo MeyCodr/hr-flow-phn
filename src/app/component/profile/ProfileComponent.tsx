@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import DisplayProfile from "./DisplayProfile";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
+import { withBasePath } from "@/lib/base-path";
 
 export interface UserProfile {
   id: number;
@@ -62,7 +63,7 @@ export default function ProfileComponent({
 
   useEffect(() => {
     axios
-      .get("/api/division")
+      .get(withBasePath("/api/division"))
       .then((res) => setDivisions(res.data))
       .catch(console.error);
   }, []);
@@ -70,7 +71,7 @@ export default function ProfileComponent({
   useEffect(() => {
     if (selectedDivision) {
       axios
-        .get(`/api/department?divisionId=${selectedDivision}`)
+        .get(withBasePath(`/api/department?divisionId=${selectedDivision}`))
         .then((res) => {
           setDepartments(res.data);
           setSections([]);
@@ -87,7 +88,7 @@ export default function ProfileComponent({
   useEffect(() => {
     if (selectedDepartment) {
       axios
-        .get(`/api/section?departmentId=${selectedDepartment}`)
+        .get(withBasePath(`/api/section?departmentId=${selectedDepartment}`))
         .then((res) => setSections(res.data))
         .catch(console.error);
     } else setSections([]);

@@ -15,6 +15,7 @@ import { useSession } from "next-auth/react";
 import { TbBrandGoogleAnalytics } from "react-icons/tb";
 import { GrUserWorker } from "react-icons/gr";
 import axios from "axios";
+import { withBasePath } from "@/lib/base-path";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -54,7 +55,9 @@ export default function Sidebar({
 
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`/api/user/${session.user.staffid}`);
+        const res = await axios.get(
+          withBasePath(`/api/user/${session.user.staffid}`),
+        );
         const user = res.data.data;
         setUser(user);
       } catch (err) {

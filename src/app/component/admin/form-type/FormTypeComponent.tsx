@@ -5,6 +5,7 @@ import { FormType } from "@/generated/client";
 import FormTypeForm from "./FormTypeForm";
 import axios from "axios";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { withBasePath } from "@/lib/base-path";
 
 interface FormTypeComponentProps {
   formType: FormType[];
@@ -29,7 +30,7 @@ export default function FormTypeComponent({
   const fetchFormType = async () => {
     try {
       setLoading(true);
-      const res = await axios.get<FormType[]>(`/api/form-type`);
+      const res = await axios.get<FormType[]>(withBasePath(`/api/form-type`));
       setForms(res.data);
       setIsAdding(false);
     } catch (error) {

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useRef, useState } from "react";
 import { ProfileComponentProps } from "./ProfileComponent";
 import {
@@ -12,6 +13,7 @@ import {
 } from "react-icons/lu";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import { withBasePath } from "@/lib/base-path";
 
 export default function DisplayProfile({
   userProfile,
@@ -33,7 +35,7 @@ export default function DisplayProfile({
       const formData = new FormData();
       formData.append("file", file);
 
-      await axios.post(`/api/user/${userSession?.staffid}`, formData, {
+      await axios.post(withBasePath(`/api/user/${userSession?.staffid}`), formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -70,15 +72,19 @@ export default function DisplayProfile({
             onClick={handleClick}
           >
             {profileImage ? (
-              <img
+              <Image
                 src={profileImage}
                 alt="Profile"
+                fill
+                sizes="112px"
                 className="object-cover w-full h-full"
               />
             ) : userProfile?.attachment ? (
-              <img
+              <Image
                 src={userProfile.attachment}
                 alt="Profile"
+                fill
+                sizes="112px"
                 className="object-cover w-full h-full"
               />
             ) : (

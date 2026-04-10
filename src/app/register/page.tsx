@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import LoadingScreen from "../component/ui/LoadingScreen";
 import { Department, Division, Section } from "../types/types";
+import { withBasePath } from "@/lib/base-path";
 
 export default function Register() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function Register() {
 
   useEffect(() => {
     axios
-      .get("/api/division")
+      .get(withBasePath("/api/division"))
       .then((res) => {
         setDivisions(res.data);
       })
@@ -41,7 +42,7 @@ export default function Register() {
   useEffect(() => {
     if (selectedDivision && selectedDivision !== "0") {
       axios
-        .get(`/api/department?divisionId=${selectedDivision}`)
+        .get(withBasePath(`/api/department?divisionId=${selectedDivision}`))
         .then((res) => {
           setDepartments(res.data);
           setSections([]); // clear sections
@@ -59,7 +60,7 @@ export default function Register() {
   useEffect(() => {
     if (selectedDepartment && selectedDepartment !== "0") {
       axios
-        .get(`/api/section?departmentId=${selectedDepartment}`)
+        .get(withBasePath(`/api/section?departmentId=${selectedDepartment}`))
         .then((res) => setSections(res.data))
         .catch(console.error);
     } else {
@@ -74,7 +75,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await axios.post(`/api/user`, values);
+      const response = await axios.post(withBasePath(`/api/user`), values);
       if (response.status === 201) {
         toast.success("Account created!", { id: toastId });
 

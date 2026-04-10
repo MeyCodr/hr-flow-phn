@@ -2,6 +2,7 @@ import CheckBox from "@/app/component/ui/CheckBox";
 import Label from "@/app/component/ui/Label";
 import { GrievanceReportTypes, SelfFormData } from "@/app/types/types";
 import { useState } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 interface StepFour {
   data: GrievanceReportTypes;
@@ -33,7 +34,7 @@ function StepFourForm({
     const doc = fileData && fileData[0]?.fileName;
     if (!doc) return;
 
-    const url = `/api/uploads/${encodeURIComponent(doc)}`;
+    const url = withBasePath(`/api/uploads/${encodeURIComponent(doc)}`);
     const link = document.createElement("a");
     link.href = url;
     link.download = doc;

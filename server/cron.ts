@@ -1,5 +1,5 @@
-require("dotenv").config();
-const cron = require("node-cron");
+import "dotenv/config";
+import cron from "node-cron";
 
 const link = process.env.NEXTAUTH_URL;
 
@@ -14,7 +14,7 @@ cron.schedule("*/2 * * * *", async () => {
 
     const data = await res.json();
     console.log("Cron job executed:", data);
-  } catch (err) {
-    console.error("Escalation cron error:", err);
+  } catch (error) {
+    console.error("Escalation cron error:", error);
   }
 });

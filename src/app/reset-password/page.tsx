@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import LoadingScreen from "../component/ui/LoadingScreen";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
+import { withBasePath } from "@/lib/base-path";
 import {
   Password,
   ResetPasswordForm,
@@ -37,7 +38,10 @@ function ResetPasswordContent() {
     if (!token) return;
 
     try {
-      const res = await axios.put(`/api/user/forget-password/${token}`, values);
+      const res = await axios.put(
+        withBasePath(`/api/user/forget-password/${token}`),
+        values,
+      );
       if (res.status === 200) {
         toast.success("Password has been reset!");
         setTimeout(() => {

@@ -9,6 +9,7 @@ import { IoReturnDownBack } from "react-icons/io5";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { Role } from "@/generated/client";
+import { withBasePath } from "@/lib/base-path";
 
 
 interface UserFormProps {
@@ -68,7 +69,7 @@ function UserForm({
       section: data.sectionId?.toString() || "",
     };
     try {
-      await axios.put(`/api/user/${data.staffid}`, formattedData);
+      await axios.put(withBasePath(`/api/user/${data.staffid}`), formattedData);
       toast.success("Successfully updated user");
       onUpdate(); // 👈 notify parent to refresh data
     } catch (error) {

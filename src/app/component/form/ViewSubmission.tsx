@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { IoReturnDownBack } from "react-icons/io5";
 import { MdOutlineFileDownload } from "react-icons/md";
 import axios from "axios";
@@ -19,6 +19,7 @@ import { FormStatus } from "@/generated/client";
 import { sanitizeName } from "../../../../lib/utils";
 import { downloadFormPDF } from "../../../../lib/pdfDownloader";
 import { HrFormComponents } from "../../../../lib/hrformcomponents";
+import { withBasePath } from "@/lib/base-path";
 
 import LoadingScreen from "../ui/LoadingScreen";
 import PrimaryButton from "../ui/PrimaryButton";
@@ -32,14 +33,8 @@ interface ViewSubmissionProps {
   onBack?: () => void;
   selfForm: SelfFormData;
   onActionComplete?: () => void;
-  approvals?: Approval[];
+  allowActions?: boolean;
 }
-
-type FormData = {
-  division: string;
-  department: string;
-  section: string;
-};
 
 type EditedApproval = {
   status: FormStatus;
@@ -50,15 +45,8 @@ export default function ViewSubmission({
   onBack,
   selfForm,
   onActionComplete,
-  approvals,
+  allowActions = true,
 }: ViewSubmissionProps) {
-  const [divisions, setDivisions] = useState<Division[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [sections, setSections] = useState<Section[]>([]);
-  const [selectedDivision, setSelectedDivision] = useState<string>("");
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
-  const [selectedSection, setSelectedSection] = useState<string>("");
-  const [, setSelectedWorkLocation] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
   const { data: session } = useSession();
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
@@ -82,8 +70,23 @@ export default function ViewSubmission({
   }, [session]);
 
   useEffect(() => {
-    if (user) findUser();
+    setForm(selfForm);
+  }, [selfForm]);
+
+  const findUser = useCallback(async () => {
+    if (!user?.staffid) return;
+
+    try {
+      const res = await axios.get(withBasePath(`/api/user/${user.staffid}`));
+      setUserSession(res.data.data);
+    } catch (error) {
+      console.error(error);
+    }
   }, [user]);
+
+  useEffect(() => {
+    if (user) findUser();
+  }, [findUser, user]);
 
   useEffect(() => {
     if (!userSession || !form?.approvals) return;
@@ -94,19 +97,10 @@ export default function ViewSubmission({
       (a) => a.approverId === userSession.id && a.status === "PENDING",
     );
 
-    const canApprove = !isFormCompleted && hasPendingApproval;
+    const canApprove = allowActions && !isFormCompleted && hasPendingApproval;
 
     setApprove(canApprove);
-  }, [userSession, form]);
-
-  const findUser = async () => {
-    try {
-      const res = await axios.get(`/api/user/${user?.staffid}`);
-      setUserSession(res.data.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  }, [allowActions, userSession, form]);
 
   const myApproval = form.approvals?.find(
     (a) => a.approverId === userSession?.id && a.status === "PENDING",
@@ -121,7 +115,7 @@ export default function ViewSubmission({
     if (!actionType) return;
     setLoading(true);
     try {
-      await axios.post("/api/approval-form/action", {
+      await axios.post(withBasePath("/api/approval-form/action"), {
         approvalId: myApproval?.id,
         action: actionType,
         user: userSession?.id,
@@ -139,12 +133,12 @@ export default function ViewSubmission({
     }
   };
 
-  const mappedApprovals: ApprovalUser[] = form.approvals.map((a, index) => ({
+  const mappedApprovals: ApprovalUser[] = form.approvals.map((a) => ({
     id: a.id,
     submissionId: form.id,
     approverId: a.approverId,
     status: a.status as "PENDING" | "APPROVED" | "REJECTED" | "WAITING",
-    stepOrder: index + 1,
+    stepOrder: a.stepOrder,
     remarks: a.remarks || null,
     approvedAt: a.approvedAt || null,
     approver: a.approver
@@ -163,6 +157,19 @@ export default function ViewSubmission({
     }));
   };
 
+  const fetchForm = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(withBasePath(`/api/form/${selfForm.id}`));
+      setForm(res.data);
+      setEditedApprovals({});
+    } catch (error) {
+      console.error("Failed to fetch form:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selfForm.id]);
+
   const handleAdminApprovalSave = async (
     approval: Approval,
     remarks: string,
@@ -172,7 +179,7 @@ export default function ViewSubmission({
 
     try {
       setLoading(true);
-      await axios.put(`/api/form/${approval.id}`, {
+      await axios.put(withBasePath(`/api/form/${approval.id}`), {
         newStatus: edited.status,
         formId: form.id,
         remarks: remarks,
@@ -183,19 +190,6 @@ export default function ViewSubmission({
     } catch (error) {
       console.error(error);
       toast.error("Failed to update approval status");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchForm = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`/api/form/${selfForm.id}`);
-      setForm(res.data);
-      setEditedApprovals({});
-    } catch (error) {
-      console.error("Failed to fetch form:", error);
     } finally {
       setLoading(false);
     }
@@ -297,13 +291,13 @@ export default function ViewSubmission({
               formId={form.id}
               selfForm={form}
               user={user}
-              divisions={divisions}
-              departments={departments}
-              sections={sections}
-              setSelectedDivision={setSelectedDivision}
-              setSelectedDepartment={setSelectedDepartment}
-              setSelectedSection={setSelectedSection}
-              setSelectedWorkLocation={setSelectedWorkLocation}
+              divisions={[] as Division[]}
+              departments={[] as Department[]}
+              sections={[] as Section[]}
+              setSelectedDivision={() => {}}
+              setSelectedDepartment={() => {}}
+              setSelectedSection={() => {}}
+              setSelectedWorkLocation={() => {}}
               readOnly={true}
             />
           ) : (

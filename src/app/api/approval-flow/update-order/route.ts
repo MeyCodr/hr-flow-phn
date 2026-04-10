@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       { message: "Successfully Updated" },
       { status: 200 },
     );
-  } catch (e) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },

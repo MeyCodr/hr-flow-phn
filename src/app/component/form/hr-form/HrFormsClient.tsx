@@ -21,6 +21,7 @@ import { useSession } from "next-auth/react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { sanitizeName } from "../../../../../lib/utils";
 import { Prisma } from "@/generated/client";
+import { withBasePath } from "@/lib/base-path";
 
 type ApprovalWithApprover = Prisma.ApprovalGetPayload<{
   include: { approver: true };
@@ -103,7 +104,7 @@ export default function HrFormsClient({
   }, [selectedId, selectedName]);
   useEffect(() => {
     axios
-      .get("/api/division")
+      .get(withBasePath("/api/division"))
       .then((res) => setDivisions(res.data))
       .catch(console.error);
   }, []);
@@ -114,7 +115,7 @@ export default function HrFormsClient({
       return;
     }
     axios
-      .get(`/api/department?divisionId=${selectedDivision}`)
+      .get(withBasePath(`/api/department?divisionId=${selectedDivision}`))
       .then((res) => {
         setDepartments(res.data);
       })
@@ -128,7 +129,7 @@ export default function HrFormsClient({
     }
 
     axios
-      .get(`/api/section?departmentId=${selectedDepartment}`)
+      .get(withBasePath(`/api/section?departmentId=${selectedDepartment}`))
       .then((res) => setSections(res.data))
       .catch(console.error);
   }, [selectedDepartment]);

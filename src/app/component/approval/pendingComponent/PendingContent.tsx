@@ -9,7 +9,7 @@ interface PendingContentProps {
   userPendingForms: SelfForm[];
   user: UserType;
   onActionComplete?: () => void;
-  onViewForm: (formId: number, formName: string) => void;
+  onViewForm: (formId: number, formName: string, source: "pending") => void;
 }
 
 // Define a union type for items in the paginated list
@@ -28,12 +28,25 @@ export default function PendingContent({
     (approval) => approval.status === "PENDING",
   );
 
+  const approvalSubmissionIds = new Set(
+    pendingApprovals
+      .map((approval) => approval.submission?.id)
+      .filter((id): id is number => typeof id === "number"),
+  );
+
+  const visiblePendingForms = userPendingForms.filter(
+    (form) => !approvalSubmissionIds.has(form.id),
+  );
+
   const pendingItems: PendingItem[] = [
     ...pendingApprovals.map((approval) => ({
       type: "approval" as const,
       data: approval,
     })),
-    ...userPendingForms.map((form) => ({ type: "form" as const, data: form })),
+    ...visiblePendingForms.map((form) => ({
+      type: "form" as const,
+      data: form,
+    })),
   ];
 
   if (pendingItems.length === 0) {
@@ -65,12 +78,13 @@ export default function PendingContent({
               currentLevel={approval.currentLevel}
               totalLevel={approval.totalLevel}
               activeLevel={approval.activeLevel}
+              allowActions={true}
               currentUserId={user.id}
               roles={user.role}
               status={approval.status}
               onActionComplete={onActionComplete}
               onClick={() =>
-                onViewForm(submission.id, submission.formType.name)
+                onViewForm(submission.id, submission.formType.name, "pending")
               }
             />
           );
@@ -81,11 +95,6 @@ export default function PendingContent({
           const myApproval = form.approvals?.find(
             (a) => a.approverId === user.id,
           );
-
-          const canApprove =
-            myApproval &&
-            myApproval.status === "PENDING" &&
-            form.activeLevel === myApproval.stepOrder;
 
           return (
             <BannerCard
@@ -101,9 +110,10 @@ export default function PendingContent({
               currentLevel={form.currentLevel ?? 0}
               totalLevel={form.totalLevel ?? 0}
               activeLevel={form.activeLevel ?? 0}
+              allowActions={true}
               roles={user.role}
               status={form.status}
-              onClick={() => onViewForm(form.id, form.formType.name)}
+              onClick={() => onViewForm(form.id, form.formType.name, "pending")}
             />
           );
         }

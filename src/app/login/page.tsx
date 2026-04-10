@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import LoadingScreen from "../component/ui/LoadingScreen";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { withBasePath } from "@/lib/base-path";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -45,7 +46,9 @@ export default function Login() {
 
   const sendPasswordLogin = async (email: string) => {
     try {
-      const res = await axios.post("/api/user/forget-password", { email });
+      const res = await axios.post(withBasePath("/api/user/forget-password"), {
+        email,
+      });
       if (res.status === 200) {
         toast.success("Password has been sent to your email");
       }

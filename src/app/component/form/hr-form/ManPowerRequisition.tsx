@@ -21,6 +21,8 @@ import toast, { Toaster } from "react-hot-toast";
 import LoadingScreen from "../../ui/LoadingScreen";
 import { useRouter } from "next/navigation";
 import { TextArea } from "../../ui/TextArea";
+import { withBasePath } from "@/lib/base-path";
+import { formatFileSize, MAX_FORM_ATTACHMENT_BYTES } from "@/lib/uploadLimits";
 
 export type ReasonKey = Extract<
   keyof ManPowerTypes,
@@ -96,6 +98,22 @@ export default function ManPower({
   const [files, setFiles] = useState<File[]>([]);
   const router = useRouter();
 
+  const validateFiles = (selectedFiles: File[]) => {
+    if (selectedFiles.length === 0) {
+      return "File Attachment is required!";
+    }
+
+    const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+
+    if (totalSize > MAX_FORM_ATTACHMENT_BYTES) {
+      return `Total attachment size must be ${formatFileSize(
+        MAX_FORM_ATTACHMENT_BYTES,
+      )} or less. Current selection is ${formatFileSize(totalSize)}.`;
+    }
+
+    return null;
+  };
+
   useEffect(() => {
     if (!user) {
       return;
@@ -108,7 +126,7 @@ export default function ManPower({
 
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`/api/user/${staffid}`);
+        const res = await axios.get(withBasePath(`/api/user/${staffid}`));
         const userInfo = res.data.data;
         setUserInfo(userInfo);
       } catch (error) {
@@ -253,9 +271,10 @@ export default function ManPower({
       }
     }
 
-    if (!data.fileAttachment) {
-      newErrors.fileAttachment = "File Attachment is required";
-      toast.error("File Attachment is required!");
+    const fileValidationError = validateFiles(files);
+    if (fileValidationError) {
+      newErrors.fileAttachment = fileValidationError;
+      toast.error(fileValidationError);
     }
 
     setErrors(newErrors);
@@ -266,14 +285,17 @@ export default function ManPower({
     const formData = new FormData();
     formData.append("formId", formId.toString());
     formData.append("user", JSON.stringify(user));
-    formData.append("data", JSON.stringify(data));
+    const submissionData = Object.fromEntries(
+      Object.entries(data).filter(([key]) => key !== "fileAttachment"),
+    );
+    formData.append("data", JSON.stringify(submissionData));
     files.forEach((f) => {
       formData.append("fileAttachment", f);
     });
     const toastId = "";
 
     try {
-      await axios.post(`/api/form`, formData, {
+      await axios.post(withBasePath("/api/form"), formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Form submitted successfully!", { toasterId: toastId });
@@ -326,7 +348,7 @@ export default function ManPower({
     const doc = fileData && fileData[0]?.fileName;
     if (!doc) return;
 
-    const url = `/api/uploads/${encodeURIComponent(doc)}`;
+    const url = withBasePath(`/api/uploads/${encodeURIComponent(doc)}`);
     // console.log("file url1: ", url1);
     // const url = `/api/uploads/${doc}`;
     console.log("file url: ", url);
@@ -960,10 +982,17 @@ export default function ManPower({
                         onChange={readOnly ? () => {} : handleChange}
                         placeholder="Incumbent Name"
                         required
-                        disabled={data.selectedOption !== "replacement"} // only editable if Replacement is selected
+                        disabled={
+                          readOnly
+                            ? parsedData.selectedOption !== "replacement"
+                            : data.selectedOption !== "replacement"
+                        } // only editable if Replacement is selected
                         className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
-                                  data.selectedOption !== "replacement"
+                                  (readOnly
+                                    ? parsedData.selectedOption !==
+                                      "replacement"
+                                    : data.selectedOption !== "replacement")
                                     ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                     : "bg-white text-gray-900 border-gray-300"
                                 }`}
@@ -981,11 +1010,20 @@ export default function ManPower({
                             ? parsedData.lastWorkingDay
                             : data.lastWorkingDay
                         }
-                        onChange={handleDateChange("lastWorkingDay")}
-                        disabled={data.selectedOption !== "replacement"}
+                        onChange={
+                          readOnly ? () => {} : handleDateChange("lastWorkingDay")
+                        }
+                        disabled={
+                          readOnly
+                            ? parsedData.selectedOption !== "replacement"
+                            : data.selectedOption !== "replacement"
+                        }
                         className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
                                 ${
-                                  data.selectedOption !== "replacement"
+                                  (readOnly
+                                    ? parsedData.selectedOption !==
+                                      "replacement"
+                                    : data.selectedOption !== "replacement")
                                     ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                                     : "bg-white text-gray-900 border-gray-300"
                                 }`}
@@ -1043,9 +1081,9 @@ export default function ManPower({
                               <CheckBox
                                 checked={
                                   readOnly
-                                    ? parsedData?.selectedReasons.includes(
+                                    ? (parsedData?.selectedReasons?.includes(
                                         reason.key,
-                                      )
+                                      ) ?? false)
                                     : isChecked
                                 }
                                 onChange={() => handleReasonCheck(reason.key)}
@@ -1125,7 +1163,28 @@ export default function ManPower({
                     className="hidden"
                     onChange={(e) => {
                       const selectedFiles = Array.from(e.target.files || []);
+                      const validationError = validateFiles(selectedFiles);
+
+                      if (validationError) {
+                        setFiles([]);
+                        setData((prev) => ({
+                          ...prev,
+                          fileAttachment: null,
+                        }));
+                        setErrors((prev) => ({
+                          ...prev,
+                          fileAttachment: validationError,
+                        }));
+                        toast.error(validationError);
+                        e.target.value = "";
+                        return;
+                      }
+
                       setFiles(selectedFiles);
+                      setErrors((prev) => ({
+                        ...prev,
+                        fileAttachment: undefined,
+                      }));
 
                       setData((prev) => ({
                         ...prev,
@@ -1143,6 +1202,18 @@ export default function ManPower({
                       <p key={i}>📎 {f.name}</p>
                     ))}
                   </div>
+                )}
+
+                {!readOnly && (
+                  <p className="text-xs text-amber-700">
+                    Please keep the total attachment size at or below{" "}
+                    {formatFileSize(MAX_FORM_ATTACHMENT_BYTES)} to avoid upload
+                    errors such as request size limit issues.
+                  </p>
+                )}
+
+                {errors.fileAttachment && (
+                  <p className="text-xs text-red-600">{errors.fileAttachment}</p>
                 )}
 
                 {selfForm && fileData ? (

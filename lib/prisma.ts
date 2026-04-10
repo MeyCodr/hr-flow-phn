@@ -16,7 +16,13 @@ const adapter = new PrismaMariaDb({
 });
 
 function createPrismaClient() {
-  return new PrismaClient({ adapter, log: ["query", "warn", "error"] });
+  return new PrismaClient({
+    adapter,
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["warn", "error"]
+        : ["error"],
+  });
 }
 
 function hasExpectedModels(

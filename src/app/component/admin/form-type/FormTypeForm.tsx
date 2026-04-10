@@ -10,6 +10,7 @@ import { FormType } from "@/generated/client";
 
 import toast, { Toaster } from "react-hot-toast";
 import ConfirmModal from "../../ui/ConfirmModal";
+import { withBasePath } from "@/lib/base-path";
 
 interface FormTypeFormProps {
   onBack: () => void;
@@ -50,8 +51,8 @@ export default function FormTypeForm({
     setLoading(true);
     try {
       const url = selectedFormType
-        ? `/api/form-type/${selectedFormType.id}`
-        : `/api/form-type`;
+        ? withBasePath(`/api/form-type/${selectedFormType.id}`)
+        : withBasePath(`/api/form-type`);
       const method = selectedFormType ? axios.put : axios.post;
       const res = await method(url, data);
       if (method === axios.post) {
@@ -71,7 +72,9 @@ export default function FormTypeForm({
   const handleDelete = async () => {
     try {
       if (!selectedFormType) return;
-      const res = await axios.delete(`/api/form-type/${selectedFormType.id}`);
+      const res = await axios.delete(
+        withBasePath(`/api/form-type/${selectedFormType.id}`),
+      );
       if (res.status === 200) {
         toast.success("Form type deleted successfully");
         onSuccess(res.data);

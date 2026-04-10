@@ -68,7 +68,11 @@ export async function GET() {
 
         const uniqueStepOrders = [
           ...new Set(allSteps.map((s: SubmissionApproval) => s.stepOrder)),
-        ];
+        ].sort((a, b) => a - b);
+
+        const stepOrderToLevel = new Map(
+          uniqueStepOrders.map((stepOrder, index) => [stepOrder, index + 1]),
+        );
 
         const totalLevel = uniqueStepOrders.length;
 
@@ -77,13 +81,13 @@ export async function GET() {
         );
 
         const activeLevel = activeApproval
-          ? activeApproval.stepOrder
+          ? (stepOrderToLevel.get(activeApproval.stepOrder) ?? totalLevel)
           : totalLevel;
 
         return {
           ...approval,
           totalLevel,
-          currentLevel: approval.stepOrder,
+          currentLevel: stepOrderToLevel.get(approval.stepOrder) ?? totalLevel,
           activeLevel,
         };
       }

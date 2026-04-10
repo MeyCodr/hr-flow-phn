@@ -13,6 +13,7 @@ import CheckBox from "../../ui/CheckBox";
 import axios from "axios";
 import toast from "react-hot-toast";
 import ConfirmModal from "../../ui/ConfirmModal";
+import { withBasePath } from "@/lib/base-path";
 import {
   motion,
   AnimatePresence,
@@ -111,7 +112,9 @@ export default function ApprovalFlow({
     if (!selectedRows.length) return toast.error("No rows selected");
     try {
       setLoading(true);
-      await axios.post("/api/approval-flow/delete", { ids: selectedRows });
+      await axios.post(withBasePath("/api/approval-flow/delete"), {
+        ids: selectedRows,
+      });
       toast.success("Deleted successfully");
       setDeleteMode(false);
       setSelectedRows([]);
@@ -135,7 +138,7 @@ export default function ApprovalFlow({
   const fetchApprovalSteps = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/approval-flow");
+      const res = await axios.get(withBasePath("/api/approval-flow"));
       const data = res.data;
       setApprovalFlow(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -185,12 +188,12 @@ export default function ApprovalFlow({
 
       console.log("update: ", updated);
 
-      await axios.post("/api/approval-flow/update-order", {
+      await axios.post(withBasePath("/api/approval-flow/update-order"), {
         steps: updated,
       });
 
       toast.success("Order updated");
-    } catch (err) {
+    } catch {
       toast.error("Failed to update order");
     }
   };

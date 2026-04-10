@@ -49,13 +49,19 @@ export default async function Approval() {
   const approvalsWithLevels = pendingApprovals.map(
     (approval: (typeof pendingApprovals)[number]) => {
       const allSteps = approval.submission.approvals;
-      const totalLevel = allSteps.length;
+      const uniqueStepOrders = [...new Set(allSteps.map((a) => a.stepOrder))].sort(
+        (a, b) => a - b,
+      );
+      const stepOrderToLevel = new Map(
+        uniqueStepOrders.map((stepOrder, index) => [stepOrder, index + 1]),
+      );
+      const totalLevel = uniqueStepOrders.length;
 
       const activeApproval = allSteps.find(
         (a: (typeof allSteps)[number]) => a.status === "PENDING"
       );
       const activeLevel = activeApproval
-        ? activeApproval.stepOrder
+        ? (stepOrderToLevel.get(activeApproval.stepOrder) ?? totalLevel)
         : totalLevel;
 
       // ✅ Normalize formData so it’s always an object
@@ -67,7 +73,7 @@ export default async function Approval() {
       return {
         ...approval,
         totalLevel,
-        currentLevel: approval.stepOrder,
+        currentLevel: stepOrderToLevel.get(approval.stepOrder) ?? totalLevel,
         activeLevel,
         submission: {
           ...approval.submission,

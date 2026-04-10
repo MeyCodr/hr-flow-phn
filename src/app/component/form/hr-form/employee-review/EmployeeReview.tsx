@@ -11,6 +11,7 @@ import { performanceRatings } from "../../../../../../lib/data";
 import { TextArea } from "@/app/component/ui/TextArea";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import { withBasePath } from "@/lib/base-path";
 
 export default function EmployeeReview({
   divisions,
@@ -19,7 +20,6 @@ export default function EmployeeReview({
   setSelectedDivision,
   setSelectedDepartment,
   setSelectedSection,
-  setSelectedWorkLocation,
   user,
   onSubmitSuccess,
   formId,
@@ -87,12 +87,14 @@ export default function EmployeeReview({
     const toastId = "";
     try {
       const res = await axios.post(
-        `/api/form/employee-review-post`,
+        withBasePath(`/api/form/employee-review-post`),
         JSON.stringify(payload)
       );
       if (res.status === 200) {
         toast.success("Form submitted successfully!", { toasterId: toastId });
-        onSubmitSuccess && onSubmitSuccess();
+        if (onSubmitSuccess) {
+          onSubmitSuccess();
+        }
       } else {
         toast.error("Failed to submit the form.", { toasterId: toastId });
       }

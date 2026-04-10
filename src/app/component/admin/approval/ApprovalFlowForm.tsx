@@ -19,6 +19,7 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { ApprovalFlowStep } from "./ApprovalFlow";
 import MultiComboBox from "../../ui/MultiComboBox";
+import { withBasePath } from "@/lib/base-path";
 
 interface ApprovalFlowFormProps {
   handleBack?: () => void;
@@ -80,7 +81,7 @@ export default function ApprovalFlowForm({
 
   useEffect(() => {
     const getAllUser = async () => {
-      const res = await axios.get("/api/user");
+      const res = await axios.get(withBasePath("/api/user"));
       setUsers(res.data);
     };
 
@@ -98,12 +99,12 @@ export default function ApprovalFlowForm({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const url = selectedStep
-      ? `/api/approval-flow/${selectedStep.id}`
-      : `/api/approval-flow`;
+      ? withBasePath(`/api/approval-flow/${selectedStep.id}`)
+      : withBasePath(`/api/approval-flow`);
     const method = selectedStep ? axios.put : axios.post;
     setLoading(true);
     try {
-      const res = await method(url, data);
+      await method(url, data);
       if (method === axios.put) {
         toast.success("Approval Flow Step updated successfully");
       } else {
