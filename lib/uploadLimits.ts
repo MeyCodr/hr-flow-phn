@@ -1,6 +1,8 @@
 const MB = 1024 * 1024;
 
-export const MAX_FORM_ATTACHMENT_BYTES = 10 * MB;
+// Keep this below the reverse proxy limit so the app can show a friendly
+// validation message before multipart overhead triggers a 413 upstream.
+export const MAX_FORM_ATTACHMENT_BYTES = 8 * MB;
 
 export const formatFileSize = (bytes: number) => {
   if (bytes < 1024) {
