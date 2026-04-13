@@ -60,7 +60,7 @@ export default function HistoryContent({
               profileImg={submission.createdBy.attachment || ""}
               title={submission.formType.name}
               name={submission.createdBy.fullname}
-              createddate={new Date(submission.createdAt).toLocaleDateString()}
+              createddate={submission.createdAt}
               remarks={
                 (submission.formData as { remarks?: string } | null)?.remarks ||
                 "No remarks"
@@ -83,7 +83,7 @@ export default function HistoryContent({
               profileImg={user.attachment || ""}
               title={form.formType.name}
               name={"You"}
-              createddate={new Date(form.createdAt).toLocaleDateString()}
+              createddate={form.createdAt}
               remarks={(form.formData?.remarks as string) || "No remarks"}
               currentLevel={form.currentLevel ?? 0}
               totalLevel={form.totalLevel ?? 0}

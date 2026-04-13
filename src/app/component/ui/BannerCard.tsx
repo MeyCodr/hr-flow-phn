@@ -16,7 +16,7 @@ export interface BannerCardProps {
   allowActions?: boolean;
   title: string;
   name: string;
-  createddate: string;
+  createddate: string | Date | null | undefined;
   remarks: string;
   currentLevel: number; // this approver’s level
   totalLevel: number; // total approval steps
@@ -54,10 +54,29 @@ export default function BannerCard({
   );
 
   useEffect(() => {
-    if (createddate) {
-      const date = new Date(createddate);
-      setFormattedDate(date.toLocaleDateString());
+    if (!createddate) {
+      setFormattedDate("-");
+      return;
     }
+
+    if (createddate instanceof Date) {
+      setFormattedDate(
+        Number.isNaN(createddate.getTime())
+          ? "-"
+          : createddate.toLocaleDateString("en-GB"),
+      );
+      return;
+    }
+
+    const rawValue = createddate.trim();
+    const parsedDate = new Date(rawValue);
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+      setFormattedDate(parsedDate.toLocaleDateString("en-GB"));
+      return;
+    }
+
+    setFormattedDate(rawValue);
   }, [createddate]);
 
   const isFormCompleted = status === "APPROVED" || status === "REJECTED";

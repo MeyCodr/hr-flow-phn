@@ -144,7 +144,7 @@ export default function HrFormsClient({
   const handleBackClick = () => {
     setSelectedFormName(null);
     setSelectedFormId(null);
-    router.push(`/dashboard/forms`);
+    router.replace(`/dashboard/forms`);
   };
 
   // const DynamicFormComponent = selectedFormName

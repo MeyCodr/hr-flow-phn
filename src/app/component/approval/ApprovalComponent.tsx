@@ -70,6 +70,7 @@ export default function ApprovalComponent({
     null
   );
   const [viewSource, setViewSource] = useState<ViewSource>("pending");
+  const [isNavigatingBack, setIsNavigatingBack] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -82,6 +83,7 @@ export default function ApprovalComponent({
       setIsViewing(false);
       setViewedFormData(null);
       setViewSource("pending");
+      setIsNavigatingBack(false);
     }
   }, [approvalPagePath, approvalRoute, pathname, searchParams]);
 
@@ -104,6 +106,7 @@ export default function ApprovalComponent({
 
   const handleViewForm = useCallback(
     async (formId: number, formName: string, source: ViewSource) => {
+      setIsNavigatingBack(false);
       setIsViewing(true);
       setViewSource(source);
       try {
@@ -125,18 +128,21 @@ export default function ApprovalComponent({
   );
 
   useEffect(() => {
+    if (isNavigatingBack) return;
+
     const id = searchParams.get("id");
     const name = searchParams.get("name");
     if (id && name && (!viewedFormData || viewedFormData.id !== Number(id))) {
       handleViewForm(Number(id), name, viewSource);
     }
-  }, [handleViewForm, searchParams, viewSource, viewedFormData]);
+  }, [handleViewForm, isNavigatingBack, searchParams, viewSource, viewedFormData]);
 
   const handleBack = () => {
+    setIsNavigatingBack(true);
     setIsViewing(false);
     setViewedFormData(null);
     setViewSource("pending");
-    router.push(approvalRoute);
+    router.replace(approvalRoute);
   };
 
   const contentVariants: Variants = {

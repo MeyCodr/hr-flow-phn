@@ -73,7 +73,7 @@ export default function PendingContent({
               profileImg={submission.createdBy.attachment || ""}
               title={submission.formType.name}
               name={submission.createdBy.fullname}
-              createddate={new Date(submission.createdAt).toLocaleDateString()}
+              createddate={submission.createdAt}
               remarks={remarks}
               currentLevel={approval.currentLevel}
               totalLevel={approval.totalLevel}
@@ -105,7 +105,7 @@ export default function PendingContent({
               profileImg={user.attachment || ""}
               title={form.formType.name}
               name={"You"}
-              createddate={new Date(form.createdAt).toLocaleDateString()}
+              createddate={form.createdAt}
               remarks={(form.formData?.remarks as string) || "No remarks yet"}
               currentLevel={form.currentLevel ?? 0}
               totalLevel={form.totalLevel ?? 0}

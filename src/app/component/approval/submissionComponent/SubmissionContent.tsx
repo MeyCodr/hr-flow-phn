@@ -28,7 +28,7 @@ export default function SubmissionContent({
           profileImg={user.attachment || ""}
           title={form.formType.name}
           name={"You"}
-          createddate={new Date(form.createdAt).toLocaleDateString()}
+          createddate={form.createdAt}
           remarks={(form.formData?.remarks as string) || "No remarks yet"}
           currentLevel={form.currentLevel ?? 0}
           totalLevel={form.totalLevel ?? 0}
