@@ -18,6 +18,10 @@ type FormData = {
   section: string;
 };
 
+const MANPOWER_REQUISITION_FORM_NAME = "Man Power Requisition";
+const HUMAN_CAPITAL_DIVISION_NAME = "HUMAN CAPITAL AND ESG";
+const HUMAN_CAPITAL_APPROVAL_CHAIN = ["M0541", "M0168", "M0069", "M0778"];
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -96,6 +100,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const requesterDivision = findUser.divisionId
+      ? await prisma.division.findUnique({
+          where: { id: Number(findUser.divisionId) },
+        })
+      : null;
+
     // ✅ Create Form Submission
     const formSubmission = await prisma.formSubmission.create({
       data: {
@@ -146,10 +156,60 @@ export async function POST(req: NextRequest) {
     }
 
     const assignedApprovers: number[] = [];
+    let firstActiveStepOrder: number | null = null;
+    const isHumanCapitalManpowerFlow =
+      formType.name === MANPOWER_REQUISITION_FORM_NAME &&
+      requesterDivision?.name?.trim().toUpperCase() ===
+        HUMAN_CAPITAL_DIVISION_NAME;
+
+    if (isHumanCapitalManpowerFlow) {
+      const hcApprovers: User[] = [];
+
+      for (const approverStaffId of HUMAN_CAPITAL_APPROVAL_CHAIN) {
+        const approver = await prisma.user.findFirst({
+          where: {
+            staffid: approverStaffId,
+          },
+        });
+
+        if (!approver) {
+          return NextResponse.json(
+            {
+              error: `Configured Human Capital approver '${approverStaffId}' was not found.`,
+            },
+            { status: 400 },
+          );
+        }
+
+        if (approver.id === findUser.id || assignedApprovers.includes(approver.id)) {
+          continue;
+        }
+
+        hcApprovers.push(approver);
+        assignedApprovers.push(approver.id);
+      }
+
+      if (hcApprovers.length === 0) {
+        return NextResponse.json(
+          { error: "No valid Human Capital approvers found for this submission." },
+          { status: 400 },
+        );
+      }
+
+      await prisma.approval.createMany({
+        data: hcApprovers.map((approver, index) => ({
+          submissionId: formSubmission.id,
+          approverId: approver.id,
+          stepOrder: index + 1,
+          status: index === 0 ? "PENDING" : "WAITING",
+        })),
+      });
+
+      firstActiveStepOrder = 1;
+    } else {
     const shouldSkipFirstDepartmentApprovalForManpower =
       formType.name === "Man Power Requisition" &&
       findUser.role === "HEAD_OF_DEPARTMENT";
-    let firstActiveStepOrder: number | null = null;
     let hasSkippedInitialDepartmentStep = false;
 
     for (const step of approvalFlowSteps) {
@@ -255,11 +315,12 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (firstActiveStepOrder === null) {
-      return NextResponse.json(
-        { error: "No valid approvers found for this form submission." },
-        { status: 400 },
-      );
+      if (firstActiveStepOrder === null) {
+        return NextResponse.json(
+          { error: "No valid approvers found for this form submission." },
+          { status: 400 },
+        );
+      }
     }
 
     // ✅ Fetch the first active approvers
