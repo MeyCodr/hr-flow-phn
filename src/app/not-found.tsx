@@ -12,12 +12,6 @@ export default function NotFound() {
         <p className="text-gray-500 mb-6">
           The page you are looking for does not exist or has been moved.
         </p>
-        <Link
-          href={withBasePath("/dashboard")}
-          className="bg-indigo-800 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors"
-        >
-          Go to Dashboard
-        </Link>
       </div>
     </div>
   );
