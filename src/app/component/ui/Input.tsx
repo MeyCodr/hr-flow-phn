@@ -52,7 +52,6 @@ function Input({
       required={required}
       disabled={disabled}
       autoComplete={autoComplete}
-      style={type === "number" ? { MozAppearance: "textfield" } : undefined}
     />
   );
 }

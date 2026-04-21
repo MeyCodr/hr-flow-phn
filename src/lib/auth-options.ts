@@ -50,6 +50,18 @@ export const authOptions: NextAuthOptions = {
     updateAge: 15 * 60,
   },
 
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "strict",
+        path: "/",
+        secure: true,
+      },
+    },
+  },
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

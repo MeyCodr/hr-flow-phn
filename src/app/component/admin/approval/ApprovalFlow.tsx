@@ -334,10 +334,6 @@ export default function ApprovalFlow({
                               boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
                               zIndex: 100,
                             }}
-                            style={{
-                              touchAction: dragMode ? "none" : "auto",
-                              cursor: dragMode ? "grab" : "default",
-                            }}
                             onDragStart={() => setIsDragging(true)}
                             onDragEnd={() => {
                               setTimeout(() => setIsDragging(false), 50);
@@ -357,8 +353,8 @@ export default function ApprovalFlow({
                                 : "hover:bg-indigo-50"
                             } ${
                               dragMode
-                                ? "cursor-grab active:cursor-grabbing"
-                                : ""
+                                ? "cursor-grab active:cursor-grabbing touch-none"
+                                : "touch-auto"
                             }`}
                           >
                             {deleteMode && (
