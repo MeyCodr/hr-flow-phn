@@ -351,7 +351,11 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    await transporter.sendMail(mailOptions);
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (mailErr) {
+      console.error("Failed to send submission confirmation email:", mailErr);
+    }
 
     // ✅ Updated email logic: First approver in TO, others in CC
     if (firstStepApprovers.length > 0) {
@@ -380,7 +384,11 @@ export async function POST(req: NextRequest) {
         },
       };
 
-      await transporter.sendMail(approvalMail);
+      try {
+        await transporter.sendMail(approvalMail);
+      } catch (mailErr) {
+        console.error("Failed to send approver notification email:", mailErr);
+      }
     }
 
     return NextResponse.json(
@@ -392,7 +400,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error("Error creating form record:", error);
-    return NextResponse.json({ error: error }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -458,7 +466,7 @@ export async function GET() {
     return NextResponse.json(mapped);
   } catch (error) {
     console.error("Error fetching form submissions:", error);
-    return NextResponse.json({ error: error }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 

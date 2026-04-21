@@ -106,7 +106,7 @@ export default function HrFormsClient({
     axios
       .get(withBasePath("/api/division"))
       .then((res) => setDivisions(res.data))
-      .catch(console.error);
+      .catch((err) => console.error("Failed to fetch data:", err));
   }, []);
   useEffect(() => {
     if (!selectedDivision) {
@@ -119,7 +119,7 @@ export default function HrFormsClient({
       .then((res) => {
         setDepartments(res.data);
       })
-      .catch(console.error);
+      .catch((err) => console.error("Failed to fetch data:", err));
   }, [selectedDivision]);
 
   useEffect(() => {
@@ -131,7 +131,7 @@ export default function HrFormsClient({
     axios
       .get(withBasePath(`/api/section?departmentId=${selectedDepartment}`))
       .then((res) => setSections(res.data))
-      .catch(console.error);
+      .catch((err) => console.error("Failed to fetch data:", err));
   }, [selectedDepartment]);
 
   const handleCardClick = (form: FormType) => {

@@ -44,7 +44,7 @@ export default function AdminComponent({
     axios
       .get(withBasePath("/api/division"))
       .then((res) => setDivisions(res.data))
-      .catch(console.error);
+      .catch((err) => console.error("Failed to fetch data:", err));
   }, []);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function AdminComponent({
       axios
         .get(withBasePath(`/api/department?divisionId=${selectedDivision}`))
         .then((res) => setDepartments(res.data))
-        .catch(console.error);
+        .catch((err) => console.error("Failed to fetch data:", err));
     } else {
       setDepartments([]);
       setSections([]);
@@ -64,7 +64,7 @@ export default function AdminComponent({
       axios
         .get(withBasePath(`/api/section?departmentId=${selectedDepartment}`))
         .then((res) => setSections(res.data))
-        .catch(console.error);
+        .catch((err) => console.error("Failed to fetch data:", err));
     } else {
       setSections([]);
     }

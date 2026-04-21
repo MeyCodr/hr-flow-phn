@@ -91,7 +91,7 @@ export default function Dashboard() {
       );
       setUser(res.data.data);
     } catch (error) {
-      console.log(error);
+      console.error("Failed to fetch user:", error);
     }
   }, [session]);
 

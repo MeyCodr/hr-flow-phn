@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const data = await req.json();
-    console.log("data: ", data);
     const { formTypeId, user, ...rest } = data;
 
     //validate user

@@ -12,9 +12,10 @@ export interface TabItem {
 interface TabsProps {
   tabs: TabItem[];
   defaultIndex?: number;
+  rightSlot?: React.ReactNode;
 }
 
-export default function Tabs({ tabs, defaultIndex = 0 }: TabsProps) {
+export default function Tabs({ tabs, defaultIndex = 0, rightSlot }: TabsProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -25,6 +26,7 @@ export default function Tabs({ tabs, defaultIndex = 0 }: TabsProps) {
   return (
     <div className="w-full">
       <TabGroup defaultIndex={defaultIndex}>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
         <TabList className="relative flex justify-start gap-2 bg-indigo-100/60 rounded-full p-2 w-fit">
           {tabs.map((tab) => (
             <Tab key={tab.name} className="relative focus:outline-none">
@@ -56,6 +58,8 @@ export default function Tabs({ tabs, defaultIndex = 0 }: TabsProps) {
             </Tab>
           ))}
         </TabList>
+        {rightSlot && <div className="flex items-center">{rightSlot}</div>}
+        </div>
 
         <TabPanels className="mt-6 overflow-visible">
           {tabs.map((tab) => (

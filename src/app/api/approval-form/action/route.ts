@@ -186,8 +186,11 @@ export async function POST(req: NextRequest) {
           },
         };
 
-        // Notify requestor
-        await transporter.sendMail(mailOptions);
+        try {
+          await transporter.sendMail(mailOptions);
+        } catch (mailErr) {
+          console.error("Failed to send grievance approval email:", mailErr);
+        }
 
         return NextResponse.json({
           message: "Grievance form approved successfully",
@@ -215,7 +218,11 @@ export async function POST(req: NextRequest) {
           },
         };
 
-        await transporter.sendMail(mailOptions);
+        try {
+          await transporter.sendMail(mailOptions);
+        } catch (mailErr) {
+          console.error("Failed to send next-approver email:", mailErr);
+        }
       } else {
         // ✅ Final approval
         await prisma.formSubmission.update({
@@ -240,7 +247,11 @@ export async function POST(req: NextRequest) {
           },
         };
 
-        await transporter.sendMail(mailOptions);
+        try {
+          await transporter.sendMail(mailOptions);
+        } catch (mailErr) {
+          console.error("Failed to send final approval email:", mailErr);
+        }
       }
     } else {
       // ❌ Rejected
@@ -271,7 +282,11 @@ export async function POST(req: NextRequest) {
         },
       };
 
-      await transporter.sendMail(mailOptions);
+      try {
+        await transporter.sendMail(mailOptions);
+      } catch (mailErr) {
+        console.error("Failed to send rejection email:", mailErr);
+      }
     }
 
     return NextResponse.json({ message: "Action processed successfully" });

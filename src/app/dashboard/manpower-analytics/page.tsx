@@ -19,6 +19,12 @@ import {
 } from "recharts";
 import * as XLSX from "xlsx";
 
+function ChartContainer({ className, children }: { className: string; children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return <div className={className}>{mounted ? children : null}</div>;
+}
+
 type EmployeeRecord = {
   empNo: string;
   division: string;
@@ -292,7 +298,7 @@ function HeadcountBarChart({
   const topDivision = data[0];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm font-poppins">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm font-poppins min-w-0">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
@@ -308,7 +314,7 @@ function HeadcountBarChart({
         <span>Division</span>
       </div>
 
-      <div className="h-56">
+      <ChartContainer className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
@@ -350,7 +356,7 @@ function HeadcountBarChart({
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </div>
+      </ChartContainer>
 
       {topDivision && (
         <p className="mt-3 text-xs font-medium text-gray-600">
@@ -382,7 +388,7 @@ function MonthlyHeadcountTrendChart({
         );
 
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
@@ -394,7 +400,7 @@ function MonthlyHeadcountTrendChart({
         </div>
       </div>
 
-      <div className="h-72">
+      <ChartContainer className="h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 12, right: 12, left: 0, bottom: 6 }}>
             <CartesianGrid stroke="#e0e7ff" strokeDasharray="3 3" />
@@ -453,7 +459,7 @@ function MonthlyHeadcountTrendChart({
             />
           </LineChart>
         </ResponsiveContainer>
-      </div>
+      </ChartContainer>
 
       {/* <div className="mt-4 flex flex-wrap gap-2">
         {data.map((entry) => (
@@ -489,7 +495,7 @@ function TurnoverTrendChart({
   data: TurnoverTrendPoint[];
 }) {
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-gray-900">Turnover Trend</h2>
         <p className="text-sm text-gray-600">
@@ -497,7 +503,7 @@ function TurnoverTrendChart({
         </p>
       </div>
 
-      <div className="h-72">
+      <ChartContainer className="h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={data}
@@ -554,7 +560,7 @@ function TurnoverTrendChart({
             />
           </ComposedChart>
         </ResponsiveContainer>
-      </div>
+      </ChartContainer>
     </article>
   );
 }
@@ -578,9 +584,9 @@ function EmploymentTypeDonutChart({
   ];
 
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
       <p className="text-sm font-medium text-gray-500">Employment Type</p>
-      <div className="mt-4 h-48">
+      <ChartContainer className="mt-4 h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -617,7 +623,7 @@ function EmploymentTypeDonutChart({
             />
           </PieChart>
         </ResponsiveContainer>
-      </div>
+      </ChartContainer>
       <div className="mt-4 flex items-center justify-center gap-6 text-sm">
         <div className="flex items-center gap-2 text-gray-700">
           <span className="h-3 w-3 rounded-full bg-blue-700" />
@@ -688,7 +694,7 @@ function LabourTypeSummaryCard({
   nonExecutiveCount: number;
 }) {
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
       <p className="text-sm font-medium text-gray-500">Workforce Mix</p>
       <div className="mt-4 grid gap-3">
         <div className="grid grid-cols-2 gap-3">
@@ -1360,7 +1366,7 @@ export default function ManpowerAnalyticsPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="grid gap-4">
-          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
             <p className="text-sm font-medium text-gray-500">
               Total Manpower
             </p>
@@ -1371,7 +1377,7 @@ export default function ManpowerAnalyticsPage() {
               Total loaded manpower records for the applied filters.
             </p>
           </article>
-          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
             <LocalForeignChart
               localCount={localCount}
               foreignCount={foreignCount}

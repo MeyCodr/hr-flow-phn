@@ -3,7 +3,6 @@ import { prisma } from "../../../../../lib/prisma";
 export async function POST(req: NextRequest) {
   try {
     const { steps } = await req.json();
-    console.log("steps: ", steps);
 
     for (const step of steps) {
       await prisma.approvalFlowStep.updateMany({

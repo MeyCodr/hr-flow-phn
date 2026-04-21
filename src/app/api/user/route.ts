@@ -103,7 +103,7 @@ export async function GET() {
     });
     return NextResponse.json(users);
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 

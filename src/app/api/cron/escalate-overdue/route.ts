@@ -144,7 +144,11 @@ export async function GET() {
         },
       };
 
-      await transporter.sendMail(mailOptions);
+      try {
+        await transporter.sendMail(mailOptions);
+      } catch (mailErr) {
+        console.error("Failed to send escalation email:", mailErr);
+      }
 
       // 6️⃣ Mark all approvals in current step as escalated
       await prisma.approval.updateMany({

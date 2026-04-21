@@ -349,9 +349,7 @@ export default function ManPower({
     if (!doc) return;
 
     const url = withBasePath(`/api/uploads/${encodeURIComponent(doc)}`);
-    // console.log("file url1: ", url1);
     // const url = `/api/uploads/${doc}`;
-    console.log("file url: ", url);
     const link = document.createElement("a");
     link.href = url;
     link.download = doc;

@@ -81,12 +81,12 @@ export default function FormTypeForm({
         onBack();
       }
     } catch (e) {
-      console.log(e);
+      console.error("Failed to delete form type:", e);
+      toast.error("Failed to delete form type");
     }
   };
 
   const handleDeleteClick = () => {
-    console.log("selectedFormType", selectedFormType);
     setShowConfirmModal(true);
   };
 

@@ -56,7 +56,7 @@ export default function DashboardLayout({
       );
       setUser(res.data.data);
     } catch (error) {
-      console.log(error);
+      console.error("Failed to fetch user session data:", error);
     }
   }, [session]);
 

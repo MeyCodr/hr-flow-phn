@@ -73,7 +73,7 @@ function UserForm({
       toast.success("Successfully updated user");
       onUpdate(); // 👈 notify parent to refresh data
     } catch (error) {
-      console.log(error);
+      console.error("Failed to update user:", error);
       toast.error("Unable to update the user");
     }
   };

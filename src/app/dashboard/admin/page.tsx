@@ -77,7 +77,6 @@ export default async function Admin() {
   const departments = await prisma.department.findMany();
   const sections = await prisma.section.findMany();
 
-  console.log("form submission: ", formSubmission);
 
   const enrichedSubmissions: SelfFormData[] = formSubmission.map(
     (
@@ -126,7 +125,6 @@ export default async function Admin() {
     },
   );
 
-  console.log("enrinched submission: ", enrichedSubmissions);
 
   return (
     <div className="w-full font-poppins">

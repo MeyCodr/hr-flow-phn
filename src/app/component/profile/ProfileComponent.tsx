@@ -65,7 +65,7 @@ export default function ProfileComponent({
     axios
       .get(withBasePath("/api/division"))
       .then((res) => setDivisions(res.data))
-      .catch(console.error);
+      .catch((err) => console.error("Failed to fetch data:", err));
   }, []);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function ProfileComponent({
           setDepartments(res.data);
           setSections([]);
         })
-        .catch(console.error);
+        .catch((err) => console.error("Failed to fetch data:", err));
     } else {
       setDepartments([]);
       setSections([]);
@@ -90,7 +90,7 @@ export default function ProfileComponent({
       axios
         .get(withBasePath(`/api/section?departmentId=${selectedDepartment}`))
         .then((res) => setSections(res.data))
-        .catch(console.error);
+        .catch((err) => console.error("Failed to fetch data:", err));
     } else setSections([]);
     setSelectedSection("");
   }, [selectedDepartment]);

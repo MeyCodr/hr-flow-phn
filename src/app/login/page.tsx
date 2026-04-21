@@ -38,7 +38,6 @@ export default function Login() {
       }
     } catch (error) {
       toast.error("Something went wrong", { id: toastId });
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -53,7 +52,7 @@ export default function Login() {
         toast.success("Password has been sent to your email");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Failed to send password reset:", error);
       toast.error("Failed Request. Please contact an admin!");
     }
   };

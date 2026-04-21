@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(createFormType);
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -32,7 +32,7 @@ export async function GET() {
     const getAllFormType = await prisma.formType.findMany();
     return NextResponse.json(getAllFormType);
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 

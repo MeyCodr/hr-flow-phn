@@ -65,6 +65,8 @@ export default function ApprovalComponent({
 }: ApprovalComponentProps) {
   const [approvals, setApprovals] = useState(pendingApprovals);
   const [forms, setForms] = useState(selfForms);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [isViewing, setIsViewing] = useState(false);
   const [viewedFormData, setViewedFormData] = useState<SelfFormData | null>(
     null
@@ -161,7 +163,22 @@ export default function ApprovalComponent({
     exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: "easeIn" } },
   };
 
-  const formsWithLevels = forms.map((form) => {
+  const fromDate = dateFrom ? new Date(dateFrom) : null;
+  const toDate = dateTo ? new Date(`${dateTo}T23:59:59`) : null;
+
+  const isInRange = (date: string | Date) => {
+    const d = new Date(date);
+    if (fromDate && d < fromDate) return false;
+    if (toDate && d > toDate) return false;
+    return true;
+  };
+
+  const filteredApprovals = approvals.filter((a) =>
+    isInRange(a.submission?.createdAt ?? new Date()),
+  );
+  const filteredForms = forms.filter((f) => isInRange(f.createdAt));
+
+  const formsWithLevels = filteredForms.map((form) => {
     const approvalsList = form.approvals || [];
 
     const grouped = approvalsList.reduce<Record<number, Approval[]>>(
@@ -209,8 +226,7 @@ export default function ApprovalComponent({
       f.status === "ESCALATED"
   );
 
-
-  const approvalsHistory = approvals.filter(
+  const approvalsHistory = filteredApprovals.filter(
     (a) =>
       a.status === "APPROVED" ||
       a.status === "REJECTED" ||
@@ -222,7 +238,7 @@ export default function ApprovalComponent({
       name: "Pending",
       content: (
         <PendingContent
-          approvals={approvals}
+          approvals={filteredApprovals}
           userPendingForms={userPendingForms}
           user={user}
           onActionComplete={refreshData}
@@ -253,8 +269,43 @@ export default function ApprovalComponent({
     },
   ];
 
+  const hasFilter = dateFrom || dateTo;
+
+  const dateFilter = (
+    <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-0.5">
+        <label className="text-xs font-medium text-gray-500">From</label>
+        <input
+          type="date"
+          value={dateFrom}
+          max={dateTo || undefined}
+          onChange={(e) => setDateFrom(e.target.value)}
+          className="text-xs border border-gray-300 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        />
+      </div>
+      <div className="flex flex-col gap-0.5">
+        <label className="text-xs font-medium text-gray-500">To</label>
+        <input
+          type="date"
+          value={dateTo}
+          min={dateFrom || undefined}
+          onChange={(e) => setDateTo(e.target.value)}
+          className="text-xs border border-gray-300 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        />
+      </div>
+      {hasFilter && (
+        <button
+          onClick={() => { setDateFrom(""); setDateTo(""); }}
+          className="text-xs text-indigo-700 hover:text-indigo-900 underline mt-4"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+
   return (
-    <div className="flex my-6 w-full max-w-6xl">
+    <div className="flex flex-col my-6 w-full max-w-6xl">
       <div className="text-sm">
         <Toaster position="top-right" />
       </div>
@@ -284,7 +335,7 @@ export default function ApprovalComponent({
             exit="exit"
             className="w-full"
           >
-            <Tabs tabs={categories} />
+            <Tabs tabs={categories} rightSlot={dateFilter} />
           </motion.div>
         )}
       </AnimatePresence>

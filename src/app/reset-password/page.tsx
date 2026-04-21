@@ -49,7 +49,7 @@ function ResetPasswordContent() {
         }, 1000);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Failed to reset password:", error);
       toast.error("Unable to reset password. Please contact your admin.");
     } finally {
       setLoading(false);

@@ -31,10 +31,9 @@ export default function FormSubmission({
     setLoading(true);
     try {
       const res = await axios.get(withBasePath(`/api/form`));
-      console.log("res: ", res.data);
       setForm(res.data);
     } catch (error) {
-      console.log(error);
+      console.error("Failed to fetch form submissions:", error);
     } finally {
       setLoading(false);
     }

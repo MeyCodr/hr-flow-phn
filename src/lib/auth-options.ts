@@ -1,6 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compareSync } from "bcrypt";
+import { compare } from "bcrypt";
 import { prisma } from "../../lib/prisma";
 import { withBasePath } from "../../lib/base-path";
 
@@ -25,7 +25,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("No user found with that staff ID.");
         }
 
-        const passwordIsValid = compareSync(
+        const passwordIsValid = await compare(
           credentials.password,
           user.password,
         );

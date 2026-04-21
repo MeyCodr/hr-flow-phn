@@ -180,13 +180,10 @@ export default function ApprovalFlow({
 
   const handleSaveOrder = async (newOrder: ApprovalFlowStep[]) => {
     try {
-      console.log("new order: ", newOrder);
       const updated = newOrder.map((item, index) => ({
         id: item.id,
         order: index + 1,
       }));
-
-      console.log("update: ", updated);
 
       await axios.post(withBasePath("/api/approval-flow/update-order"), {
         steps: updated,

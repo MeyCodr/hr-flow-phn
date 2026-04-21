@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i '/console\\\\.log\\(\"steps: \"/d' \"c:/Users/amir.anwar/PHN Projects/hr-flow-phn/src/app/api/approval-flow/update-order/route.ts\")",
+      "Bash(sed -i '/console\\\\.log\\(\"data: \"/d' \"c:/Users/amir.anwar/PHN Projects/hr-flow-phn/src/app/api/form/employee-review-post/route.ts\")",
+      "Bash(npx tsc *)",
+      "Bash(sed -i 's/<div className=\"h-56\">/<div className=\"h-56 w-full\">/g' 'c:/Users/amir.anwar/PHN Projects/hr-flow-phn/src/app/dashboard/manpower-analytics/page.tsx')",
+      "Bash(sed -i 's/<div className=\"h-72\">/<div className=\"h-72 w-full\">/g' 'c:/Users/amir.anwar/PHN Projects/hr-flow-phn/src/app/dashboard/manpower-analytics/page.tsx')",
+      "Bash(sed -i 's/<div className=\"mt-4 h-48\">/<div className=\"mt-4 h-48 w-full\">/g' 'c:/Users/amir.anwar/PHN Projects/hr-flow-phn/src/app/dashboard/manpower-analytics/page.tsx')"
+    ]
+  }
+}
