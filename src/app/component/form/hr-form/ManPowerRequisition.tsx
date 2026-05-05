@@ -307,8 +307,8 @@ export default function ManPower({
       if (axios.isAxiosError(error)) {
         toast.error(
           error.response?.data?.error ||
-            error.message ||
-            "Something went wrong",
+          error.message ||
+          "Something went wrong",
           { toasterId: toastId },
         );
       } else if (error instanceof Error) {
@@ -368,9 +368,8 @@ export default function ManPower({
       <form
         action=""
         onSubmit={handleSubmit}
-        className={`bg-white max-w-6xl rounded-xl ${
-          readOnly ? "p-0" : "p-4 border border-gray-300 "
-        }`}
+        className={`bg-white max-w-6xl rounded-xl ${readOnly ? "p-0" : "p-4 border border-gray-300 "
+          }`}
       >
         <div>
           <h1 className="text-xl font-semibold">
@@ -386,9 +385,8 @@ export default function ManPower({
               <Dropdown
                 title="Category"
                 menu={categoryManPower}
-                className={`w-40 ${
-                  errors.category ? "border border-red-500 rounded-md" : ""
-                }`}
+                className={`w-40 ${errors.category ? "border border-red-500 rounded-md" : ""
+                  }`}
                 selected={
                   readOnly ? parsedData?.category?.name : data.category?.name
                 }
@@ -415,14 +413,13 @@ export default function ManPower({
                   value={readOnly ? parsedData?.createddate : data.createddate}
                   // onChange={handleDateChange("createddate")}
                   onChange={
-                    readOnly ? () => {} : handleDateChange("createddate")
+                    readOnly ? () => { } : handleDateChange("createddate")
                   }
                   disabled={readOnly}
-                  className={`w-full border ${
-                    errors.dateOfSubmission
-                      ? "border border-red-500 rounded-md"
-                      : ""
-                  } border-gray-300  rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                  className={`w-full border ${errors.dateOfSubmission
+                    ? "border border-red-500 rounded-md"
+                    : ""
+                    } border-gray-300  rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -514,11 +511,10 @@ export default function ManPower({
                     setData((prev) => ({ ...prev, designation: value }));
                   }}
                   disabled={readOnly}
-                  className={`${
-                    errors.designation
-                      ? "border border-red-500"
-                      : "border-gray-300"
-                  } `}
+                  className={`${errors.designation
+                    ? "border border-red-500"
+                    : "border-gray-300"
+                    } `}
                 />
               </div>
               <div className="flex flex-col space-y-2">
@@ -554,7 +550,7 @@ export default function ManPower({
                   type="text"
                   value={readOnly ? parsedData?.noRequested : data.noRequested}
                   disabled={readOnly}
-                  onChange={readOnly ? () => {} : handleChange}
+                  onChange={readOnly ? () => { } : handleChange}
                   placeholder="No Requested"
                   required
                   className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -576,7 +572,7 @@ export default function ManPower({
                         ? parsedData?.currentHeadCount
                         : data.currentHeadCount
                     }
-                    onChange={readOnly ? () => {} : handleChange}
+                    onChange={readOnly ? () => { } : handleChange}
                     disabled={readOnly}
                     placeholder="Current Headcount"
                     required
@@ -600,7 +596,7 @@ export default function ManPower({
                         ? parsedData?.approvedRequirement
                         : data.approvedRequirement
                     }
-                    onChange={readOnly ? () => {} : handleChange}
+                    onChange={readOnly ? () => { } : handleChange}
                     disabled={readOnly}
                     placeholder="Approved Requirement"
                     required
@@ -977,7 +973,7 @@ export default function ManPower({
                             ? parsedData.incumbentName
                             : data.incumbentName
                         }
-                        onChange={readOnly ? () => {} : handleChange}
+                        onChange={readOnly ? () => { } : handleChange}
                         placeholder="Incumbent Name"
                         required
                         disabled={
@@ -986,14 +982,13 @@ export default function ManPower({
                             : data.selectedOption !== "replacement"
                         } // only editable if Replacement is selected
                         className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
-                                ${
-                                  (readOnly
-                                    ? parsedData.selectedOption !==
-                                      "replacement"
-                                    : data.selectedOption !== "replacement")
-                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                    : "bg-white text-gray-900 border-gray-300"
-                                }`}
+                                ${(readOnly
+                            ? parsedData.selectedOption !==
+                            "replacement"
+                            : data.selectedOption !== "replacement")
+                            ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                            : "bg-white text-gray-900 border-gray-300"
+                          }`}
                       />
                     </div>
                     <div className="flex-1 flex flex-col space-y-2">
@@ -1009,7 +1004,7 @@ export default function ManPower({
                             : data.lastWorkingDay
                         }
                         onChange={
-                          readOnly ? () => {} : handleDateChange("lastWorkingDay")
+                          readOnly ? () => { } : handleDateChange("lastWorkingDay")
                         }
                         disabled={
                           readOnly
@@ -1017,14 +1012,13 @@ export default function ManPower({
                             : data.selectedOption !== "replacement"
                         }
                         className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500
-                                ${
-                                  (readOnly
-                                    ? parsedData.selectedOption !==
-                                      "replacement"
-                                    : data.selectedOption !== "replacement")
-                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                    : "bg-white text-gray-900 border-gray-300"
-                                }`}
+                                ${(readOnly
+                            ? parsedData.selectedOption !==
+                            "replacement"
+                            : data.selectedOption !== "replacement")
+                            ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                            : "bg-white text-gray-900 border-gray-300"
+                          }`}
                       />
                     </div>
                   </div>
@@ -1058,14 +1052,14 @@ export default function ManPower({
                     <div className="flex flex-col gap-6 my-6 ml-6">
                       {(readOnly
                         ? reasonOptions.filter(
-                            (reason) =>
-                              parsedData?.[
-                                reason.key as keyof ManPowerTypes
-                              ] !== undefined &&
-                              parsedData?.[
-                                reason.key as keyof ManPowerTypes
-                              ] !== "",
-                          )
+                          (reason) =>
+                            parsedData?.[
+                            reason.key as keyof ManPowerTypes
+                            ] !== undefined &&
+                            parsedData?.[
+                            reason.key as keyof ManPowerTypes
+                            ] !== "",
+                        )
                         : reasonOptions
                       ).map((reason) => {
                         const isChecked = data.selectedReasons.includes(
@@ -1080,8 +1074,8 @@ export default function ManPower({
                                 checked={
                                   readOnly
                                     ? (parsedData?.selectedReasons?.includes(
-                                        reason.key,
-                                      ) ?? false)
+                                      reason.key,
+                                    ) ?? false)
                                     : isChecked
                                 }
                                 onChange={() => handleReasonCheck(reason.key)}
@@ -1107,11 +1101,10 @@ export default function ManPower({
                               placeholder={reason.label}
                               required={isChecked}
                               disabled={readOnly || !isChecked}
-                              className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                                readOnly || !isChecked
-                                  ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                  : "bg-white text-gray-900 border-gray-300"
-                              }`}
+                              className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 ${readOnly || !isChecked
+                                ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                                : "bg-white text-gray-900 border-gray-300"
+                                }`}
                             />
                           </div>
                         );
@@ -1128,7 +1121,7 @@ export default function ManPower({
 
               <div className="w-full flex flex-col space-y-2 mt-4 mb-6">
                 <Label
-                  name="File Attachment"
+                  name={`File Attachment (Please attach Department Orga Chart, Job Description and Resignation info for replacement request)`}
                   htmlFor="fileAttachment"
                   className="block text-sm font-medium text-gray-700"
                 />
@@ -1136,11 +1129,10 @@ export default function ManPower({
                 <label
                   htmlFor="fileAttachment"
                   className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs transition cursor-pointer
-                  ${
-                    readOnly
+                  ${readOnly
                       ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
                       : "bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
-                  } ${errors.fileAttachment ? "border-red-500" : ""}`}
+                    } ${errors.fileAttachment ? "border-red-500" : ""}`}
                 >
                   <span className="truncate">
                     {files.length > 0
@@ -1148,9 +1140,8 @@ export default function ManPower({
                       : "Choose a file or drag & drop"}
                   </span>
                   <span
-                    className={`ml-2 rounded px-3 py-1 text-xs font-medium text-white ${
-                      readOnly ? "bg-gray-400" : "bg-indigo-800"
-                    }`}
+                    className={`ml-2 rounded px-3 py-1 text-xs font-medium text-white ${readOnly ? "bg-gray-400" : "bg-indigo-800"
+                      }`}
                   >
                     Browse
                   </span>
@@ -1256,11 +1247,10 @@ export default function ManPower({
               name="Submit"
               type="submit"
               disabled={readOnly}
-              className={`border px-10  py-2 text-white rounded-md  transition-all ease-in-out duration-150   text-xs text-center ${
-                readOnly
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-indigo-800 hover:bg-indigo-700 cursor-pointer"
-              }`}
+              className={`border px-10  py-2 text-white rounded-md  transition-all ease-in-out duration-150   text-xs text-center ${readOnly
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-indigo-800 hover:bg-indigo-700 cursor-pointer"
+                }`}
             />
           ) : (
             <></>

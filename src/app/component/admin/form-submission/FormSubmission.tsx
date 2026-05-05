@@ -43,6 +43,22 @@ export default function FormSubmission({
     fetchFormSubmission();
   }, []);
 
+  const getLatestApprovalDate = (submission: SelfFormData): Date | null => {
+    const dates = submission.approvals
+      .map((a) => (a.approvedAt ? new Date(a.approvedAt) : null))
+      .filter((d): d is Date => d !== null);
+    return dates.length > 0 ? new Date(Math.max(...dates.map((d) => d.getTime()))) : null;
+  };
+
+  const sortedForm = [...form].sort((a, b) => {
+    const dateA = getLatestApprovalDate(a);
+    const dateB = getLatestApprovalDate(b);
+    if (dateA && dateB) return dateB.getTime() - dateA.getTime();
+    if (dateA) return -1;
+    if (dateB) return 1;
+    return 0;
+  });
+
   // Framer Motion variants for animation
   const containerVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
@@ -88,25 +104,29 @@ export default function FormSubmission({
                         <th className="px-4 py-3 font-semibold text-nowrap">
                           Created at
                         </th>
+                        <th className="px-4 py-3 font-semibold text-nowrap">
+                          Latest Approval
+                        </th>
                         <th className="px-4 py-3 font-semibold">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {form.map((form, i) => {
+                      {sortedForm.map((item, i) => {
+                        const latestApproval = getLatestApprovalDate(item);
                         return (
                           <tr
                             key={i}
-                            onClick={() => handleRowClick(form)}
+                            onClick={() => handleRowClick(item)}
                             className="hover:bg-indigo-50 transition cursor-pointer"
                           >
                             <td className="px-4 py-3 font-medium text-gray-700">
                               {i + 1}
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
-                              {form.formType.name}
+                              {item.formType.name}
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
-                              {form.createdBy.fullname}
+                              {item.createdBy.fullname}
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
                               {new Intl.DateTimeFormat("en-GB", {
@@ -115,14 +135,32 @@ export default function FormSubmission({
                                 year: "numeric",
                                 hour: "2-digit",
                                 minute: "2-digit",
-                              }).format(new Date(form.createdAt))}
+                              }).format(new Date(item.createdAt))}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-gray-600">
+                              {latestApproval
+                                ? new Intl.DateTimeFormat("en-GB", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }).format(latestApproval)
+                                : "—"}
                             </td>
                             <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">
-                              {form.status}
+                              {item.status}
                             </td>
                           </tr>
                         );
                       })}
+                      {sortedForm.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="px-4 py-6 text-center text-gray-400">
+                            No submissions found.
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
