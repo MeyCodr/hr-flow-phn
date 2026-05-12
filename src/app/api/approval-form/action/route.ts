@@ -174,24 +174,23 @@ export async function POST(req: NextRequest) {
           where: { submissionId },
           data: { status: "APPROVED", approvedAt: new Date() },
         });
-        try {
-          await transporter.sendMail({
-            from: emailFrom,
-            to: requestor.email,
-            subject: "Your Performance Review Has Been Acknowledged",
-            template: "finalApproval",
-            context: {
-              status: "APPROVED",
-              formTitle: formType.name,
-              requestorName: requestor.fullname,
-              requestorStaffId: requestor.staffid,
-              submittedAt: submission.createdAt.toLocaleString(),
-              department: findDepartment.name,
-              finalApproverName: approval.approver.fullname,
-              requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
-            },
-          });
-        } catch { /* non-fatal */ }
+        const hcdAckMail = {
+          from: emailFrom,
+          to: requestor.email,
+          subject: "Your Performance Review Has Been Acknowledged",
+          template: "finalApproval",
+          context: {
+            status: "APPROVED",
+            formTitle: formType.name,
+            requestorName: requestor.fullname,
+            requestorStaffId: requestor.staffid,
+            submittedAt: submission.createdAt.toLocaleString(),
+            department: findDepartment.name,
+            finalApproverName: approval.approver.fullname,
+            requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
+          },
+        };
+        try { await transporter.sendMail(hcdAckMail); } catch { /* non-fatal */ }
         return NextResponse.json({ message: "Performance review acknowledged successfully" });
       }
 
@@ -240,26 +239,25 @@ export async function POST(req: NextRequest) {
                 status: "PENDING",
               },
             });
-            try {
-              await transporter.sendMail({
-                from: emailFrom,
-                to: employee.email,
-                subject: "Action Required: Please Fill In Your Performance Review Comments",
-                template: "FormSubmission",
-                context: {
-                  subject: "Your Performance Review Is Ready for Your Comments",
-                  recipientName: employee.fullname,
-                  formTitle: formType.name,
-                  requestorName: requestor.fullname,
-                  requestorStaffId: requestor.staffid,
-                  department: findDepartment.name,
-                  submittedAt: submission.createdAt.toLocaleString(),
-                  status: "Pending Your Comments",
-                  approvalLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
-                  isApprover: true,
-                },
-              });
-            } catch { /* non-fatal */ }
+            const employeeFillMail = {
+              from: emailFrom,
+              to: employee.email,
+              subject: "Action Required: Please Fill In Your Performance Review Comments",
+              template: "FormSubmission",
+              context: {
+                subject: "Your Performance Review Is Ready for Your Comments",
+                recipientName: employee.fullname,
+                formTitle: formType.name,
+                requestorName: requestor.fullname,
+                requestorStaffId: requestor.staffid,
+                department: findDepartment.name,
+                submittedAt: submission.createdAt.toLocaleString(),
+                status: "Pending Your Comments",
+                approvalLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
+                isApprover: true,
+              },
+            };
+            try { await transporter.sendMail(employeeFillMail); } catch { /* non-fatal */ }
           }
         }
         return NextResponse.json({ message: "Review approved. Employee notified to fill in comments." });

@@ -133,51 +133,49 @@ export async function POST(req: NextRequest) {
     });
 
     // ── Email evaluator: submission confirmation ──
-    try {
-      await transporter.sendMail({
+    const submitterMail = {
+      from: emailFrom,
+      to: currentUser.email,
+      subject: "Form request has been submitted",
+      template: "FormSubmission",
+      context: {
+        subject: "Your Request Has Been Submitted and Is Pending Approval",
+        recipientName: currentUser.fullname,
+        formTitle: formType.name,
+        requestorName: currentUser.fullname,
+        requestorStaffId: currentUser.staffid,
+        department: "",
+        submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
+        status: formSubmission.status,
+        requestLink: `${webLink}/dashboard/approval?id=${formSubmission.id}&name=${formType.name}`,
+        isApprover: false,
+      },
+    };
+    try { await transporter.sendMail(submitterMail); } catch { /* non-fatal */ }
+
+    // ── Email HOD + HoDiv: first TO, rest CC ──
+    if (firstStepApprovals.length > 0) {
+      const [first, ...rest] = firstStepApprovals;
+      const approverMail = {
         from: emailFrom,
-        to: currentUser.email,
-        subject: "Form request has been submitted",
+        to: first.approver.email,
+        cc: rest.map((a) => a.approver.email),
+        subject: "Action Required: New Request Pending Your Approval",
         template: "FormSubmission",
         context: {
-          subject: "Your Request Has Been Submitted and Is Pending Approval",
-          recipientName: currentUser.fullname,
+          subject: "Action Required: New Request Pending Your Approval",
+          recipientName: first.approver.fullname,
           formTitle: formType.name,
           requestorName: currentUser.fullname,
           requestorStaffId: currentUser.staffid,
           department: "",
           submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
           status: formSubmission.status,
-          requestLink: `${webLink}/dashboard/approval?id=${formSubmission.id}&name=${formType.name}`,
-          isApprover: false,
+          approvalLink: `${webLink}/dashboard/approval?id=${formSubmission.id}&name=${formType.name}`,
+          isApprover: true,
         },
-      });
-    } catch { /* non-fatal */ }
-
-    // ── Email HOD + HoDiv: first TO, rest CC ──
-    if (firstStepApprovals.length > 0) {
-      const [first, ...rest] = firstStepApprovals;
-      try {
-        await transporter.sendMail({
-          from: emailFrom,
-          to: first.approver.email,
-          cc: rest.map((a) => a.approver.email),
-          subject: "Action Required: New Request Pending Your Approval",
-          template: "FormSubmission",
-          context: {
-            subject: "Action Required: New Request Pending Your Approval",
-            recipientName: first.approver.fullname,
-            formTitle: formType.name,
-            requestorName: currentUser.fullname,
-            requestorStaffId: currentUser.staffid,
-            department: "",
-            submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
-            status: formSubmission.status,
-            approvalLink: `${webLink}/dashboard/approval?id=${formSubmission.id}&name=${formType.name}`,
-            isApprover: true,
-          },
-        });
-      } catch { /* non-fatal */ }
+      };
+      try { await transporter.sendMail(approverMail); } catch { /* non-fatal */ }
     }
 
     return NextResponse.json(

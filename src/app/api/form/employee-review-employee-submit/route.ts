@@ -95,27 +95,26 @@ export async function POST(req: NextRequest) {
       });
 
       const [first, ...rest] = stepApprovals;
-      try {
-        await transporter.sendMail({
-          from: emailFrom,
-          to: first.approver.email,
-          cc: rest.map((a) => a.approver.email),
-          subject: "Action Required: Performance Review Pending Acknowledgement",
-          template: "FormSubmission",
-          context: {
-            subject: "Action Required: Performance Review Pending Your Acknowledgement",
-            recipientName: first.approver.fullname,
-            formTitle: submission.formType.name,
-            requestorName: submission.createdBy.fullname,
-            requestorStaffId: submission.createdBy.staffid,
-            department: "",
-            submittedAt: submission.createdAt.toLocaleString(),
-            status: "Pending Acknowledgement",
-            approvalLink: `${webLink}/dashboard/approval?id=${formSubmissionId}&name=${submission.formType.name}`,
-            isApprover: true,
-          },
-        });
-      } catch { /* non-fatal */ }
+      const hcdStepMail = {
+        from: emailFrom,
+        to: first.approver.email,
+        cc: rest.map((a) => a.approver.email),
+        subject: "Action Required: Performance Review Pending Acknowledgement",
+        template: "FormSubmission",
+        context: {
+          subject: "Action Required: Performance Review Pending Your Acknowledgement",
+          recipientName: first.approver.fullname,
+          formTitle: submission.formType.name,
+          requestorName: submission.createdBy.fullname,
+          requestorStaffId: submission.createdBy.staffid,
+          department: "",
+          submittedAt: submission.createdAt.toLocaleString(),
+          status: "Pending Acknowledgement",
+          approvalLink: `${webLink}/dashboard/approval?id=${formSubmissionId}&name=${submission.formType.name}`,
+          isApprover: true,
+        },
+      };
+      try { await transporter.sendMail(hcdStepMail); } catch { /* non-fatal */ }
     } else {
       // No pre-configured HCD step — find HCD approver dynamically from Human Capital division
       const hcdApprovers = await prisma.user.findMany({
@@ -146,26 +145,25 @@ export async function POST(req: NextRequest) {
       });
 
       // Email the first HCD approver
-      try {
-        await transporter.sendMail({
-          from: emailFrom,
-          to: hcdApprovers[0].email,
-          subject: "Action Required: Performance Review Pending Acknowledgement",
-          template: "FormSubmission",
-          context: {
-            subject: "Action Required: Performance Review Pending Your Acknowledgement",
-            recipientName: hcdApprovers[0].fullname,
-            formTitle: submission.formType.name,
-            requestorName: submission.createdBy.fullname,
-            requestorStaffId: submission.createdBy.staffid,
-            department: "",
-            submittedAt: submission.createdAt.toLocaleString(),
-            status: "Pending Acknowledgement",
-            approvalLink: `${webLink}/dashboard/approval?id=${formSubmissionId}&name=${submission.formType.name}`,
-            isApprover: true,
-          },
-        });
-      } catch { /* non-fatal */ }
+      const hcdDynamicMail = {
+        from: emailFrom,
+        to: hcdApprovers[0].email,
+        subject: "Action Required: Performance Review Pending Acknowledgement",
+        template: "FormSubmission",
+        context: {
+          subject: "Action Required: Performance Review Pending Your Acknowledgement",
+          recipientName: hcdApprovers[0].fullname,
+          formTitle: submission.formType.name,
+          requestorName: submission.createdBy.fullname,
+          requestorStaffId: submission.createdBy.staffid,
+          department: "",
+          submittedAt: submission.createdAt.toLocaleString(),
+          status: "Pending Acknowledgement",
+          approvalLink: `${webLink}/dashboard/approval?id=${formSubmissionId}&name=${submission.formType.name}`,
+          isApprover: true,
+        },
+      };
+      try { await transporter.sendMail(hcdDynamicMail); } catch { /* non-fatal */ }
     }
 
     return NextResponse.json({ message: "Employee comments submitted successfully" }, { status: 200 });
