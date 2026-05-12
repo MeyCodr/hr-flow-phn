@@ -44,6 +44,7 @@ export interface DynamicFormProps {
   selectedSection?: string;
   selfForm?: SelfFormData;
   readOnly?: boolean;
+  fillInMode?: boolean;
   approvals?: ApprovalWithApprover[];
 }
 

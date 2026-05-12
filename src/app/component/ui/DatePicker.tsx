@@ -145,9 +145,10 @@ export default function DatePicker({
         <button
           type="button"
           onClick={toggleCalendar}
+          disabled={disabled}
           className={`absolute right-3 top-1/2 -translate-y-1/2 text-lg transition-colors ${
             disabled
-              ? "text-gray-400 cursor-not-allowed"
+              ? "text-gray-400 cursor-not-allowed pointer-events-none"
               : "text-indigo-400 hover:text-indigo-600"
           }`}
         >

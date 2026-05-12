@@ -118,6 +118,7 @@ export interface EmployeeReviewTypes {
   employeeDate: string;
   hcdAcknowledgement: string;
   hcdDate: string;
+  reviewStage?: string;
 }
 
 export interface GrievanceReportTypes {

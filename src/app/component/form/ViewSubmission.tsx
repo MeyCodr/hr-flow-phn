@@ -65,6 +65,14 @@ export default function ViewSubmission({
   const sanitizedKey = sanitizeName(form.formType.name);
   const FormComponent = HrFormComponents[sanitizedKey];
 
+  const parsedFormData = form.formData as Record<string, unknown> | null;
+  const reviewStage = parsedFormData?.reviewStage as string | undefined;
+  const employeeStaffId = parsedFormData?.staffId as string | undefined;
+  const isEmployeeFillIn =
+    reviewStage === "HOD_APPROVED" &&
+    !!user?.staffid &&
+    user.staffid === employeeStaffId;
+
   useEffect(() => {
     if (session) setUser(session.user);
   }, [session]);
@@ -298,14 +306,16 @@ export default function ViewSubmission({
               setSelectedDepartment={() => {}}
               setSelectedSection={() => {}}
               setSelectedWorkLocation={() => {}}
-              readOnly={true}
+              readOnly={!isEmployeeFillIn}
+              fillInMode={isEmployeeFillIn}
+              onSubmitSuccess={onBack}
             />
           ) : (
             <p className="text-sm text-gray-500">Form type not supported.</p>
           )}
 
-          {/* Approve / Reject Buttons */}
-          {approve && (
+          {/* Approve / Reject Buttons — hidden in employee fill-in mode */}
+          {approve && !isEmployeeFillIn && (
             <div className="flex gap-x-4 justify-end mt-4">
               <PrimaryButton
                 name="Reject"

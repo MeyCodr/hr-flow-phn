@@ -7,6 +7,7 @@ import { Prisma } from "@/generated/client";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
+const EMPLOYEE_REVIEW_IDENTIFIER = "employee monthly performance";
 
 type ApprovalWithSubmission = Prisma.ApprovalGetPayload<{
   include: {
@@ -150,6 +151,120 @@ export async function POST(req: NextRequest) {
 
     // 3️⃣ Handle next step
     if (action === "approve") {
+      const isEmployeeReview = formType.name.trim().toLowerCase().includes(EMPLOYEE_REVIEW_IDENTIFIER);
+      const currentFormData = submission.formData as Record<string, unknown> | null;
+      const reviewStage = (currentFormData?.reviewStage as string) ?? "EVALUATOR_SUBMITTED";
+      const today = new Date().toISOString().split("T")[0];
+
+      // ── Employee Review: HCD acknowledgement step ──
+      if (isEmployeeReview && reviewStage === "EMPLOYEE_SUBMITTED") {
+        await prisma.formSubmission.update({
+          where: { id: submissionId },
+          data: {
+            status: "APPROVED",
+            formData: {
+              ...(currentFormData ?? {}),
+              hcdAcknowledgement: approval.approver.fullname,
+              hcdDate: today,
+              reviewStage: "COMPLETED",
+            },
+          },
+        });
+        await prisma.approval.updateMany({
+          where: { submissionId },
+          data: { status: "APPROVED", approvedAt: new Date() },
+        });
+        try {
+          await transporter.sendMail({
+            from: emailFrom,
+            to: requestor.email,
+            subject: "Your Performance Review Has Been Acknowledged",
+            template: "finalApproval",
+            context: {
+              status: "APPROVED",
+              formTitle: formType.name,
+              requestorName: requestor.fullname,
+              requestorStaffId: requestor.staffid,
+              submittedAt: submission.createdAt.toLocaleString(),
+              department: findDepartment.name,
+              finalApproverName: approval.approver.fullname,
+              requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
+            },
+          });
+        } catch { /* non-fatal */ }
+        return NextResponse.json({ message: "Performance review acknowledged successfully" });
+      }
+
+      // ── Employee Review: HOD/HoDiv approval step ──
+      if (isEmployeeReview && reviewStage === "EVALUATOR_SUBMITTED") {
+        // Any-one-approves model: auto-approve all other approvers at the same step order
+        await prisma.approval.updateMany({
+          where: {
+            submissionId,
+            stepOrder: approval.stepOrder,
+            status: { notIn: ["APPROVED", "REJECTED"] },
+          },
+          data: { status: "APPROVED", approvedAt: new Date() },
+        });
+
+        // Always pause for employee after HOD step — shift any WAITING steps (HCD) up to make room
+        const employeeStepOrder = approval.stepOrder + 1;
+
+        await prisma.approval.updateMany({
+          where: { submissionId, status: "WAITING" },
+          data: { stepOrder: { increment: 1 } },
+        });
+
+        await prisma.formSubmission.update({
+          where: { id: submissionId },
+          data: {
+            formData: {
+              ...(currentFormData ?? {}),
+              hodSignature: approval.approver.fullname,
+              hodDate: today,
+              reviewStage: "HOD_APPROVED",
+            },
+          },
+        });
+
+        // Create PENDING approval entry for the reviewed employee
+        const employeeStaffId = currentFormData?.staffId as string | undefined;
+        if (employeeStaffId) {
+          const employee = await prisma.user.findUnique({ where: { staffid: employeeStaffId } });
+          if (employee) {
+            await prisma.approval.create({
+              data: {
+                submissionId,
+                approverId: employee.id,
+                stepOrder: employeeStepOrder,
+                status: "PENDING",
+              },
+            });
+            try {
+              await transporter.sendMail({
+                from: emailFrom,
+                to: employee.email,
+                subject: "Action Required: Please Fill In Your Performance Review Comments",
+                template: "FormSubmission",
+                context: {
+                  subject: "Your Performance Review Is Ready for Your Comments",
+                  recipientName: employee.fullname,
+                  formTitle: formType.name,
+                  requestorName: requestor.fullname,
+                  requestorStaffId: requestor.staffid,
+                  department: findDepartment.name,
+                  submittedAt: submission.createdAt.toLocaleString(),
+                  status: "Pending Your Comments",
+                  approvalLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
+                  isApprover: true,
+                },
+              });
+            } catch { /* non-fatal */ }
+          }
+        }
+        return NextResponse.json({ message: "Review approved. Employee notified to fill in comments." });
+      }
+
       const isGrievance =
         formType.name.trim().toLowerCase() === "grievance report";
 

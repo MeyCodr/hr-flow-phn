@@ -1,4 +1,4 @@
-import { ApprovalUser, ManPowerTypes } from "@/app/types/types";
+import { ApprovalUser, EmployeeReviewTypes, ManPowerTypes } from "@/app/types/types";
 import { Prisma } from "@/generated/client";
 import jsPDF from "jspdf";
 import autoTable, { RowInput } from "jspdf-autotable";
@@ -366,6 +366,181 @@ const generateGrievancePDF = (doc: jsPDF, data: FormPDFData) => {
   });
 };
 
+const generateEmployeeReviewPDF = (doc: jsPDF, data: FormPDFData, logoBase64: string) => {
+  const { formData } = data;
+  const f = (formData as unknown as EmployeeReviewTypes) ?? {};
+  const margin = 10;
+  const chk = (val: string | undefined, expected: string) => val === expected ? "[X]" : "[ ]";
+  const val = (v: unknown) => (v ? String(v) : "-");
+
+  // ── Header row ──
+  autoTable(doc, {
+    startY: 10,
+    body: [[
+      { content: "", styles: { cellWidth: 28, minCellHeight: 14 } },
+      { content: "EMPLOYEE MONTHLY PERFORMANCE REVIEW", styles: { halign: "center", fontStyle: "bold", fontSize: 10, valign: "middle" } },
+      { content: "PHN/HCD/PRF-002", styles: { halign: "center", fontSize: 7, cellWidth: 38, valign: "middle" } },
+    ]],
+    theme: "grid",
+    styles: { cellPadding: 2 },
+    margin: { left: margin, right: margin },
+    didDrawCell: (hook) => {
+      if (hook.row.index === 0 && hook.column.index === 0) {
+        doc.addImage(logoBase64, "PNG", hook.cell.x + 1, hook.cell.y + 1, 26, 12);
+      }
+    },
+  });
+
+  let y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 3;
+
+  // ── Please Note ──
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "bold");
+  doc.text("PLEASE NOTE:", margin, y);
+  doc.setFont("helvetica", "normal");
+  const noteLines = doc.splitTextToSize(
+    "Evaluator MUST submit a copy of this form on every completion of review period to Human Capital Division. The evaluating manager should ensure that the employee is given a copy of this document at each stage of their probation period and should retain a copy to monitor progress against set objectives at follow-up meetings.",
+    190 - margin * 2
+  );
+  doc.text(noteLines, margin, y + 4);
+  y += 4 + noteLines.length * 3.5 + 3;
+
+  // ── Employee Information ──
+  autoTable(doc, {
+    startY: y,
+    head: [[{ content: "Employee Information", colSpan: 4, styles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: "bold", halign: "left" } }]],
+    body: [
+      [{ content: "Employee Name", styles: { fontStyle: "bold" } }, val(f.staffName), { content: "Employee ID", styles: { fontStyle: "bold" } }, val(f.staffId)],
+      [{ content: "Job Title", styles: { fontStyle: "bold" } }, val(f.jobTitle), { content: "Date Join", styles: { fontStyle: "bold" } }, val(f.dateJoin)],
+      [{ content: "Department/Section", styles: { fontStyle: "bold" } }, `${val(f.departmentName)} / ${val(f.sectionName)}`, { content: "Evaluator", styles: { fontStyle: "bold" } }, val(f.evaluator)],
+      [{ content: "Review Period", styles: { fontStyle: "bold" } }, val(f.reviewPeriodFrom), { content: "To:", styles: { fontStyle: "bold" } }, val(f.reviewPeriodTo)],
+    ],
+    theme: "grid",
+    styles: { fontSize: 7, cellPadding: 2 },
+    columnStyles: { 0: { cellWidth: 38 }, 2: { cellWidth: 28 } },
+    margin: { left: margin, right: margin },
+  });
+
+  y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 3;
+
+  // ── Section 1: Month + Review Period ──
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "bold");
+  doc.text("1)", margin, y + 4);
+  doc.text("Month:", margin + 5, y + 4);
+  doc.setFont("helvetica", "normal");
+  const months = ["1", "2", "3", "4", "5"];
+  months.forEach((m, i) => doc.text(`${chk(f.monthReview, m)} ${m}`, margin + 20 + i * 11, y + 4));
+  doc.setFont("helvetica", "bold");
+  doc.text("Review Period: From", margin + 78, y + 4);
+  doc.setFont("helvetica", "normal");
+  doc.text(val(f.reviewPeriodFrom), margin + 110, y + 4);
+  doc.text("to", margin + 140, y + 4);
+  doc.text(val(f.reviewPeriodTo), margin + 146, y + 4);
+  doc.setFontSize(6);
+  doc.setFont("helvetica", "italic");
+  doc.text("(please circle the review month)", margin + 5, y + 8);
+  y += 12;
+
+  // ── Performance Review Table ──
+  const criteria = [
+    { label: "Job Knowledge", field: "jobKnowledge" as keyof EmployeeReviewTypes, commentField: "jobKnowledgeComments" as keyof EmployeeReviewTypes },
+    { label: "Work Quality", field: "workQuality" as keyof EmployeeReviewTypes, commentField: "workQualityComments" as keyof EmployeeReviewTypes },
+    { label: "Attendance/Punctuality", field: "attendancePunctuality" as keyof EmployeeReviewTypes, commentField: "attendancePunctualityComments" as keyof EmployeeReviewTypes },
+    { label: "Communication Skills and Team Work", field: "communicationSkills" as keyof EmployeeReviewTypes, commentField: "communicationSkillsComments" as keyof EmployeeReviewTypes },
+    { label: "Competency in the Role", field: "competencyRoles" as keyof EmployeeReviewTypes, commentField: "competencyRolesComments" as keyof EmployeeReviewTypes },
+  ];
+
+  const perfBody: RowInput[] = [];
+  criteria.forEach(c => {
+    const rating = String(f[c.field] ?? "");
+    const comment = String(f[c.commentField] ?? "");
+    perfBody.push([c.label, chk(rating, "1"), chk(rating, "2"), chk(rating, "3"), chk(rating, "4"), chk(rating, "5")]);
+    perfBody.push([{ content: `Comments:  ${comment}`, colSpan: 6, styles: { fontStyle: "italic", textColor: [80, 80, 80] } }]);
+  });
+  perfBody.push([{ content: `Average Rating / Score:    ${val(f.averageRating)}  / 25`, colSpan: 6, styles: { fontStyle: "bold" } }]);
+
+  autoTable(doc, {
+    startY: y,
+    head: [[
+      { content: "", styles: { cellWidth: 60 } },
+      { content: "1 = Poor" },
+      { content: "2 = Fair" },
+      { content: "3 = Satisfactory" },
+      { content: "4 = Good" },
+      { content: "5 = Excellent" },
+    ]],
+    body: perfBody,
+    theme: "grid",
+    styles: { fontSize: 7, cellPadding: 2, halign: "center" },
+    columnStyles: {
+      0: { halign: "left", fontStyle: "bold", cellWidth: 60 },
+      1: { cellWidth: 20 }, 2: { cellWidth: 20 },
+      3: { cellWidth: 28 }, 4: { cellWidth: 20 }, 5: { cellWidth: 22 },
+    },
+    margin: { left: margin, right: margin },
+  });
+
+  y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+
+  // ── Superior & HOD Signatures ──
+  autoTable(doc, {
+    startY: y,
+    body: [
+      [
+        { content: "Superior Signature:", styles: { fontStyle: "bold" } }, val(f.superiorSignature),
+        { content: "HOD Signature:", styles: { fontStyle: "bold" } }, val(f.hodSignature),
+      ],
+      [
+        { content: "Date:", styles: { fontStyle: "bold" } }, val(f.superiorDate),
+        { content: "Date:", styles: { fontStyle: "bold" } }, val(f.hodDate),
+      ],
+    ],
+    theme: "grid",
+    styles: { fontSize: 7, cellPadding: 3 },
+    columnStyles: { 0: { cellWidth: 38 }, 2: { cellWidth: 32 } },
+    margin: { left: margin, right: margin },
+  });
+
+  y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+
+  // ── Employee Comments and Goals ──
+  autoTable(doc, {
+    startY: y,
+    body: [
+      [{
+        content: "Employee Comments and Goals:\n(By signing this form, you confirm that you have discussed this review in detail with your superior and acknowledged on the comments and advices for improvements where necessary.)",
+        styles: { fontStyle: "bold", fontSize: 7 },
+      }],
+      [{ content: val(f.employeeComments), styles: { minCellHeight: 18, fontSize: 7 } }],
+    ],
+    theme: "grid",
+    styles: { fontSize: 7, cellPadding: 2 },
+    margin: { left: margin, right: margin },
+  });
+
+  y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+
+  // ── Employee Signature & HCD Acknowledgement ──
+  autoTable(doc, {
+    startY: y,
+    body: [
+      [
+        { content: "Employee Signature:", styles: { fontStyle: "bold" } }, val(f.employeeSignature),
+        { content: "HCD Acknowledgement:", styles: { fontStyle: "bold" } }, val(f.hcdAcknowledgement),
+      ],
+      [
+        { content: "Date:", styles: { fontStyle: "bold" } }, val(f.employeeDate),
+        { content: "Date:", styles: { fontStyle: "bold" } }, val(f.hcdDate),
+      ],
+    ],
+    theme: "grid",
+    styles: { fontSize: 7, cellPadding: 3 },
+    columnStyles: { 0: { cellWidth: 38 }, 2: { cellWidth: 38 } },
+    margin: { left: margin, right: margin },
+  });
+};
+
 export const downloadFormPDF = async (data: FormPDFData) => {
   const logoBase64 = await loadImage(logoUrl);
   const doc = new jsPDF();
@@ -385,6 +560,13 @@ export const downloadFormPDF = async (data: FormPDFData) => {
   const titleX = pageWidth / 2;
   const titleY = logoY + logoHeight + 5;
   doc.setFontSize(10);
+
+  if (data.formType.toLowerCase().includes("employee monthly performance")) {
+    const empDoc = new jsPDF();
+    generateEmployeeReviewPDF(empDoc, data, logoBase64);
+    empDoc.save(`EmployeeMonthlyPerformanceReview_${data.createdBy.staffid}.pdf`);
+    return;
+  }
 
   if (data.formType === "Man Power Requisition") {
     doc.text("MANPOWER REQUISITION FORM", titleX, titleY, { align: "center" });

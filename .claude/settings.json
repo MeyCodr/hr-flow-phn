@@ -6,7 +6,9 @@
       "Bash(npx tsc *)",
       "Bash(sed -i 's/<div className=\"h-56\">/<div className=\"h-56 w-full\">/g' 'c:/Users/amir.anwar/PHN Projects/hr-flow-phn/src/app/dashboard/manpower-analytics/page.tsx')",
       "Bash(sed -i 's/<div className=\"h-72\">/<div className=\"h-72 w-full\">/g' 'c:/Users/amir.anwar/PHN Projects/hr-flow-phn/src/app/dashboard/manpower-analytics/page.tsx')",
-      "Bash(sed -i 's/<div className=\"mt-4 h-48\">/<div className=\"mt-4 h-48 w-full\">/g' 'c:/Users/amir.anwar/PHN Projects/hr-flow-phn/src/app/dashboard/manpower-analytics/page.tsx')"
+      "Bash(sed -i 's/<div className=\"mt-4 h-48\">/<div className=\"mt-4 h-48 w-full\">/g' 'c:/Users/amir.anwar/PHN Projects/hr-flow-phn/src/app/dashboard/manpower-analytics/page.tsx')",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\amir.anwar\\\\PHN Projects\\\\hr-flow-phn\" -Force)",
+      "Bash(Select-Object Name, Mode)"
     ]
   }
 }
