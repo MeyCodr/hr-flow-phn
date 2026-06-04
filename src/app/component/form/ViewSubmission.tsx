@@ -309,6 +309,7 @@ export default function ViewSubmission({
               readOnly={!isEmployeeFillIn}
               fillInMode={isEmployeeFillIn}
               onSubmitSuccess={onBack}
+              isApprover={approve}
             />
           ) : (
             <p className="text-sm text-gray-500">Form type not supported.</p>

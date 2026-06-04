@@ -46,6 +46,7 @@ export interface DynamicFormProps {
   readOnly?: boolean;
   fillInMode?: boolean;
   approvals?: ApprovalWithApprover[];
+  isApprover?: boolean;
 }
 
 interface FlowStep {

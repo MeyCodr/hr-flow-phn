@@ -100,6 +100,7 @@ export default function EmployeeReview({
   selfForm,
   readOnly = false,
   fillInMode = false,
+  isApprover = false,
 }: DynamicFormProps) {
   const [loading, setLoading] = useState(false);
   const [userList, setUserList] = useState<{
@@ -295,6 +296,34 @@ export default function EmployeeReview({
 
   // In fill-in mode use parsedData for display; only employeeComments comes from local state
   const formData = (readOnly || fillInMode) && parsedData ? parsedData : data;
+
+  const reviewStage = parsedData?.reviewStage;
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  // Pre-populate signature/date fields with the current user's name before they act
+  const superiorSignatureValue = (!readOnly && !fillInMode) ? (user?.name ?? "") : formData.superiorSignature;
+  const superiorDateValue = (!readOnly && !fillInMode) ? todayStr : formData.superiorDate;
+
+  const hodSignatureValue =
+    isApprover && readOnly && reviewStage === "EVALUATOR_SUBMITTED" && !formData.hodSignature
+      ? (user?.name ?? "")
+      : formData.hodSignature;
+  const hodDateValue =
+    isApprover && readOnly && reviewStage === "EVALUATOR_SUBMITTED" && !formData.hodDate
+      ? todayStr
+      : formData.hodDate;
+
+  const employeeSignatureValue = fillInMode ? (user?.name ?? "") : formData.employeeSignature;
+  const employeeDateValue = fillInMode ? todayStr : formData.employeeDate;
+
+  const hcdAcknowledgementValue =
+    isApprover && readOnly && reviewStage === "EMPLOYEE_SUBMITTED" && !formData.hcdAcknowledgement
+      ? (user?.name ?? "")
+      : formData.hcdAcknowledgement;
+  const hcdDateValue =
+    isApprover && readOnly && reviewStage === "EMPLOYEE_SUBMITTED" && !formData.hcdDate
+      ? todayStr
+      : formData.hcdDate;
 
   return (
     <>
@@ -681,7 +710,7 @@ export default function EmployeeReview({
                 id="superiorSignature"
                 name="superiorSignature"
                 type="text"
-                value={formData.superiorSignature}
+                value={superiorSignatureValue}
                 onChange={() => { }}
                 disabled
                 placeholder="Superior Signature"
@@ -689,7 +718,7 @@ export default function EmployeeReview({
               />
               <Label name="Date" htmlFor="superiorDate" className={LABEL_CLASS} />
               <DatePicker
-                value={formData.superiorDate}
+                value={superiorDateValue}
                 onChange={() => { }}
                 disabled
                 className={INPUT_CLASS}
@@ -706,7 +735,7 @@ export default function EmployeeReview({
                 id="hodSignature"
                 name="hodSignature"
                 type="text"
-                value={formData.hodSignature}
+                value={hodSignatureValue}
                 onChange={() => { }}
                 disabled
                 placeholder="HOD Signature"
@@ -714,7 +743,7 @@ export default function EmployeeReview({
               />
               <Label name="Date" htmlFor="hodDate" className={LABEL_CLASS} />
               <DatePicker
-                value={formData.hodDate}
+                value={hodDateValue}
                 onChange={() => { }}
                 disabled
                 className={INPUT_CLASS}
@@ -759,7 +788,7 @@ export default function EmployeeReview({
                 id="employeeSignature"
                 name="employeeSignature"
                 type="text"
-                value={formData.employeeSignature}
+                value={employeeSignatureValue}
                 onChange={() => { }}
                 disabled
                 placeholder="Employee Signature"
@@ -771,7 +800,7 @@ export default function EmployeeReview({
                 className={LABEL_CLASS}
               />
               <DatePicker
-                value={formData.employeeDate}
+                value={employeeDateValue}
                 onChange={() => { }}
                 disabled
                 className={INPUT_CLASS}
@@ -788,7 +817,7 @@ export default function EmployeeReview({
                 id="hcdAcknowledgement"
                 name="hcdAcknowledgement"
                 type="text"
-                value={formData.hcdAcknowledgement}
+                value={hcdAcknowledgementValue}
                 onChange={() => { }}
                 disabled
                 placeholder="HCD Acknowledgement"
@@ -796,7 +825,7 @@ export default function EmployeeReview({
               />
               <Label name="Date" htmlFor="hcdDate" className={LABEL_CLASS} />
               <DatePicker
-                value={formData.hcdDate}
+                value={hcdDateValue}
                 onChange={() => { }}
                 disabled
                 className={INPUT_CLASS}
