@@ -689,6 +689,17 @@ export default function EmployeeReview({
               <span className="text-sm text-gray-500 font-medium leading-none">/25</span>
             </div>
           </div>
+
+          {!readOnly && !fillInMode && (
+            <div className="flex justify-end mt-6">
+              <PrimaryButton
+                name="Submit"
+                type="submit"
+                disabled={false}
+                className="border px-10 py-2 text-white rounded-md transition-all ease-in-out duration-150 text-xs text-center bg-indigo-800 hover:bg-indigo-700 cursor-pointer"
+              />
+            </div>
+          )}
         </div>
 
         <div className="w-full border border-indigo-800/60 my-6" />
@@ -777,6 +788,17 @@ export default function EmployeeReview({
             className={INPUT_CLASS}
           />
 
+          {fillInMode && (
+            <div className="flex justify-end mt-4">
+              <PrimaryButton
+                name="Submit Comments"
+                type="submit"
+                disabled={false}
+                className="border px-10 py-2 text-white rounded-md transition-all ease-in-out duration-150 text-xs text-center bg-indigo-800 hover:bg-indigo-700 cursor-pointer"
+              />
+            </div>
+          )}
+
           <div className="grid md:grid-cols-2 gap-6 mt-6">
             <div className="flex flex-col space-y-2">
               <Label
@@ -834,19 +856,6 @@ export default function EmployeeReview({
           </div>
         </div>
 
-        {/* Submit */}
-        <div className="flex justify-end mt-6">
-          {!readOnly ? (
-            <PrimaryButton
-              name={fillInMode ? "Submit Comments" : "Submit"}
-              type="submit"
-              disabled={false}
-              className="border px-10 py-2 text-white rounded-md transition-all ease-in-out duration-150 text-xs text-center bg-indigo-800 hover:bg-indigo-700 cursor-pointer"
-            />
-          ) : (
-            <></>
-          )}
-        </div>
       </form>
     </>
   );
