@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { hash } from "bcrypt";
-import { getToken } from "next-auth/jwt";
 import { User } from "@/generated/client";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
@@ -73,12 +72,12 @@ export async function PUT(
       password,
     } = body;
 
-    const token = await getToken({ req });
-    if (!token?.staffid)
+    const loggedInStaffId = session.user?.staffid;
+    if (!loggedInStaffId)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const currentUser = await prisma.user.findUnique({
-      where: { staffid: token.staffid },
+      where: { staffid: loggedInStaffId },
       select: { role: true },
     });
 
@@ -88,7 +87,7 @@ export async function PUT(
     const isAdmin = currentUser.role === "ADMIN";
 
     // 🛡️ Regular user can only update their own profile
-    if (!isAdmin && token.staffid !== staffid) {
+    if (!isAdmin && loggedInStaffId !== staffid) {
       return NextResponse.json(
         { error: "Forbidden: cannot update other users" },
         { status: 403 },

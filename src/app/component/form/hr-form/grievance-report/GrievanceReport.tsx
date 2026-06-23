@@ -335,6 +335,7 @@ export default function GrievanceReport({
         onCancel={() => setOpen(false)}
         title="Confirm Submission"
         message=""
+        initialValue={data.remarks}
         onConfirm={(value) => {
           setOpen(false);
           setData((prev) => ({ ...prev, remarks: value }));

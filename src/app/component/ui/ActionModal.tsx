@@ -13,6 +13,7 @@ interface ActionModalProps {
   inputType?: "textarea" | "text" | null; // ✅ new
   inputLabel?: string;
   inputPlaceholder?: string;
+  initialValue?: string;
   onConfirm: (value: string) => void;
   onCancel: () => void;
   className?: string;
@@ -27,17 +28,18 @@ export default function ActionModal({
   inputType = "textarea", // ✅ default
   inputLabel = "Remarks",
   inputPlaceholder = "Enter here...",
+  initialValue = "",
   onConfirm,
   onCancel,
   className,
 }: ActionModalProps) {
   const [show, setShow] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(initialValue);
 
   useEffect(() => {
     if (isOpen) {
       setShow(true);
-      setValue("");
+      setValue(initialValue);
     } else {
       const timeout = setTimeout(() => setShow(false), 300);
       return () => clearTimeout(timeout);

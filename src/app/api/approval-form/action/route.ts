@@ -21,6 +21,8 @@ type ApprovalWithSubmission = Prisma.ApprovalGetPayload<{
   };
 }>;
 
+const DAY = 24 * 60 * 60 * 1000;
+
 async function normalizeApprovalQueue(submissionId: number) {
   const remainingApprovals = await prisma.approval.findMany({
     where: {
@@ -37,6 +39,9 @@ async function normalizeApprovalQueue(submissionId: number) {
   }
 
   const nextStepOrder = remainingApprovals[0].stepOrder;
+  const maxStepOrder = remainingApprovals[remainingApprovals.length - 1].stepOrder;
+  const isLastStep = nextStepOrder === maxStepOrder;
+  const deadline = new Date(Date.now() + (isLastStep ? 21 : 7) * DAY);
 
   await prisma.approval.updateMany({
     where: {
@@ -46,7 +51,7 @@ async function normalizeApprovalQueue(submissionId: number) {
       },
       stepOrder: nextStepOrder,
     },
-    data: { status: "PENDING" },
+    data: { status: "PENDING", deadline },
   });
 
   await prisma.approval.updateMany({
@@ -150,6 +155,8 @@ export async function POST(req: NextRequest) {
     });
 
     // 3️⃣ Handle next step
+    const isGrievance = formType.name.trim().toLowerCase() === "grievance report";
+
     if (action === "approve") {
       const isEmployeeReview = formType.name.trim().toLowerCase().includes(EMPLOYEE_REVIEW_IDENTIFIER);
       const currentFormData = submission.formData as Record<string, unknown> | null;
@@ -263,8 +270,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: "Review approved. Employee notified to fill in comments." });
       }
 
-      const isGrievance =
-        formType.name.trim().toLowerCase() === "grievance report";
 
       if (isGrievance) {
         // Mark submission as approved
@@ -368,15 +373,85 @@ export async function POST(req: NextRequest) {
       }
     } else {
       // ❌ Rejected
-      await prisma.formSubmission.update({
-        where: { id: submissionId },
-        data: { status: "REJECTED" },
-      });
+      if (isGrievance) {
+        // For grievance: rejection escalates to the next step.
+        // Only the last approver's rejection actually rejects the form.
+        const nextWaiting = await prisma.approval.findFirst({
+          where: {
+            submissionId,
+            stepOrder: { gt: approval.stepOrder },
+            status: "WAITING",
+          },
+          orderBy: { stepOrder: "asc" },
+          include: { approver: true },
+        });
 
-      await prisma.approval.updateMany({
-        where: { submissionId, stepOrder: { gte: approval.stepOrder } },
-        data: { status: "REJECTED" },
-      });
+        if (nextWaiting) {
+          // Not the last step — escalate to next step
+          await prisma.approval.updateMany({
+            where: { submissionId, stepOrder: approval.stepOrder },
+            data: { status: "REJECTED" },
+          });
+
+          // Check if next step is the last
+          const hasStepAfterNext = await prisma.approval.findFirst({
+            where: { submissionId, stepOrder: { gt: nextWaiting.stepOrder } },
+            select: { stepOrder: true },
+          });
+          const deadline = new Date(Date.now() + (hasStepAfterNext ? 7 : 21) * DAY);
+
+          await prisma.approval.updateMany({
+            where: { submissionId, stepOrder: nextWaiting.stepOrder },
+            data: { status: "PENDING", deadline },
+          });
+
+          // Notify next approver
+          const escalationMail = {
+            from: emailFrom,
+            to: nextWaiting.approver.email,
+            subject: "Action Required: Grievance Report Escalated to You",
+            template: "nextApproval",
+            context: {
+              nextApproverName: nextWaiting.approver.fullname,
+              previousApproverName: approval.approver.fullname,
+              formTitle: formType.name,
+              requestorName: requestor.fullname,
+              requestorStaffId: requestor.staffid,
+              department: findDepartment.name,
+              submittedAt: submission.createdAt.toLocaleString(),
+              status: "Escalated — Pending Your Review",
+              approvalLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
+            },
+          };
+          try {
+            await transporter.sendMail(escalationMail);
+          } catch (mailErr) {
+            console.error("Failed to send grievance escalation email:", mailErr);
+          }
+
+          return NextResponse.json({ message: "Rejection escalated to next approver" });
+        }
+
+        // Last approver rejected — form is finally rejected
+        await prisma.formSubmission.update({
+          where: { id: submissionId },
+          data: { status: "REJECTED" },
+        });
+        await prisma.approval.updateMany({
+          where: { submissionId, stepOrder: { gte: approval.stepOrder } },
+          data: { status: "REJECTED" },
+        });
+      } else {
+        // Non-grievance: rejection immediately kills the form
+        await prisma.formSubmission.update({
+          where: { id: submissionId },
+          data: { status: "REJECTED" },
+        });
+        await prisma.approval.updateMany({
+          where: { submissionId, stepOrder: { gte: approval.stepOrder } },
+          data: { status: "REJECTED" },
+        });
+      }
 
       const mailOptions = {
         from: emailFrom,

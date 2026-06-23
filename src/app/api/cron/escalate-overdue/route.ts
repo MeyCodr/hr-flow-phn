@@ -68,21 +68,25 @@ export async function GET() {
       const group = grouped[key];
       const firstApproval = group[0]; // for submission info
 
-      // Determine max step for this submission
-      const maxStep = await prisma.approval.aggregate({
-        where: { submissionId: firstApproval.submissionId },
-        _max: { stepOrder: true },
+      // Determine the next existing step order (may not be consecutive if a step was skipped)
+      const nextStepRow = await prisma.approval.findFirst({
+        where: {
+          submissionId: firstApproval.submissionId,
+          stepOrder: { gt: firstApproval.stepOrder },
+          status: "WAITING",
+        },
+        orderBy: { stepOrder: "asc" },
+        select: { stepOrder: true },
       });
 
-      const isFinalStep = firstApproval.stepOrder === maxStep._max.stepOrder;
-      if (isFinalStep) continue; // skip final step
+      if (!nextStepRow) continue; // already at final step
 
-      // Next step: fetch all WAITING approvals
+      // Next step: fetch all WAITING approvals at the next existing step
       const nextStepApprovals: ApprovalWithRelations[] =
         await prisma.approval.findMany({
           where: {
             submissionId: firstApproval.submissionId,
-            stepOrder: firstApproval.stepOrder + 1,
+            stepOrder: nextStepRow.stepOrder,
             status: "WAITING",
           },
           include: {
@@ -102,8 +106,15 @@ export async function GET() {
       //   firstApproval.stepOrder + 1 === maxStep._max.stepOrder ? 7 : 5;
       // const newDeadline = new Date(Date.now() + intervalMinutes * 60 * 1000);
 
-      const intervalDays =
-        firstApproval.stepOrder + 1 === maxStep._max.stepOrder ? 7 : 5;
+      // Last step gets 21 days, all other steps get 7 days
+      const hasStepAfterNext = await prisma.approval.findFirst({
+        where: {
+          submissionId: firstApproval.submissionId,
+          stepOrder: { gt: nextStepRow.stepOrder },
+        },
+        select: { stepOrder: true },
+      });
+      const intervalDays = hasStepAfterNext ? 7 : 21;
 
       const newDeadline = new Date(
         Date.now() + intervalDays * 24 * 60 * 60 * 1000,
