@@ -62,7 +62,9 @@ export const ModelName = {
   ApprovalFlowStep: 'ApprovalFlowStep',
   Approval: 'Approval',
   PasswordResetToken: 'PasswordResetToken',
-  ApprovalStepApprover: 'ApprovalStepApprover'
+  ApprovalStepApprover: 'ApprovalStepApprover',
+  SexualHarassmentReport: 'SexualHarassmentReport',
+  SexualHarassmentAttachment: 'SexualHarassmentAttachment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -236,6 +238,46 @@ export const ApprovalStepApproverScalarFieldEnum = {
 export type ApprovalStepApproverScalarFieldEnum = (typeof ApprovalStepApproverScalarFieldEnum)[keyof typeof ApprovalStepApproverScalarFieldEnum]
 
 
+export const SexualHarassmentReportScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  reporterName: 'reporterName',
+  reporterContact: 'reporterContact',
+  reporterEmail: 'reporterEmail',
+  isStaff: 'isStaff',
+  staffId: 'staffId',
+  workLocation: 'workLocation',
+  divisionName: 'divisionName',
+  departmentName: 'departmentName',
+  sectionName: 'sectionName',
+  reportAs: 'reportAs',
+  perpetratorName: 'perpetratorName',
+  victimName: 'victimName',
+  incidentLocation: 'incidentLocation',
+  incidentDateTime: 'incidentDateTime',
+  description: 'description',
+  witnessName: 'witnessName',
+  evidenceType: 'evidenceType',
+  caseNotes: 'caseNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SexualHarassmentReportScalarFieldEnum = (typeof SexualHarassmentReportScalarFieldEnum)[keyof typeof SexualHarassmentReportScalarFieldEnum]
+
+
+export const SexualHarassmentAttachmentScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  fileName: 'fileName',
+  filePath: 'filePath',
+  fileType: 'fileType',
+  uploadedAt: 'uploadedAt'
+} as const
+
+export type SexualHarassmentAttachmentScalarFieldEnum = (typeof SexualHarassmentAttachmentScalarFieldEnum)[keyof typeof SexualHarassmentAttachmentScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -348,4 +390,36 @@ export const PasswordResetTokenOrderByRelevanceFieldEnum = {
 } as const
 
 export type PasswordResetTokenOrderByRelevanceFieldEnum = (typeof PasswordResetTokenOrderByRelevanceFieldEnum)[keyof typeof PasswordResetTokenOrderByRelevanceFieldEnum]
+
+
+export const SexualHarassmentReportOrderByRelevanceFieldEnum = {
+  reporterName: 'reporterName',
+  reporterContact: 'reporterContact',
+  reporterEmail: 'reporterEmail',
+  staffId: 'staffId',
+  workLocation: 'workLocation',
+  divisionName: 'divisionName',
+  departmentName: 'departmentName',
+  sectionName: 'sectionName',
+  reportAs: 'reportAs',
+  perpetratorName: 'perpetratorName',
+  victimName: 'victimName',
+  incidentLocation: 'incidentLocation',
+  incidentDateTime: 'incidentDateTime',
+  description: 'description',
+  witnessName: 'witnessName',
+  evidenceType: 'evidenceType',
+  caseNotes: 'caseNotes'
+} as const
+
+export type SexualHarassmentReportOrderByRelevanceFieldEnum = (typeof SexualHarassmentReportOrderByRelevanceFieldEnum)[keyof typeof SexualHarassmentReportOrderByRelevanceFieldEnum]
+
+
+export const SexualHarassmentAttachmentOrderByRelevanceFieldEnum = {
+  fileName: 'fileName',
+  filePath: 'filePath',
+  fileType: 'fileType'
+} as const
+
+export type SexualHarassmentAttachmentOrderByRelevanceFieldEnum = (typeof SexualHarassmentAttachmentOrderByRelevanceFieldEnum)[keyof typeof SexualHarassmentAttachmentOrderByRelevanceFieldEnum]
 

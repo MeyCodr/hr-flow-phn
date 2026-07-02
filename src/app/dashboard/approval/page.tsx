@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "../../../../lib/prisma";
 import ApprovalComponent from "@/app/component/approval/ApprovalComponent";
 import { redirect } from "next/navigation";
+import { isComplianceOfficer } from "@/lib/compliance-officers";
 
 export default async function Approval() {
   const session = await getServerSession(authOptions);
@@ -103,6 +104,22 @@ export default async function Approval() {
         : form.formData,
   }));
 
+  const officer = await isComplianceOfficer(staffid);
+  const [sexualHarassmentReports, sexualHarassmentReportsHistory] = officer
+    ? await Promise.all([
+        prisma.sexualHarassmentReport.findMany({
+          where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
+          orderBy: { createdAt: "desc" },
+          select: { id: true, reporterName: true, description: true, status: true, createdAt: true },
+        }),
+        prisma.sexualHarassmentReport.findMany({
+          where: { status: { in: ["RESOLVED", "CLOSED"] } },
+          orderBy: { createdAt: "desc" },
+          select: { id: true, reporterName: true, description: true, status: true, createdAt: true },
+        }),
+      ])
+    : [[], []];
+
   return (
     <div className="w-full font-poppins">
       <div>
@@ -116,6 +133,14 @@ export default async function Approval() {
         pendingApprovals={approvalsWithLevels}
         selfForms={selfForms}
         user={user}
+        sexualHarassmentReports={sexualHarassmentReports.map((r) => ({
+          ...r,
+          createdAt: r.createdAt.toISOString(),
+        }))}
+        sexualHarassmentReportsHistory={sexualHarassmentReportsHistory.map((r) => ({
+          ...r,
+          createdAt: r.createdAt.toISOString(),
+        }))}
       />
     </div>
   );

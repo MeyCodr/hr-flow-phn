@@ -10,6 +10,7 @@ import HistoryContent from "./historyComponent/HistoryContent";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import ViewSubmission from "../form/ViewSubmission";
+import ViewSexualHarassmentReport, { FullSexualHarassmentReport } from "../compliance/ViewSexualHarassmentReport";
 import { withBasePath } from "@/lib/base-path";
 import { Toaster } from "react-hot-toast";
 
@@ -50,10 +51,20 @@ export interface Approval {
   attachment?: string | null;
 }
 
+export interface SexualHarassmentReportItem {
+  id: number;
+  reporterName: string;
+  description: string;
+  status: string;
+  createdAt: string | Date;
+}
+
 interface ApprovalComponentProps {
   pendingApprovals: Approval[];
   selfForms: SelfForm[];
   user: UserType;
+  sexualHarassmentReports?: SexualHarassmentReportItem[];
+  sexualHarassmentReportsHistory?: SexualHarassmentReportItem[];
 }
 
 type ViewSource = "pending" | "submissions" | "history";
@@ -62,17 +73,19 @@ export default function ApprovalComponent({
   pendingApprovals,
   selfForms,
   user,
+  sexualHarassmentReports = [],
+  sexualHarassmentReportsHistory = [],
 }: ApprovalComponentProps) {
   const [approvals, setApprovals] = useState(pendingApprovals);
   const [forms, setForms] = useState(selfForms);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [isViewing, setIsViewing] = useState(false);
-  const [viewedFormData, setViewedFormData] = useState<SelfFormData | null>(
-    null
-  );
+  const [viewedFormData, setViewedFormData] = useState<SelfFormData | null>(null);
   const [viewSource, setViewSource] = useState<ViewSource>("pending");
   const [isNavigatingBack, setIsNavigatingBack] = useState(false);
+  const [isViewingReport, setIsViewingReport] = useState(false);
+  const [viewedReport, setViewedReport] = useState<FullSexualHarassmentReport | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -81,11 +94,14 @@ export default function ApprovalComponent({
 
   useEffect(() => {
     const id = searchParams.get("id");
-    if (!id && (pathname === approvalRoute || pathname === approvalPagePath)) {
+    const shrid = searchParams.get("shrid");
+    if (!id && !shrid && (pathname === approvalRoute || pathname === approvalPagePath)) {
       setIsViewing(false);
       setViewedFormData(null);
       setViewSource("pending");
       setIsNavigatingBack(false);
+      setIsViewingReport(false);
+      setViewedReport(null);
     }
   }, [approvalPagePath, approvalRoute, pathname, searchParams]);
 
@@ -139,11 +155,39 @@ export default function ApprovalComponent({
     }
   }, [handleViewForm, isNavigatingBack, searchParams, viewSource, viewedFormData]);
 
+  const handleViewReport = useCallback(async (reportId: number) => {
+    setIsNavigatingBack(false);
+    setIsViewingReport(true);
+    try {
+      const res = await axios.get(withBasePath(`/api/compliance/sexual-harassment/${reportId}`));
+      setViewedReport(res.data.data);
+      router.replace(`${approvalRoute}?shrid=${reportId}&name=Sexual+Harassment+Report`);
+    } catch (error) {
+      console.error(error);
+      setIsViewingReport(false);
+    }
+  }, [approvalRoute, router]);
+
+  useEffect(() => {
+    if (isNavigatingBack) return;
+    const shrid = searchParams.get("shrid");
+    if (shrid && (!viewedReport || viewedReport.id !== Number(shrid))) {
+      handleViewReport(Number(shrid));
+    }
+  }, [handleViewReport, isNavigatingBack, searchParams, viewedReport]);
+
   const handleBack = () => {
     setIsNavigatingBack(true);
     setIsViewing(false);
     setViewedFormData(null);
     setViewSource("pending");
+    router.replace(approvalRoute);
+  };
+
+  const handleBackFromReport = () => {
+    setIsNavigatingBack(true);
+    setIsViewingReport(false);
+    setViewedReport(null);
     router.replace(approvalRoute);
   };
 
@@ -243,6 +287,8 @@ export default function ApprovalComponent({
           user={user}
           onActionComplete={refreshData}
           onViewForm={handleViewForm}
+          onViewReport={handleViewReport}
+          sexualHarassmentReports={sexualHarassmentReports}
         />
       ),
     },
@@ -264,6 +310,8 @@ export default function ApprovalComponent({
           userFormsHistory={userFormsHistory}
           user={user}
           onViewForm={handleViewForm}
+          sexualHarassmentReports={sexualHarassmentReportsHistory}
+          onViewReport={handleViewReport}
         />
       ),
     },
@@ -310,7 +358,24 @@ export default function ApprovalComponent({
         <Toaster position="top-right" />
       </div>
       <AnimatePresence mode="wait">
-        {isViewing && viewedFormData ? (
+        {isViewingReport && viewedReport ? (
+          <motion.div
+            key="viewing-report"
+            variants={formVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="w-full"
+          >
+            <ViewSexualHarassmentReport
+              report={viewedReport}
+              onBack={handleBackFromReport}
+              onUpdate={(updated) =>
+                setViewedReport((prev) => prev ? { ...prev, ...updated } : prev)
+              }
+            />
+          </motion.div>
+        ) : isViewing && viewedFormData ? (
           <motion.div
             key="viewing"
             variants={formVariants}

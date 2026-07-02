@@ -99,3 +99,13 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
  * 
  */
 export type ApprovalStepApprover = Prisma.ApprovalStepApproverModel
+/**
+ * Model SexualHarassmentReport
+ * 
+ */
+export type SexualHarassmentReport = Prisma.SexualHarassmentReportModel
+/**
+ * Model SexualHarassmentAttachment
+ * 
+ */
+export type SexualHarassmentAttachment = Prisma.SexualHarassmentAttachmentModel

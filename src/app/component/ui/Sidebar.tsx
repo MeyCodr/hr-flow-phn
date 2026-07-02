@@ -33,6 +33,7 @@ export default function Sidebar({
     "HEAD_OF_DIVISION",
     "TOP_MANAGEMENT",
     "ADMIN",
+    "COMPLIANCE_ADMIN",
   ]);
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -156,10 +157,11 @@ export default function Sidebar({
               return false;
             }
 
-            // Only show Admin tab if the user role is ADMIN
-            if (item.name === "Admin" && user?.role !== "ADMIN") {
+            // Only show Admin tab if the user role is ADMIN or COMPLIANCE_ADMIN
+            if (item.name === "Admin" && user?.role !== "ADMIN" && user?.role !== "COMPLIANCE_ADMIN") {
               return false;
             }
+
             return true;
           })
           .map((item) => {

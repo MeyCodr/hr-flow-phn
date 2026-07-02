@@ -77,6 +77,11 @@ export default async function Admin() {
   const departments = await prisma.department.findMany();
   const sections = await prisma.section.findMany();
 
+  const sexualHarassmentReports = await prisma.sexualHarassmentReport.findMany({
+    orderBy: { createdAt: "desc" },
+    select: { id: true, reporterName: true, status: true, createdAt: true },
+  });
+
 
   const enrichedSubmissions: SelfFormData[] = formSubmission.map(
     (
@@ -138,6 +143,11 @@ export default async function Admin() {
         userListing={userListing}
         formType={formType}
         approvalStep={approvalFlow}
+        sexualHarassmentReports={sexualHarassmentReports.map((r) => ({
+          ...r,
+          createdAt: r.createdAt.toISOString(),
+        }))}
+        role={session.user.role}
       />
     </div>
   );

@@ -9,13 +9,24 @@
 * 🟢 You can import this file directly.
 */
 
+export const SexualHarassmentReportStatus = {
+  SUBMITTED: 'SUBMITTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  RESOLVED: 'RESOLVED',
+  CLOSED: 'CLOSED'
+} as const
+
+export type SexualHarassmentReportStatus = (typeof SexualHarassmentReportStatus)[keyof typeof SexualHarassmentReportStatus]
+
+
 export const Role = {
   STAFF: 'STAFF',
   HEAD_OF_SECTION: 'HEAD_OF_SECTION',
   HEAD_OF_DEPARTMENT: 'HEAD_OF_DEPARTMENT',
   HEAD_OF_DIVISION: 'HEAD_OF_DIVISION',
   TOP_MANAGEMENT: 'TOP_MANAGEMENT',
-  ADMIN: 'ADMIN'
+  ADMIN: 'ADMIN',
+  COMPLIANCE_ADMIN: 'COMPLIANCE_ADMIN'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]

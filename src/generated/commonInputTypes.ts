@@ -304,6 +304,23 @@ export type BoolWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
 }
 
+export type EnumSexualHarassmentReportStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SexualHarassmentReportStatus | Prisma.EnumSexualHarassmentReportStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SexualHarassmentReportStatus[]
+  notIn?: $Enums.SexualHarassmentReportStatus[]
+  not?: Prisma.NestedEnumSexualHarassmentReportStatusFilter<$PrismaModel> | $Enums.SexualHarassmentReportStatus
+}
+
+export type EnumSexualHarassmentReportStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SexualHarassmentReportStatus | Prisma.EnumSexualHarassmentReportStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SexualHarassmentReportStatus[]
+  notIn?: $Enums.SexualHarassmentReportStatus[]
+  not?: Prisma.NestedEnumSexualHarassmentReportStatusWithAggregatesFilter<$PrismaModel> | $Enums.SexualHarassmentReportStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSexualHarassmentReportStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSexualHarassmentReportStatusFilter<$PrismaModel>
+}
+
 export type NestedIntFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[]
@@ -582,6 +599,23 @@ export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedBoolFilter<$PrismaModel>
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type NestedEnumSexualHarassmentReportStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SexualHarassmentReportStatus | Prisma.EnumSexualHarassmentReportStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SexualHarassmentReportStatus[]
+  notIn?: $Enums.SexualHarassmentReportStatus[]
+  not?: Prisma.NestedEnumSexualHarassmentReportStatusFilter<$PrismaModel> | $Enums.SexualHarassmentReportStatus
+}
+
+export type NestedEnumSexualHarassmentReportStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SexualHarassmentReportStatus | Prisma.EnumSexualHarassmentReportStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SexualHarassmentReportStatus[]
+  notIn?: $Enums.SexualHarassmentReportStatus[]
+  not?: Prisma.NestedEnumSexualHarassmentReportStatusWithAggregatesFilter<$PrismaModel> | $Enums.SexualHarassmentReportStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSexualHarassmentReportStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSexualHarassmentReportStatusFilter<$PrismaModel>
 }
 
 

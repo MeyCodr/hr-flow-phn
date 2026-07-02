@@ -5,7 +5,7 @@ datasource db {
 generator client {
   provider   = "prisma-client"
   engineType = "client"
-  output   = "../src/generated"
+  output     = "../src/generated"
 }
 
 model User {
@@ -25,11 +25,11 @@ model User {
   updatedAt    DateTime @updatedAt
 
   // Relations
-  division   Division?        @relation(fields: [divisionId], references: [id])
-  department Department?      @relation(fields: [departmentId], references: [id])
-  section    Section?         @relation(fields: [sectionId], references: [id])
-  approvals  Approval[]
-  forms      FormSubmission[]
+  division        Division?        @relation(fields: [divisionId], references: [id])
+  department      Department?      @relation(fields: [departmentId], references: [id])
+  section         Section?         @relation(fields: [sectionId], references: [id])
+  approvals       Approval[]
+  forms           FormSubmission[]
   manpowerUploads ManpowerUpload[]
 
   PasswordResetToken    PasswordResetToken[]
@@ -189,6 +189,53 @@ model ApprovalStepApprover {
   @@unique([stepId, userId])
 }
 
+model SexualHarassmentReport {
+  id               Int                          @id @default(autoincrement())
+  status           SexualHarassmentReportStatus @default(SUBMITTED)
+  reporterName     String
+  reporterContact  String // phone or email - required
+  reporterEmail    String?
+  isStaff          Boolean                      @default(true)
+  staffId          String?
+  workLocation     String?
+  divisionName     String?
+  departmentName   String?
+  sectionName      String?
+  reportAs         String? // Victim or Witness
+  perpetratorName  String? // a. Nama Pelaku
+  victimName       String? // b. Nama Mangsa
+  incidentLocation String? // c. Tempat Kejadian
+  incidentDateTime String? // d. Tarikh / Masa kejadian
+  description      String                       @db.Text // e. Maklumat Kejadian
+  witnessName      String? // f. Nama saksi (jika ada)
+  evidenceType     String? // Physical, Non-Physical, or None
+  caseNotes        String?                      @db.Text
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+
+  // Relations
+  attachments SexualHarassmentAttachment[]
+}
+
+model SexualHarassmentAttachment {
+  id         Int      @id @default(autoincrement())
+  reportId   Int
+  fileName   String
+  filePath   String // path under storage/sensitive-uploads
+  fileType   String?
+  uploadedAt DateTime @default(now())
+
+  // Relation
+  report SexualHarassmentReport @relation(fields: [reportId], references: [id])
+}
+
+enum SexualHarassmentReportStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  RESOLVED
+  CLOSED
+}
+
 enum Role {
   STAFF
   HEAD_OF_SECTION
@@ -196,6 +243,7 @@ enum Role {
   HEAD_OF_DIVISION
   TOP_MANAGEMENT
   ADMIN
+  COMPLIANCE_ADMIN
 }
 
 enum FormStatus {

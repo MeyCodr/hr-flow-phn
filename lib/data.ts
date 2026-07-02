@@ -23,6 +23,7 @@ export const roles = [
   { id: "HEAD_OF_DIVISION", name: "Head of Division" },
   { id: "TOP_MANAGEMENT", name: "Top Management" },
   { id: "ADMIN", name: "Admin" },
+  { id: "COMPLIANCE_ADMIN", name: "Compliance Admin" },
 ];
 
 export const complaintOptions = [
@@ -45,6 +46,23 @@ export const complaintOptions = [
     label: "Workload or Job Role (Beban Kerja atau Peranan Kerja)",
   },
   { value: "Other", label: "Other (Please specify) Lain-lain (Sila Nyatakan)" },
+];
+
+export const reportAsOptions = [
+  { value: "Victim", label: "Mangsa / Victim" },
+  { value: "Witness", label: "Saksi / Witness" },
+];
+
+export const evidenceTypeOptions = [
+  {
+    value: "Physical",
+    label: "Ya ( Bukti Fizikal - contoh : Gambar, video)",
+  },
+  {
+    value: "Non-Physical",
+    label: "Ya ( Bukti  Bukan Fizikal - contoh : Lisan , Perbuatan)",
+  },
+  { value: "None", label: "Tidak" },
 ];
 
 export const reportingToOptions = [

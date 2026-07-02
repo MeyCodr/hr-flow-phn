@@ -143,6 +143,29 @@ export interface GrievanceReportTypes {
   sectionName?: string;
 }
 
+export interface SexualHarassmentReportTypes {
+  reporterName: string;
+  reporterContact: string;
+  reporterEmail: string;
+  isStaff: boolean;
+  staffId: string;
+  workLocation: string;
+  division: string;
+  department: string;
+  section: string;
+  reportAs: string;
+  perpetratorName: string;
+  victimName: string;
+  incidentLocation: string;
+  incidentDateTime: string;
+  description: string;
+  witnessName: string;
+  evidenceType: string;
+  supportEvidence: File | null;
+  declaration: boolean;
+  website: string; // honeypot - must stay empty
+}
+
 export interface SystemAccountRequest {
   fullname: string;
   section: string;

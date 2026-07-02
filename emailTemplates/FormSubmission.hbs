@@ -125,7 +125,9 @@
       <table role="presentation" class="email-container">
         <tr>
           <td class="header">
-            {{#if isApprover}}
+            {{#if headerText}}
+              {{headerText}}
+            {{else if isApprover}}
               Action Required: New Request Pending Your Approval
             {{else}}
               Your Request Has Been Sent for Approval
@@ -138,7 +140,9 @@
             <p>Dear {{recipientName}},</p>
 
             <p>
-              {{#if isApprover}}
+              {{#if bodyText}}
+                {{bodyText}}
+              {{else if isApprover}}
                 You have a new request pending your approval.
               {{else}}
                 Your request has been submitted successfully and is pending approval.
@@ -171,16 +175,16 @@
             </table>
 
             {{#if isApprover}}
-              <p>You may review and take action on the request using the link below:</p>
+              <p>{{#if approverActionText}}{{approverActionText}}{{else}}You may review and take action on the request using the link below:{{/if}}</p>
               <!-- Outlook VML button -->
               <!--[if mso]>
                 <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{{approvalLink}}" style="height:40px;v-text-anchor:middle;width:180px;" arcsize="10%" stroke="f" fillcolor="#004AAD">
                   <w:anchorlock/>
-                  <center style="color:#ffffff;font-family:Arial, sans-serif;font-size:14px;font-weight:bold;">Review & Approve</center>
+                  <center style="color:#ffffff;font-family:Arial, sans-serif;font-size:14px;font-weight:bold;">{{#if buttonText}}{{buttonText}}{{else}}Review & Approve{{/if}}</center>
                 </v:roundrect>
               <![endif]-->
               <!--[if !mso]><!-- -->
-                <a href="{{approvalLink}}" class="btn"   style="color:#ffffff !important; text-decoration:none !important;">Review & Approve</a>
+                <a href="{{approvalLink}}" class="btn" style="color:#ffffff !important; text-decoration:none !important;">{{#if buttonText}}{{buttonText}}{{else}}Review & Approve{{/if}}</a>
               <!--<![endif]-->
             {{else}}
               <p>You can check your request status here:</p>

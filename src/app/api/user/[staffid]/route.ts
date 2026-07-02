@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { hash } from "bcrypt";
-import { User } from "@/generated/client";
+import { Role, User } from "@/generated/client";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { getServerSession } from "next-auth";
@@ -119,8 +119,8 @@ export async function PUT(
     }
 
     // 🧂 Only admin can update role
-    if (isAdmin && role) {
-      updateData.role = role;
+    if (isAdmin && role && Object.values(Role).includes(role)) {
+      updateData.role = role as Role;
     }
 
     // 🧂 Update password if provided

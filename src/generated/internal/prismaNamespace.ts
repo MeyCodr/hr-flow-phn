@@ -395,7 +395,9 @@ export const ModelName = {
   ApprovalFlowStep: 'ApprovalFlowStep',
   Approval: 'Approval',
   PasswordResetToken: 'PasswordResetToken',
-  ApprovalStepApprover: 'ApprovalStepApprover'
+  ApprovalStepApprover: 'ApprovalStepApprover',
+  SexualHarassmentReport: 'SexualHarassmentReport',
+  SexualHarassmentAttachment: 'SexualHarassmentAttachment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -411,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "division" | "department" | "section" | "formType" | "formSubmission" | "fileAttachment" | "manpowerUpload" | "approvalFlowStep" | "approval" | "passwordResetToken" | "approvalStepApprover"
+    modelProps: "user" | "division" | "department" | "section" | "formType" | "formSubmission" | "fileAttachment" | "manpowerUpload" | "approvalFlowStep" | "approval" | "passwordResetToken" | "approvalStepApprover" | "sexualHarassmentReport" | "sexualHarassmentAttachment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1207,6 +1209,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SexualHarassmentReport: {
+      payload: Prisma.$SexualHarassmentReportPayload<ExtArgs>
+      fields: Prisma.SexualHarassmentReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SexualHarassmentReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SexualHarassmentReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentReportPayload>
+        }
+        findFirst: {
+          args: Prisma.SexualHarassmentReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SexualHarassmentReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentReportPayload>
+        }
+        findMany: {
+          args: Prisma.SexualHarassmentReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentReportPayload>[]
+        }
+        create: {
+          args: Prisma.SexualHarassmentReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentReportPayload>
+        }
+        createMany: {
+          args: Prisma.SexualHarassmentReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SexualHarassmentReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentReportPayload>
+        }
+        update: {
+          args: Prisma.SexualHarassmentReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.SexualHarassmentReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SexualHarassmentReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SexualHarassmentReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentReportPayload>
+        }
+        aggregate: {
+          args: Prisma.SexualHarassmentReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSexualHarassmentReport>
+        }
+        groupBy: {
+          args: Prisma.SexualHarassmentReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SexualHarassmentReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SexualHarassmentReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SexualHarassmentReportCountAggregateOutputType> | number
+        }
+      }
+    }
+    SexualHarassmentAttachment: {
+      payload: Prisma.$SexualHarassmentAttachmentPayload<ExtArgs>
+      fields: Prisma.SexualHarassmentAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SexualHarassmentAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SexualHarassmentAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.SexualHarassmentAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SexualHarassmentAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.SexualHarassmentAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.SexualHarassmentAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.SexualHarassmentAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SexualHarassmentAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentAttachmentPayload>
+        }
+        update: {
+          args: Prisma.SexualHarassmentAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.SexualHarassmentAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SexualHarassmentAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SexualHarassmentAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SexualHarassmentAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.SexualHarassmentAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSexualHarassmentAttachment>
+        }
+        groupBy: {
+          args: Prisma.SexualHarassmentAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SexualHarassmentAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SexualHarassmentAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SexualHarassmentAttachmentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1401,6 +1535,46 @@ export const ApprovalStepApproverScalarFieldEnum = {
 export type ApprovalStepApproverScalarFieldEnum = (typeof ApprovalStepApproverScalarFieldEnum)[keyof typeof ApprovalStepApproverScalarFieldEnum]
 
 
+export const SexualHarassmentReportScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  reporterName: 'reporterName',
+  reporterContact: 'reporterContact',
+  reporterEmail: 'reporterEmail',
+  isStaff: 'isStaff',
+  staffId: 'staffId',
+  workLocation: 'workLocation',
+  divisionName: 'divisionName',
+  departmentName: 'departmentName',
+  sectionName: 'sectionName',
+  reportAs: 'reportAs',
+  perpetratorName: 'perpetratorName',
+  victimName: 'victimName',
+  incidentLocation: 'incidentLocation',
+  incidentDateTime: 'incidentDateTime',
+  description: 'description',
+  witnessName: 'witnessName',
+  evidenceType: 'evidenceType',
+  caseNotes: 'caseNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SexualHarassmentReportScalarFieldEnum = (typeof SexualHarassmentReportScalarFieldEnum)[keyof typeof SexualHarassmentReportScalarFieldEnum]
+
+
+export const SexualHarassmentAttachmentScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  fileName: 'fileName',
+  filePath: 'filePath',
+  fileType: 'fileType',
+  uploadedAt: 'uploadedAt'
+} as const
+
+export type SexualHarassmentAttachmentScalarFieldEnum = (typeof SexualHarassmentAttachmentScalarFieldEnum)[keyof typeof SexualHarassmentAttachmentScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1515,6 +1689,38 @@ export const PasswordResetTokenOrderByRelevanceFieldEnum = {
 export type PasswordResetTokenOrderByRelevanceFieldEnum = (typeof PasswordResetTokenOrderByRelevanceFieldEnum)[keyof typeof PasswordResetTokenOrderByRelevanceFieldEnum]
 
 
+export const SexualHarassmentReportOrderByRelevanceFieldEnum = {
+  reporterName: 'reporterName',
+  reporterContact: 'reporterContact',
+  reporterEmail: 'reporterEmail',
+  staffId: 'staffId',
+  workLocation: 'workLocation',
+  divisionName: 'divisionName',
+  departmentName: 'departmentName',
+  sectionName: 'sectionName',
+  reportAs: 'reportAs',
+  perpetratorName: 'perpetratorName',
+  victimName: 'victimName',
+  incidentLocation: 'incidentLocation',
+  incidentDateTime: 'incidentDateTime',
+  description: 'description',
+  witnessName: 'witnessName',
+  evidenceType: 'evidenceType',
+  caseNotes: 'caseNotes'
+} as const
+
+export type SexualHarassmentReportOrderByRelevanceFieldEnum = (typeof SexualHarassmentReportOrderByRelevanceFieldEnum)[keyof typeof SexualHarassmentReportOrderByRelevanceFieldEnum]
+
+
+export const SexualHarassmentAttachmentOrderByRelevanceFieldEnum = {
+  fileName: 'fileName',
+  filePath: 'filePath',
+  fileType: 'fileType'
+} as const
+
+export type SexualHarassmentAttachmentOrderByRelevanceFieldEnum = (typeof SexualHarassmentAttachmentOrderByRelevanceFieldEnum)[keyof typeof SexualHarassmentAttachmentOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -1581,6 +1787,13 @@ export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'SexualHarassmentReportStatus'
+ */
+export type EnumSexualHarassmentReportStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SexualHarassmentReportStatus'>
     
 
 
@@ -1697,6 +1910,8 @@ export type GlobalOmitConfig = {
   approval?: Prisma.ApprovalOmit
   passwordResetToken?: Prisma.PasswordResetTokenOmit
   approvalStepApprover?: Prisma.ApprovalStepApproverOmit
+  sexualHarassmentReport?: Prisma.SexualHarassmentReportOmit
+  sexualHarassmentAttachment?: Prisma.SexualHarassmentAttachmentOmit
 }
 
 /* Types for Logging */

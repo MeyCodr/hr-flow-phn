@@ -21,11 +21,20 @@ import { withBasePath } from "@/lib/base-path";
 
 const Tabs = dynamic(() => import("../ui/Tabs"), { ssr: false });
 
+export interface AdminSHRItem {
+  id: number;
+  reporterName: string;
+  status: string;
+  createdAt: string;
+}
+
 interface AdminComponentProps {
   userListing: UserType[];
   formType: FormType[];
   approvalStep: ApprovalFlowStep[];
   formSubmission: SelfFormData[];
+  sexualHarassmentReports?: AdminSHRItem[];
+  role?: string;
 }
 
 export default function AdminComponent({
@@ -33,6 +42,8 @@ export default function AdminComponent({
   formType,
   approvalStep,
   formSubmission,
+  sexualHarassmentReports = [],
+  role,
 }: AdminComponentProps) {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -80,16 +91,13 @@ export default function AdminComponent({
     },
   };
 
+  const isComplianceAdmin = role === "COMPLIANCE_ADMIN";
+
   const categories: TabItem[] = [
     {
       name: "Form Create",
       content: (
-        <motion.div
-          key="form-create"
-          initial="hidden"
-          animate="visible"
-          variants={tabContentVariants}
-        >
+        <motion.div key="form-create" initial="hidden" animate="visible" variants={tabContentVariants}>
           <FormTypeComponent formType={formType} />
         </motion.div>
       ),
@@ -97,12 +105,7 @@ export default function AdminComponent({
     {
       name: "Approval Flow",
       content: (
-        <motion.div
-          key="approval-flow"
-          initial="hidden"
-          animate="visible"
-          variants={tabContentVariants}
-        >
+        <motion.div key="approval-flow" initial="hidden" animate="visible" variants={tabContentVariants}>
           <ApprovalFlow
             approvalStep={approvalStep}
             formType={formType}
@@ -118,12 +121,7 @@ export default function AdminComponent({
     {
       name: "User Listing",
       content: (
-        <motion.div
-          key="user-listing"
-          initial="hidden"
-          animate="visible"
-          variants={tabContentVariants}
-        >
+        <motion.div key="user-listing" initial="hidden" animate="visible" variants={tabContentVariants}>
           <UserListing
             userListing={userListing}
             divisions={divisions}
@@ -138,14 +136,10 @@ export default function AdminComponent({
     {
       name: "Form Submission",
       content: (
-        <motion.div
-          key="form-submission"
-          initial="hidden"
-          animate="visible"
-          variants={tabContentVariants}
-        >
+        <motion.div key="form-submission" initial="hidden" animate="visible" variants={tabContentVariants}>
           <FormSubmission
             formSubmission={formSubmission}
+            sexualHarassmentReports={isComplianceAdmin ? sexualHarassmentReports : []}
           />
         </motion.div>
       ),
