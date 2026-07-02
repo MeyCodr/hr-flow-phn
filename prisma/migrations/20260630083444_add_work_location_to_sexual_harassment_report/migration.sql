@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE `sexualharassmentreport` ADD COLUMN `workLocation` VARCHAR(191) NULL;
+ALTER TABLE `SexualHarassmentReport` ADD COLUMN `workLocation` VARCHAR(191) NULL;
