@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession, type Session } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
 import { isComplianceOfficer } from "@/lib/compliance-officers";
 import { prisma } from "@/lib/prisma";
@@ -10,7 +10,7 @@ const emailFrom = process.env.EMAIL;
 
 const VALID_STATUSES = Object.values(SexualHarassmentReportStatus);
 
-function hasAdminAccess(session: Awaited<ReturnType<typeof getServerSession>>) {
+function hasAdminAccess(session: Session | null) {
   return session?.user?.role === "ADMIN" || session?.user?.role === "COMPLIANCE_ADMIN";
 }
 
@@ -92,7 +92,7 @@ export async function PATCH(
 
       if (subject) {
         try {
-          await transporter.sendMail({
+          const statusUpdateMail = {
             from: emailFrom,
             to: existing.reporterEmail,
             subject,
@@ -111,7 +111,8 @@ export async function PATCH(
               isResolved: newStatus === "RESOLVED",
               isClosed: newStatus === "CLOSED",
             },
-          });
+          };
+          await transporter.sendMail(statusUpdateMail);
         } catch (mailErr) {
           console.error("Failed to send status update email:", mailErr);
         }
