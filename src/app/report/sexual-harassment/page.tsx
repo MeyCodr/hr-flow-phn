@@ -49,7 +49,7 @@ export default function SexualHarassmentReportPage() {
   }, [selectedDepartment]);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center py-10 px-4">
+    <div className="min-h-screen bg-indigo-100 flex justify-center py-10 px-4">
       <SexualHarassmentReportForm
         divisions={divisions}
         departments={departments}
