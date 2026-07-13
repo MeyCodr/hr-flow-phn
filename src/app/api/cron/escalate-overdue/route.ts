@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { transporter } from "../../../../../lib/emailService";
 import { Prisma } from "@/generated/client";
+import { getGrievanceStepDeadline } from "../../../../../lib/grievance-deadline";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -102,11 +103,6 @@ export async function GET() {
           },
         });
 
-      // const intervalMinutes =
-      //   firstApproval.stepOrder + 1 === maxStep._max.stepOrder ? 7 : 5;
-      // const newDeadline = new Date(Date.now() + intervalMinutes * 60 * 1000);
-
-      // Last step gets 21 days, all other steps get 7 days
       const hasStepAfterNext = await prisma.approval.findFirst({
         where: {
           submissionId: firstApproval.submissionId,
@@ -114,11 +110,16 @@ export async function GET() {
         },
         select: { stepOrder: true },
       });
-      const intervalDays = hasStepAfterNext ? 7 : 21;
+      const isLastStep = !hasStepAfterNext;
 
-      const newDeadline = new Date(
-        Date.now() + intervalDays * 24 * 60 * 60 * 1000,
-      );
+      // Grievance reports use their own step schedule (5/5/7.../10 days);
+      // every other form type keeps the default 7 days (21 on the last step).
+      const isGrievance =
+        firstApproval.submission.formType.name.trim().toLowerCase() ===
+        "grievance report";
+      const newDeadline = isGrievance
+        ? getGrievanceStepDeadline(nextStepRow.stepOrder, isLastStep)
+        : new Date(Date.now() + (isLastStep ? 21 : 7) * 24 * 60 * 60 * 1000);
 
       // 4️⃣ Email recipients
       // TO: first approver in next step

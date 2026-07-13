@@ -4,6 +4,7 @@ import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
 import { Prisma } from "@/generated/client";
+import { getGrievanceStepDeadline } from "../../../../../lib/grievance-deadline";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -398,7 +399,7 @@ export async function POST(req: NextRequest) {
             where: { submissionId, stepOrder: { gt: nextWaiting.stepOrder } },
             select: { stepOrder: true },
           });
-          const deadline = new Date(Date.now() + (hasStepAfterNext ? 7 : 21) * DAY);
+          const deadline = getGrievanceStepDeadline(nextWaiting.stepOrder, !hasStepAfterNext);
 
           await prisma.approval.updateMany({
             where: { submissionId, stepOrder: nextWaiting.stepOrder },

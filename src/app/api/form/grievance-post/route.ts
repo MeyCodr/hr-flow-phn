@@ -6,6 +6,7 @@ import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
 import { Prisma, User } from "@/generated/client";
+import { getGrievanceStepDeadline } from "../../../../../lib/grievance-deadline";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -202,7 +203,6 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Create approvals using the pre-resolved steps
-    const DAY = 24 * 60 * 60 * 1000;
     const firstStepOrder = resolvedSteps[0].step.order;
     const lastStepOrder = resolvedSteps[resolvedSteps.length - 1].step.order;
 
@@ -215,7 +215,7 @@ export async function POST(req: NextRequest) {
           approverId: u.id,
           stepOrder: step.order,
           status: isFirstStep ? "PENDING" : "WAITING",
-          deadline: isFirstStep ? new Date(Date.now() + (isLastStep ? 21 : 7) * DAY) : null,
+          deadline: isFirstStep ? getGrievanceStepDeadline(step.order, isLastStep) : null,
           escalated: false,
         })),
       });
