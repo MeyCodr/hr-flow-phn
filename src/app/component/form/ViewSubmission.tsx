@@ -141,7 +141,7 @@ export default function ViewSubmission({
     }
   };
 
-  const mappedApprovals: ApprovalUser[] = form.approvals.map((a) => ({
+  const mappedApprovals: ApprovalUser[] = (form.approvals || []).map((a) => ({
     id: a.id,
     submissionId: form.id,
     approverId: a.approverId,
@@ -211,7 +211,7 @@ export default function ViewSubmission({
     return status;
   };
 
-  const groupedApprovals: Record<number, Approval[]> = form.approvals.reduce(
+  const groupedApprovals: Record<number, Approval[]> = (form.approvals || []).reduce(
     (acc, curr) => {
       if (!acc[curr.stepOrder]) acc[curr.stepOrder] = [];
       acc[curr.stepOrder].push(curr);

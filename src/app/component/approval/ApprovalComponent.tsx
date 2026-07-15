@@ -106,15 +106,21 @@ export default function ApprovalComponent({
   }, [approvalPagePath, approvalRoute, pathname, searchParams]);
 
   const refreshData = useCallback(async () => {
-    const res = await axios.get(withBasePath("/api/approval-form/fetch"));
-    if (res.data) {
-      setApprovals(res.data.pendingApprovals);
-      setForms(
-        res.data.selfForms.map((form: SelfForm) => ({
-          ...form,
-          approvals: form.approvals || [],
-        }))
-      );
+    try {
+      const res = await axios.get(withBasePath("/api/approval-form/fetch"));
+      if (Array.isArray(res.data?.pendingApprovals)) {
+        setApprovals(res.data.pendingApprovals);
+      }
+      if (Array.isArray(res.data?.selfForms)) {
+        setForms(
+          res.data.selfForms.map((form: SelfForm) => ({
+            ...form,
+            approvals: form.approvals || [],
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("Failed to refresh approval data:", error);
     }
   }, []);
 
@@ -217,10 +223,10 @@ export default function ApprovalComponent({
     return true;
   };
 
-  const filteredApprovals = approvals.filter((a) =>
+  const filteredApprovals = (approvals || []).filter((a) =>
     isInRange(a.submission?.createdAt ?? new Date()),
   );
-  const filteredForms = forms.filter((f) => isInRange(f.createdAt));
+  const filteredForms = (forms || []).filter((f) => isInRange(f.createdAt));
 
   const formsWithLevels = filteredForms.map((form) => {
     const approvalsList = form.approvals || [];
