@@ -41,7 +41,9 @@ export default function FormSubmission({
     setLoading(true);
     try {
       const res = await axios.get(withBasePath(`/api/form`));
-      setForm(res.data);
+      if (Array.isArray(res.data)) {
+        setForm(res.data);
+      }
     } catch (error) {
       console.error("Failed to fetch form submissions:", error);
     } finally {
@@ -63,7 +65,7 @@ export default function FormSubmission({
   };
 
   const getLatestApprovalDate = (submission: SelfFormData): Date | null => {
-    const dates = submission.approvals
+    const dates = (submission.approvals || [])
       .map((a) => (a.approvedAt ? new Date(a.approvedAt) : null))
       .filter((d): d is Date => d !== null);
     return dates.length > 0 ? new Date(Math.max(...dates.map((d) => d.getTime()))) : null;
