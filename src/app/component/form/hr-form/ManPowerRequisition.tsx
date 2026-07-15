@@ -344,15 +344,13 @@ export default function ManPower({
     ? parsedData?.selectedOption === "additional"
     : data.selectedOption === "additional";
 
-  const downloadDocument = () => {
-    const doc = fileData && fileData[0]?.fileName;
-    if (!doc) return;
+  const downloadDocument = (fileName: string) => {
+    if (!fileName) return;
 
-    const url = withBasePath(`/api/uploads/${encodeURIComponent(doc)}`);
-    // const url = `/api/uploads/${doc}`;
+    const url = withBasePath(`/api/uploads/${encodeURIComponent(fileName)}`);
     const link = document.createElement("a");
     link.href = url;
-    link.download = doc;
+    link.download = fileName;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -1209,9 +1207,7 @@ export default function ManPower({
                   fileData.map((item, i) => (
                     <p
                       key={i}
-                      // href={`/uploads/${encodeURIComponent(item.fileName)}`} // 👈 direct link to public folder
-                      onClick={downloadDocument}
-                      // download={item.fileName} // 👈 triggers browser download
+                      onClick={() => downloadDocument(item.fileName)}
                       className="mt-1 block w-full cursor-pointer rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
                     >
                       📎 <strong>Download:</strong> {item.fileName}
