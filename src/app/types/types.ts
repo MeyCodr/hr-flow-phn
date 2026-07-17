@@ -265,11 +265,13 @@ export interface SelfForm {
   };
   approvals?: {
     id: number;
-    formSubmissionId: number;
+    submissionId: number;
     approverId: number;
     stepOrder: number;
     status: string;
     remarks?: string | null;
+    approvedAt?: string | Date | null;
+    updatedAt?: string | Date | null;
   }[];
 }
 

@@ -264,23 +264,7 @@ export default function ApprovalFlow({
                 Loading latest approval flow steps ...
               </p>
             ) : (
-              <div className="w-full overflow-x-auto">
-                {/* Header Row */}
-                <div
-                  className={`w-full grid ${
-                    deleteMode ? "grid-cols-8" : "grid-cols-7"
-                  } bg-indigo-800 text-white text-xs text-center font-semibold`}
-                >
-                  {deleteMode && <div className="px-4 py-3">Select</div>}
-                  <div className="px-4 py-3 w-full">Form Type</div>
-                  <div className="px-4 py-3 w-full">Order</div>
-                  <div className="px-4 py-3 w-full">Role</div>
-                  <div className="px-4 py-3 w-full">Division</div>
-                  <div className="px-4 py-3 w-full">Department</div>
-                  <div className="px-4 py-3 w-full">Section</div>
-                  <div className="px-4 py-3 w-full">Approver</div>
-                </div>
-
+              <div className="w-full flex flex-col gap-4">
                 {/* Body - Optimized for smooth drag control */}
                 {Object.entries(grouped).map(([formTypeId, steps]) => {
                   const sortedSteps = [...steps].sort(
@@ -290,11 +274,27 @@ export default function ApprovalFlow({
                   return (
                     <div
                       key={formTypeId}
-                      className="border border-gray-300 mb-4"
+                      className="w-full overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-sm"
                     >
                       {/* Form Type Header */}
-                      <div className="bg-gray-100 font-semibold text-gray-700 px-4 py-2 text-sm">
+                      <div className="bg-gray-100 font-semibold text-gray-700 px-4 py-2 text-sm border-b border-gray-300">
                         {sortedSteps[0]?.formType?.name ?? "No Form Type"}
+                      </div>
+
+                      {/* Column Header Row */}
+                      <div
+                        className={`w-full grid ${
+                          deleteMode ? "grid-cols-8" : "grid-cols-7"
+                        } divide-x divide-gray-200 bg-gray-50 text-[0.65rem] font-semibold uppercase tracking-wide text-gray-500 text-center`}
+                      >
+                        {deleteMode && <div className="px-4 py-3">Select</div>}
+                        <div className="px-4 py-3 w-full">Form Type</div>
+                        <div className="px-4 py-3 w-full">Order</div>
+                        <div className="px-4 py-3 w-full">Role</div>
+                        <div className="px-4 py-3 w-full">Division</div>
+                        <div className="px-4 py-3 w-full">Department</div>
+                        <div className="px-4 py-3 w-full">Section</div>
+                        <div className="px-4 py-3 w-full">Approver</div>
                       </div>
 
                       <Reorder.Group
@@ -315,7 +315,7 @@ export default function ApprovalFlow({
 
                           handleSaveOrder(updatedSteps); // save updated order
                         }}
-                        className="divide-y divide-gray-200"
+                        className="divide-y divide-gray-100"
                       >
                         {sortedSteps.map((item, index) => (
                           <Reorder.Item
@@ -345,7 +345,7 @@ export default function ApprovalFlow({
                             }}
                             className={`grid ${
                               deleteMode ? "grid-cols-8" : "grid-cols-7"
-                            } items-center text-xs text-center transition-colors ${
+                            } divide-x divide-gray-100 items-center text-xs text-gray-700 text-center transition-colors ${
                               deleteMode
                                 ? selectedRows.includes(item.id)
                                   ? "bg-red-50"

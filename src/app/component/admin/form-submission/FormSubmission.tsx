@@ -9,11 +9,17 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { withBasePath } from "@/lib/base-path";
 import { AdminSHRItem } from "../AdminComponent";
 import { FiShield } from "react-icons/fi";
+import ApprovalTable from "../../ui/ApprovalTable";
+import { getLastApprovalDate } from "../../approval/approvalDateUtils";
 
 interface FormSubmissionProps {
   formSubmission: SelfFormData[];
   sexualHarassmentReports?: AdminSHRItem[];
 }
+
+type AdminTableItem =
+  | { type: "form"; data: SelfFormData }
+  | { type: "shr"; data: AdminSHRItem };
 
 const fmt = (date: string | Date) =>
   new Intl.DateTimeFormat("en-GB", {
@@ -22,8 +28,8 @@ const fmt = (date: string | Date) =>
   }).format(new Date(date));
 
 const statusColor = (status: string) => {
-  if (status === "RESOLVED") return "bg-green-100 text-green-700";
-  if (status === "CLOSED") return "bg-red-100 text-red-700";
+  if (status === "APPROVED" || status === "RESOLVED") return "bg-green-100 text-green-700";
+  if (status === "REJECTED" || status === "CLOSED") return "bg-red-100 text-red-700";
   if (status === "UNDER_REVIEW") return "bg-blue-100 text-blue-700";
   return "bg-yellow-100 text-yellow-700";
 };
@@ -64,21 +70,19 @@ export default function FormSubmission({
     }
   };
 
-  const getLatestApprovalDate = (submission: SelfFormData): Date | null => {
-    const dates = (submission.approvals || [])
-      .map((a) => (a.approvedAt ? new Date(a.approvedAt) : null))
-      .filter((d): d is Date => d !== null);
-    return dates.length > 0 ? new Date(Math.max(...dates.map((d) => d.getTime()))) : null;
-  };
-
   const sortedForm = [...form].sort((a, b) => {
-    const dateA = getLatestApprovalDate(a);
-    const dateB = getLatestApprovalDate(b);
-    if (dateA && dateB) return dateB.getTime() - dateA.getTime();
+    const dateA = getLastApprovalDate(a.approvals);
+    const dateB = getLastApprovalDate(b.approvals);
+    if (dateA && dateB) return new Date(dateB).getTime() - new Date(dateA).getTime();
     if (dateA) return -1;
     if (dateB) return 1;
     return 0;
   });
+
+  const tableItems: AdminTableItem[] = [
+    ...sortedForm.map((data) => ({ type: "form" as const, data })),
+    ...sexualHarassmentReports.map((data) => ({ type: "shr" as const, data })),
+  ];
 
   const containerVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
@@ -120,69 +124,84 @@ export default function FormSubmission({
               <p className="text-center text-sm text-gray-500 py-6">Loading latest form submission ...</p>
             ) : (
               <>
-                <div className="w-full overflow-x-auto">
-                  <table className="min-w-[700px] w-full text-xs text-left border border-gray-300 rounded-lg overflow-hidden">
-                    <thead>
-                      <tr className="bg-indigo-800 text-white">
-                        <th className="px-4 py-3 font-semibold">No</th>
-                        <th className="px-4 py-3 font-semibold">Form Name</th>
-                        <th className="px-4 py-3 font-semibold text-nowrap">Created by</th>
-                        <th className="px-4 py-3 font-semibold text-nowrap">Created at</th>
-                        <th className="px-4 py-3 font-semibold text-nowrap">Latest Approval</th>
-                        <th className="px-4 py-3 font-semibold">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {sortedForm.map((item, i) => {
-                        const latestApproval = getLatestApprovalDate(item);
-                        return (
-                          <tr key={`form-${item.id}`} onClick={() => setSelectedForm(item)}
-                            className="hover:bg-indigo-50 transition cursor-pointer"
-                          >
-                            <td className="px-4 py-3 font-medium text-gray-700">{i + 1}</td>
-                            <td className="px-4 py-3 whitespace-nowrap">{item.formType.name}</td>
-                            <td className="px-4 py-3 whitespace-nowrap">{item.createdBy.fullname}</td>
-                            <td className="px-4 py-3 whitespace-nowrap">{fmt(item.createdAt)}</td>
-                            <td className="px-4 py-3 whitespace-nowrap text-gray-600">
-                              {latestApproval ? fmt(latestApproval) : "—"}
-                            </td>
-                            <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">{item.status}</td>
-                          </tr>
-                        );
-                      })}
-
-                      {sexualHarassmentReports.map((report, i) => (
-                        <tr key={`shr-${report.id}`} onClick={() => handleReportClick(report.id)}
-                          className="hover:bg-indigo-50 transition cursor-pointer"
+                <ApprovalTable
+                  items={tableItems}
+                  pageSize={20}
+                  emptyMessage="No submissions found."
+                  columns={[
+                    { label: "Form Type" },
+                    { label: "Created By" },
+                    {
+                      label: "Created At",
+                      sortAccessor: (item) => item.data.createdAt,
+                    },
+                    {
+                      label: "Last Approval Date",
+                      sortAccessor: (item) =>
+                        item.type === "form" ? getLastApprovalDate(item.data.approvals) : null,
+                    },
+                    { label: "Status", sortAccessor: (item) => item.data.status },
+                  ]}
+                  renderRow={(item) => {
+                    if (item.type === "form") {
+                      const submission = item.data;
+                      const latestApproval = getLastApprovalDate(submission.approvals);
+                      return (
+                        <tr
+                          key={`form-${submission.id}`}
+                          onClick={() => setSelectedForm(submission)}
+                          className="cursor-pointer divide-x divide-gray-100 border-b border-gray-100 last:border-0 hover:bg-indigo-50 transition-colors"
                         >
-                          <td className="px-4 py-3 font-medium text-gray-700">{sortedForm.length + i + 1}</td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span className="inline-flex items-center gap-1.5">
-                              <FiShield className="text-indigo-600 flex-shrink-0" />
-                              Sexual Harassment Report
-                            </span>
+                          <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
+                            {submission.formType.name}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap">{report.reporterName}</td>
-                          <td className="px-4 py-3 whitespace-nowrap">{fmt(report.createdAt)}</td>
-                          <td className="px-4 py-3 whitespace-nowrap text-gray-400">—</td>
+                          <td className="px-4 py-3 text-xs font-medium text-indigo-700 whitespace-nowrap">
+                            {submission.createdBy.fullname}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+                            {fmt(submission.createdAt)}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+                            {latestApproval ? fmt(latestApproval) : "-"}
+                          </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-semibold ${statusColor(report.status)}`}>
-                              {report.status.replace("_", " ")}
+                            <span className={`text-[0.6rem] font-semibold px-2 py-0.5 rounded-full ${statusColor(submission.status)}`}>
+                              {submission.status.toLowerCase()}
                             </span>
                           </td>
                         </tr>
-                      ))}
+                      );
+                    }
 
-                      {sortedForm.length === 0 && sexualHarassmentReports.length === 0 && (
-                        <tr>
-                          <td colSpan={6} className="px-4 py-6 text-center text-gray-400">
-                            No submissions found.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                    const report = item.data;
+                    return (
+                      <tr
+                        key={`shr-${report.id}`}
+                        onClick={() => handleReportClick(report.id)}
+                        className="cursor-pointer divide-x divide-gray-100 border-b border-gray-100 last:border-0 hover:bg-indigo-50 transition-colors"
+                      >
+                        <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1.5">
+                            <FiShield className="text-indigo-600 flex-shrink-0" />
+                            Sexual Harassment Report
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-xs font-medium text-indigo-700 whitespace-nowrap">
+                          {report.reporterName}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+                          {fmt(report.createdAt)}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">-</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className={`text-[0.6rem] font-semibold px-2 py-0.5 rounded-full ${statusColor(report.status)}`}>
+                            {report.status.toLowerCase().replace("_", " ")}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  }}
+                />
                 <p className="text-xs text-gray-500 mt-3 text-center sm:hidden">
                   👉 Swipe left/right to view more columns
                 </p>

@@ -12,10 +12,11 @@ import { CiLock } from "react-icons/ci";
 import { FaChevronDown } from "react-icons/fa";
 import { UserType } from "@/app/types/types";
 import { useSession } from "next-auth/react";
-import { TbBrandGoogleAnalytics } from "react-icons/tb";
+import { TbBrandGoogleAnalytics, TbReportAnalytics } from "react-icons/tb";
 import { GrUserWorker } from "react-icons/gr";
 import axios from "axios";
 import { withBasePath } from "@/lib/base-path";
+import { canViewAnalytics } from "@/lib/analytics-access";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -28,25 +29,22 @@ export default function Sidebar({
   toggleSidebar,
   isMobile,
 }: SidebarProps) {
-  const analyticsRoles = new Set([
-    "HEAD_OF_DEPARTMENT",
-    "HEAD_OF_DIVISION",
-    "TOP_MANAGEMENT",
-    "ADMIN",
-    "COMPLIANCE_ADMIN",
-  ]);
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<UserType>();
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(
-    pathname.startsWith("/dashboard/manpower-analytics"),
+    pathname.startsWith("/dashboard/manpower-analytics") ||
+      pathname.startsWith("/dashboard/form-insights"),
   );
   const { data: session } = useSession();
 
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    if (pathname.startsWith("/dashboard/manpower-analytics")) {
+    if (
+      pathname.startsWith("/dashboard/manpower-analytics") ||
+      pathname.startsWith("/dashboard/form-insights")
+    ) {
       setIsAnalyticsOpen(true);
     }
   }, [pathname]);
@@ -69,7 +67,7 @@ export default function Sidebar({
     fetchUser();
   }, [session]);
 
-  const canViewAnalytics = analyticsRoles.has(user?.role ?? "");
+  const showAnalytics = canViewAnalytics(user?.role);
 
   const menuItems = [
     {
@@ -86,6 +84,11 @@ export default function Sidebar({
           name: "Manpower",
           path: "/dashboard/manpower-analytics",
           icon: <GrUserWorker className="h-4 w-4" />,
+        },
+        {
+          name: "Form Insights",
+          path: "/dashboard/form-insights",
+          icon: <TbReportAnalytics className="h-4 w-4" />,
         },
       ],
     },
@@ -134,7 +137,7 @@ export default function Sidebar({
       {/* Logo */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold flex items-center whitespace-nowrap overflow-hidden">
-          <span>HR</span>
+          <span>PHN</span>
           {isOpen && (
             <motion.span
               initial={{ opacity: 0, x: -10 }}
@@ -143,7 +146,7 @@ export default function Sidebar({
               transition={{ duration: 0.2 }}
               className="ml-1"
             >
-              Dashboard
+              HR FMS
             </motion.span>
           )}
         </h2>
@@ -153,7 +156,7 @@ export default function Sidebar({
       <nav className="flex flex-col gap-2 mt-4">
         {menuItems
           .filter((item) => {
-            if (item.name === "Analytics" && !canViewAnalytics) {
+            if (item.name === "Analytics" && !showAnalytics) {
               return false;
             }
 

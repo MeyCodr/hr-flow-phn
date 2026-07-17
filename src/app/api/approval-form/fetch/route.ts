@@ -9,7 +9,7 @@ type ApprovalWithSubmission = Prisma.ApprovalGetPayload<{
   include: {
     submission: {
       include: {
-        createdBy: true;
+        createdBy: { include: { department: true } };
         formType: { select: { name: true } };
         approvals: {
           orderBy: { stepOrder: "asc" };
@@ -50,7 +50,7 @@ export async function GET() {
       include: {
         submission: {
           include: {
-            createdBy: true,
+            createdBy: { include: { department: true } },
             formType: { select: { name: true } },
             approvals: {
               orderBy: { stepOrder: "asc" },

@@ -18,6 +18,7 @@ interface User {
   fullname: string;
   staffid: string;
   attachment?: string | null;
+  department?: { name: string } | null;
 }
 
 interface FormType {
@@ -48,6 +49,7 @@ export interface Approval {
     staffid: string;
   };
   approvedAt?: Date | null;
+  updatedAt?: Date | null;
   attachment?: string | null;
 }
 
@@ -359,7 +361,7 @@ export default function ApprovalComponent({
   );
 
   return (
-    <div className="flex flex-col my-6 w-full max-w-6xl">
+    <div className="flex flex-col my-6 w-full">
       <div className="text-sm">
         <Toaster position="top-right" />
       </div>
@@ -371,7 +373,7 @@ export default function ApprovalComponent({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="w-full"
+            className="w-full max-w-6xl"
           >
             <ViewSexualHarassmentReport
               report={viewedReport}
@@ -388,7 +390,7 @@ export default function ApprovalComponent({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="w-full"
+            className="w-full max-w-6xl"
           >
             <ViewSubmission
               selfForm={viewedFormData}

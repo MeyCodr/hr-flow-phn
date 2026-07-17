@@ -1,7 +1,8 @@
 import React from "react";
-import BannerCard from "../../ui/BannerCard";
+import BannerTableRow from "../../ui/BannerTableRow";
+import ApprovalTable from "../../ui/ApprovalTable";
 import { SelfForm, UserType } from "@/app/types/types";
-import PaginatedList from "../../ui/PaginatedList";
+import { getLastApprovalDate } from "../approvalDateUtils";
 
 interface SubmissionContentProps {
   formsWithLevels: SelfForm[];
@@ -14,22 +15,33 @@ export default function SubmissionContent({
   user,
   onViewForm,
 }: SubmissionContentProps) {
-  if (formsWithLevels.length === 0) {
-    return <p className="text-gray-600">You have no submitted forms.</p>;
-  }
-
   return (
-    <PaginatedList
+    <ApprovalTable
       items={formsWithLevels}
-      pageSize={10}
-      renderItem={(form) => (
-        <BannerCard
+      pageSize={20}
+      columns={[
+        { label: "Requester" },
+        { label: "Form Type" },
+        { label: "Department" },
+        { label: "Date", sortAccessor: (form) => form.createdAt },
+        { label: "Level" },
+        { label: "Status", sortAccessor: (form) => form.status },
+        {
+          label: "Last Approval Date",
+          sortAccessor: (form) => getLastApprovalDate(form.approvals),
+        },
+        { label: "Actions" },
+      ]}
+      emptyMessage="You have no submitted forms."
+      renderRow={(form) => (
+        <BannerTableRow
           key={form.id}
           profileImg={user.attachment || ""}
           title={form.formType.name}
           name={"You"}
+          department={user.department?.name}
           createddate={form.createdAt}
-          remarks={(form.formData?.remarks as string) || "No remarks yet"}
+          lastApprovalDate={getLastApprovalDate(form.approvals)}
           currentLevel={form.currentLevel ?? 0}
           totalLevel={form.totalLevel ?? 0}
           activeLevel={form.activeLevel ?? 0}

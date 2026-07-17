@@ -20,32 +20,47 @@ export default async function Approval() {
 
   const user = await prisma.user.findUnique({
     where: { staffid },
+    include: { department: true },
   });
 
   if (!user) {
     return <p>User not found</p>;
   }
 
-  const pendingApprovals = await prisma.approval.findMany({
-    where: {
-      approverId: user.id,
-      // status: "PENDING"
-    },
-    include: {
-      submission: {
-        include: {
-          createdBy: true,
-          formType: true,
-          approvals: {
-            orderBy: { stepOrder: "asc" },
+  const [pendingApprovals, selfFormsRaw] = await Promise.all([
+    prisma.approval.findMany({
+      where: {
+        approverId: user.id,
+        // status: "PENDING"
+      },
+      include: {
+        submission: {
+          include: {
+            createdBy: { include: { department: true } },
+            formType: true,
+            approvals: {
+              orderBy: { stepOrder: "asc" },
+            },
           },
         },
       },
-    },
-    orderBy: {
-      stepOrder: "asc",
-    },
-  });
+      orderBy: {
+        stepOrder: "asc",
+      },
+    }),
+    prisma.formSubmission.findMany({
+      where: {
+        createdById: user.id,
+      },
+      include: {
+        formType: true, // ✅ include related form type
+        approvals: { orderBy: { stepOrder: "asc" } },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    }),
+  ]);
 
   const approvalsWithLevels = pendingApprovals.map(
     (approval: (typeof pendingApprovals)[number]) => {
@@ -83,18 +98,6 @@ export default async function Approval() {
       };
     }
   );
-
-  const selfFormsRaw = await prisma.formSubmission.findMany({
-    where: {
-      createdById: user.id,
-    },
-    include: {
-      formType: true, // ✅ include related form type
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
 
   const selfForms = selfFormsRaw.map((form: typeof selfFormsRaw[number]) => ({
     ...form,

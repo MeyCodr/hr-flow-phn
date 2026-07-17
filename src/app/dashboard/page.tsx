@@ -17,17 +17,97 @@ export default async function DashboardPage() {
     },
   });
 
-  const countPendingForms = await prisma.formSubmission.count({
-    where: { status: "PENDING", createdById: findUser?.id },
-  });
+  if (!findUser) {
+    return <p>User not found</p>;
+  }
 
-  const countApprovedForms = await prisma.formSubmission.count({
-    where: { status: "APPROVED", createdById: findUser?.id },
-  });
+  const [
+    countPendingForms,
+    countApprovedForms,
+    totalForms,
+    totalMembers,
+    attentionApprovals,
+    attentionCount,
+    recentReviewed,
+    recentOwnForms,
+  ] = await Promise.all([
+    prisma.formSubmission.count({
+      where: { status: "PENDING", createdById: findUser.id },
+    }),
+    prisma.formSubmission.count({
+      where: { status: "APPROVED", createdById: findUser.id },
+    }),
+    prisma.formType.count(),
+    prisma.user.count(),
+    prisma.approval.findMany({
+      where: { approverId: findUser.id, status: "PENDING" },
+      include: {
+        submission: {
+          include: {
+            createdBy: { select: { fullname: true, attachment: true } },
+            formType: { select: { name: true } },
+          },
+        },
+      },
+      orderBy: { submission: { createdAt: "asc" } },
+      take: 5,
+    }),
+    prisma.approval.count({
+      where: { approverId: findUser.id, status: "PENDING" },
+    }),
+    prisma.approval.findMany({
+      where: {
+        approverId: findUser.id,
+        status: { in: ["APPROVED", "REJECTED", "ESCALATED"] },
+      },
+      include: {
+        submission: {
+          include: {
+            createdBy: { select: { fullname: true, attachment: true } },
+            formType: { select: { name: true } },
+          },
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 4,
+    }),
+    prisma.formSubmission.findMany({
+      where: {
+        createdById: findUser.id,
+        status: { in: ["APPROVED", "REJECTED", "CANCELLED"] },
+      },
+      include: {
+        formType: { select: { name: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 4,
+    }),
+  ]);
 
-  const totalForms = await prisma.formType.count();
-
-  const totalMembers = await prisma.user.count();
+  const recentActivity = [
+    ...recentReviewed.map((approval) => ({
+      key: `approval-${approval.id}`,
+      submissionId: approval.submission.id,
+      formTypeName: approval.submission.formType.name,
+      status: approval.status,
+      personName: approval.submission.createdBy.fullname,
+      personAttachment: approval.submission.createdBy.attachment,
+      role: "reviewer" as const,
+      date: approval.updatedAt.toISOString(),
+    })),
+    ...recentOwnForms.map((form) => ({
+      key: `form-${form.id}`,
+      submissionId: form.id,
+      formTypeName: form.formType.name,
+      status: form.status,
+      personName: null,
+      personAttachment: null,
+      role: "requester" as const,
+      date: form.updatedAt.toISOString(),
+    })),
+  ]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 4);
 
   return (
     <DashboardComponent
@@ -36,6 +116,16 @@ export default async function DashboardPage() {
       totalForms={totalForms}
       totalMembers={totalMembers}
       userSession={session}
+      attentionApprovals={attentionApprovals.map((approval) => ({
+        approvalId: approval.id,
+        submissionId: approval.submission.id,
+        formTypeName: approval.submission.formType.name,
+        requesterName: approval.submission.createdBy.fullname,
+        requesterAttachment: approval.submission.createdBy.attachment,
+        submittedAt: approval.submission.createdAt.toISOString(),
+      }))}
+      attentionCount={attentionCount}
+      recentActivity={recentActivity}
     />
   );
 }

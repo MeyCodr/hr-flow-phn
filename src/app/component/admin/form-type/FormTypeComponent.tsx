@@ -6,6 +6,7 @@ import FormTypeForm from "./FormTypeForm";
 import axios from "axios";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { withBasePath } from "@/lib/base-path";
+import ApprovalTable from "../../ui/ApprovalTable";
 
 interface FormTypeComponentProps {
   formType: FormType[];
@@ -86,65 +87,48 @@ export default function FormTypeComponent({
                 Loading latest form types...
               </p>
             ) : (
-              <div className="w-full overflow-x-auto">
-                <table className="min-w-[500px] w-full text-xs text-left border border-gray-300 rounded-lg overflow-hidden">
-                  <thead>
-                    <tr className="bg-indigo-800 text-white">
-                      <th className="px-4 py-3 font-semibold">No</th>
-                      <th className="px-4 py-3 font-semibold">Name</th>
-                      <th className="px-4 py-3 font-semibold">Description</th>
-                      <th className="px-4 py-3 font-semibold">Created Date</th>
+              <>
+                <ApprovalTable
+                  items={forms}
+                  pageSize={20}
+                  emptyMessage="No form types available."
+                  columns={[
+                    { label: "Name", sortAccessor: (item) => item.name },
+                    { label: "Description" },
+                    {
+                      label: "Created Date",
+                      sortAccessor: (item) => item.createdAt ?? undefined,
+                    },
+                  ]}
+                  renderRow={(item) => (
+                    <tr
+                      key={item.id}
+                      onClick={() => handleRowClick(item)}
+                      className="cursor-pointer divide-x divide-gray-100 border-b border-gray-100 last:border-0 hover:bg-indigo-50 transition-colors"
+                    >
+                      <td className="px-4 py-3 text-xs font-medium text-indigo-700 whitespace-nowrap">
+                        {item.name}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
+                        {item.description}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+                        {item.createdAt
+                          ? new Date(item.createdAt).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            })
+                          : "-"}
+                      </td>
                     </tr>
-                  </thead>
-
-                  <tbody className="divide-y divide-gray-200">
-                    {forms.length > 0 ? (
-                      forms.map((item, i) => (
-                        <tr
-                          key={item.id}
-                          className="hover:bg-indigo-50 transition cursor-pointer"
-                          onClick={() => handleRowClick(item)}
-                        >
-                          <td className="px-4 py-3 font-medium text-gray-700">
-                            {i + 1}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {item.name}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {item.description}
-                          </td>
-                          <td className="px-4 py-3 text-indigo-700 font-medium whitespace-nowrap">
-                            {item.createdAt
-                              ? new Date(item.createdAt).toLocaleDateString(
-                                  "en-GB",
-                                  {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                  }
-                                )
-                              : ""}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan={4}
-                          className="text-center text-gray-500 py-4 italic"
-                        >
-                          No form types available
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                  )}
+                />
+                <p className="text-xs text-gray-500 mt-3 text-center sm:hidden">
+                  👉 Swipe left/right to view more columns
+                </p>
+              </>
             )}
-            <p className="text-xs text-gray-500 mt-3 text-center sm:hidden">
-              👉 Swipe left/right to view more columns
-            </p>
           </motion.div>
         ) : (
           <motion.div

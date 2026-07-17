@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
+import { canViewAnalytics } from "@/lib/analytics-access";
 import { prisma } from "../../../../lib/prisma";
 
 type EmployeeRecord = {
@@ -37,6 +38,12 @@ function isEmployeeRecordArray(value: unknown): value is EmployeeRecord[] {
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!canViewAnalytics(session?.user?.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
     const latestUpload = await prisma.manpowerUpload.findFirst({
       orderBy: { id: "desc" },
       select: {
@@ -95,6 +102,10 @@ export async function POST(req: NextRequest) {
 
     if (!session?.user?.staffid) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!canViewAnalytics(session.user.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const user = await prisma.user.findUnique({

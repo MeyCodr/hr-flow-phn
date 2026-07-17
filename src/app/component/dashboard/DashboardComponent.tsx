@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import DashboardCard from "./DashboardCard";
 import { FiFileText, FiCheckCircle, FiUsers, FiLayers } from "react-icons/fi";
 import QuickActions from "./QuickActions";
+import NeedsAttention, { AttentionItem } from "./NeedsAttention";
+import RecentActivity, { RecentActivityItem } from "./RecentActivity";
 import { getFirstName } from "../../../../lib/utils";
 import { Session } from "next-auth";
 import type { Variants } from "framer-motion";
@@ -15,6 +17,9 @@ interface DashboardComponentProps {
   totalForms: number;
   totalMembers: number;
   userSession: Session | null;
+  attentionApprovals: AttentionItem[];
+  attentionCount: number;
+  recentActivity: RecentActivityItem[];
 }
 
 export default function DashboardComponent({
@@ -23,6 +28,9 @@ export default function DashboardComponent({
   totalForms,
   totalMembers,
   userSession,
+  attentionApprovals,
+  attentionCount,
+  recentActivity,
 }: DashboardComponentProps) {
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -108,6 +116,11 @@ export default function DashboardComponent({
 
       <div>
         <QuickActions />
+      </div>
+
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 items-start mt-6">
+        <NeedsAttention items={attentionApprovals} totalCount={attentionCount} />
+        <RecentActivity items={recentActivity} />
       </div>
     </div>
   );
