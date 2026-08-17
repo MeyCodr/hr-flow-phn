@@ -4,7 +4,7 @@ import ApprovalTable from "../../ui/ApprovalTable";
 import { Approval, SexualHarassmentReportItem } from "../ApprovalComponent";
 import { SelfForm, UserType } from "@/app/types/types";
 import SexualHarassmentReportsTable from "../SexualHarassmentReportsTable";
-import { getApprovalActionDate, getLastApprovalDate } from "../approvalDateUtils";
+import { getApprovalActionDate, getActionsSortValue, getLastApprovalDate } from "../approvalDateUtils";
 
 interface HistoryContentProps {
   approvalsHistory: Approval[];
@@ -67,15 +67,33 @@ export default function HistoryContent({
           items={historyItems}
           pageSize={20}
           columns={[
-            { label: "Requester" },
-            { label: "Form Type" },
-            { label: "Department" },
+            {
+              label: "Requester",
+              sortAccessor: (item) =>
+                item.type === "approval" ? item.data.submission?.createdBy.fullname : "You",
+            },
+            {
+              label: "Form Type",
+              sortAccessor: (item) =>
+                item.type === "approval" ? item.data.submission?.formType.name : item.data.formType.name,
+            },
+            {
+              label: "Department",
+              sortAccessor: (item) =>
+                item.type === "approval"
+                  ? item.data.submission?.createdBy.department?.name
+                  : user.department?.name,
+            },
             {
               label: "Date",
               sortAccessor: (item) =>
                 item.type === "approval" ? item.data.submission?.createdAt : item.data.createdAt,
             },
-            { label: "Level" },
+            {
+              label: "Level",
+              sortAccessor: (item) =>
+                item.type === "approval" ? item.data.currentLevel : item.data.currentLevel ?? 0,
+            },
             { label: "Status", sortAccessor: (item) => item.data.status },
             {
               label: "Last Approval Date",
@@ -84,7 +102,15 @@ export default function HistoryContent({
                   ? getApprovalActionDate(item.data)
                   : getLastApprovalDate(item.data.approvals),
             },
-            { label: "Actions" },
+            {
+              label: "Actions",
+              sortAccessor: (item) =>
+                getActionsSortValue({
+                  status: item.data.status,
+                  roles: user.role,
+                  canApprove: false,
+                }),
+            },
           ]}
           emptyMessage="No history found."
           renderRow={(item) => {

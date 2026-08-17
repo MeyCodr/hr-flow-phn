@@ -4,7 +4,7 @@ import ApprovalTable from "../../ui/ApprovalTable";
 import { SelfForm, UserType } from "@/app/types/types";
 import { Approval, SexualHarassmentReportItem } from "../ApprovalComponent";
 import SexualHarassmentReportsTable from "../SexualHarassmentReportsTable";
-import { getApprovalActionDate, getLastApprovalDate } from "../approvalDateUtils";
+import { getApprovalActionDate, getActionsSortValue, getLastApprovalDate } from "../approvalDateUtils";
 
 interface PendingContentProps {
   approvals: Approval[];
@@ -68,15 +68,33 @@ export default function PendingContent({
         items={pendingItems}
         pageSize={20}
         columns={[
-          { label: "Requester" },
-          { label: "Form Type" },
-          { label: "Department" },
+          {
+            label: "Requester",
+            sortAccessor: (item) =>
+              item.type === "approval" ? item.data.submission?.createdBy.fullname : "You",
+          },
+          {
+            label: "Form Type",
+            sortAccessor: (item) =>
+              item.type === "approval" ? item.data.submission?.formType.name : item.data.formType.name,
+          },
+          {
+            label: "Department",
+            sortAccessor: (item) =>
+              item.type === "approval"
+                ? item.data.submission?.createdBy.department?.name
+                : user.department?.name,
+          },
           {
             label: "Date",
             sortAccessor: (item) =>
               item.type === "approval" ? item.data.submission?.createdAt : item.data.createdAt,
           },
-          { label: "Level" },
+          {
+            label: "Level",
+            sortAccessor: (item) =>
+              item.type === "approval" ? item.data.currentLevel : item.data.currentLevel ?? 0,
+          },
           { label: "Status", sortAccessor: (item) => item.data.status },
           {
             label: "Last Approval Date",
@@ -85,7 +103,28 @@ export default function PendingContent({
                 ? getApprovalActionDate(item.data)
                 : getLastApprovalDate(item.data.approvals),
           },
-          { label: "Actions" },
+          {
+            label: "Actions",
+            sortAccessor: (item) => {
+              if (item.type === "approval") {
+                const approval = item.data;
+                return getActionsSortValue({
+                  status: approval.status,
+                  roles: user.role,
+                  canApprove:
+                    approval.approverId === user.id &&
+                    approval.currentLevel === approval.activeLevel,
+                });
+              }
+              const form = item.data;
+              const myApproval = form.approvals?.find((a) => a.approverId === user.id);
+              return getActionsSortValue({
+                status: form.status,
+                roles: user.role,
+                canApprove: !!myApproval && form.currentLevel === form.activeLevel,
+              });
+            },
+          },
         ]}
         emptyMessage="No pending items found."
         renderRow={(item) => {

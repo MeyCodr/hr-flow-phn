@@ -318,6 +318,9 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
       if (data.row.index === 0) {
         data.cell.styles.overflow = "ellipsize"; // or "visible"
         data.cell.styles.cellWidth = "wrap"; // allow content width to expand without wrapping
+        data.cell.styles.fillColor = [55, 48, 163]; // indigo-800 (matches sidebar)
+        data.cell.styles.textColor = [255, 255, 255];
+        data.cell.styles.fontStyle = "bold";
       }
     },
   });
