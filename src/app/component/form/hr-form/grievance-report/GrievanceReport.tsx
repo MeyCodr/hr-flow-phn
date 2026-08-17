@@ -219,15 +219,15 @@ export default function GrievanceReport({
 
       <form
         onSubmit={handleSubmit}
-        className={`bg-white max-w-6xl rounded-xl ${
-          readOnly ? "p-0" : "p-4 border border-gray-300 "
+        className={`bg-white dark:bg-gray-900 max-w-6xl rounded-xl ${
+          readOnly ? "p-0" : "p-4 border border-gray-300 dark:border-gray-700 "
         }`}
       >
         <div className="mb-4">
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             {readOnly ? "" : "Grievance Report"}
           </h1>
-          <p className="text-sm text-indigo-800">
+          <p className="text-sm text-indigo-800 dark:text-indigo-400">
             {readOnly ? "" : "Submit your grievance to our management."}
           </p>
         </div>

@@ -82,7 +82,7 @@ export default function MultiComboBox({
   return (
     <div className="w-full relative" ref={comboRef}>
       {!mounted ? (
-        <div className="w-full h-10 border border-gray-300 rounded-md bg-gray-50 animate-pulse"></div>
+        <div className="w-full h-10 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 animate-pulse"></div>
       ) : (
         <Combobox value={null} onChange={() => {}} disabled={disabled}>
           <div className="relative">
@@ -96,8 +96,8 @@ export default function MultiComboBox({
               className={`w-full rounded-sm border px-3 py-2 pr-10 text-xs outline-none transition duration-150 ease-in-out
                 ${
                   disabled
-                    ? "bg-gray-200 cursor-not-allowed border-gray-300 text-black"
-                    : "bg-white border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                    ? "bg-gray-200 dark:bg-gray-700 cursor-not-allowed border-gray-300 dark:border-gray-600 text-black dark:text-gray-300"
+                    : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 dark:text-gray-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
                 }`}
             />
             <FaChevronDown
@@ -106,7 +106,7 @@ export default function MultiComboBox({
                 ${
                   disabled
                     ? "cursor-not-allowed text-gray-400"
-                    : "text-gray-400 hover:text-gray-600"
+                    : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 }
               `}
               onClick={() => !disabled && setOpen((prev) => !prev)}
@@ -116,10 +116,10 @@ export default function MultiComboBox({
           {open && !disabled && (
             <ComboboxOptions
               static
-              className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-300 bg-white py-1 focus:outline-none"
+              className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-1 focus:outline-none"
             >
               {filteredMenu.length === 0 ? (
-                <div className="px-3 py-2 text-gray-500 text-xs">
+                <div className="px-3 py-2 text-gray-500 dark:text-gray-400 text-xs">
                   No results found
                 </div>
               ) : (
@@ -134,8 +134,8 @@ export default function MultiComboBox({
                       <ComboboxOption
                         key={item.id}
                         value={item.name}
-                        className={`cursor-pointer select-none px-3 py-2 text-xs text-gray-700 flex items-center justify-between hover:bg-indigo-100 duration-150 transition-all ease-in-out
-            ${selected ? "bg-indigo-200 font-medium hover:bg-indigo-200" : ""}`}
+                        className={`cursor-pointer select-none px-3 py-2 text-xs text-gray-700 dark:text-gray-200 flex items-center justify-between hover:bg-indigo-100 dark:hover:bg-indigo-900/50 duration-150 transition-all ease-in-out
+            ${selected ? "bg-indigo-200 dark:bg-indigo-900/70 font-medium hover:bg-indigo-200 dark:hover:bg-indigo-900/70" : ""}`}
                         onClick={() => toggleItem(item)}
                       >
                         <span>{item.name}</span>

@@ -75,8 +75,8 @@ function StepOneForm({
 
   if (!userInfo) {
     return (
-      <div className="flex justify-center items-center h-[300px] bg-white my-6 p-6 rounded-lg border border-gray-300 shadow-xs">
-        <p className="text-center text-sm text-gray-500">
+      <div className="flex justify-center items-center h-[300px] bg-white dark:bg-gray-900 my-6 p-6 rounded-lg border border-gray-300 dark:border-gray-700 shadow-xs">
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400">
           Loading user info ...
         </p>
       </div>
@@ -85,7 +85,7 @@ function StepOneForm({
 
   return (
     <>
-      <h2 className="font-semibold text-sm mb-4 text-center">
+      <h2 className="font-semibold text-sm mb-4 text-center text-gray-900 dark:text-gray-100">
         Complainer&apos;s Detail (Maklumat Peribadi)
       </h2>
 
@@ -95,7 +95,7 @@ function StepOneForm({
             <Label
               name="Full Name/Nama Penuh"
               htmlFor="fullname"
-              className="block text-xs font-medium text-gray-900"
+              className="block text-xs font-medium text-gray-900 dark:text-gray-100"
             />
             <Input
               id="fullname"
@@ -106,7 +106,7 @@ function StepOneForm({
               placeholder="Full Name"
               required
               disabled
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -114,7 +114,7 @@ function StepOneForm({
             <Label
               name="Staff Number/No. Staff"
               htmlFor="staffId"
-              className="block text-xs font-medium text-gray-900"
+              className="block text-xs font-medium text-gray-900 dark:text-gray-100"
             />
             <Input
               id="staffId"
@@ -125,7 +125,7 @@ function StepOneForm({
               placeholder="Staff Id"
               required
               disabled
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -133,7 +133,7 @@ function StepOneForm({
             <Label
               name="Division"
               htmlFor="division"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <ComboBox
               menu={divisions}
@@ -157,7 +157,7 @@ function StepOneForm({
             <Label
               name="Department"
               htmlFor="department"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <ComboBox
               menu={addDashOption(departments)}
@@ -186,7 +186,7 @@ function StepOneForm({
               <Label
                 name="Section"
                 htmlFor="section"
-                className="block text-sm font-medium text-gray-900"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-100"
               />
               <ComboBox
                 menu={addDashOption(sections)}
@@ -204,7 +204,7 @@ function StepOneForm({
               <Label
                 name="Contact No./No untuk dihubungi"
                 htmlFor="contactNo"
-                className="block text-xs font-medium text-gray-900"
+                className="block text-xs font-medium text-gray-900 dark:text-gray-100"
               />
               <Input
                 id="contactNo"
@@ -220,7 +220,7 @@ function StepOneForm({
                 disabled={readOnly}
                 placeholder="Contact No"
                 required
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
@@ -228,7 +228,7 @@ function StepOneForm({
               <Label
                 name="Designation/Jawatan"
                 htmlFor="designation"
-                className="block text-xs font-medium text-gray-900"
+                className="block text-xs font-medium text-gray-900 dark:text-gray-100"
               />
               <Input
                 id="designation"
@@ -239,7 +239,7 @@ function StepOneForm({
                 placeholder="Designation"
                 required
                 disabled
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
@@ -247,7 +247,7 @@ function StepOneForm({
               <Label
                 name="Date of Complaint/Tarikh Aduan"
                 htmlFor="dateOfComplaint"
-                className="block text-xs font-medium text-gray-900"
+                className="block text-xs font-medium text-gray-900 dark:text-gray-100"
               />
               <Input
                 id="dateOfComplaint"
@@ -262,7 +262,7 @@ function StepOneForm({
                 placeholder="Date of Complaint"
                 required
                 disabled
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>

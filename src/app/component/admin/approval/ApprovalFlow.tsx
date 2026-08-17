@@ -262,7 +262,7 @@ export default function ApprovalFlow({
   };
 
   return (
-    <div className="p-6 w-full bg-white rounded-lg border border-gray-300">
+    <div className="p-6 w-full bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700">
       <AnimatePresence mode="wait">
         {!isAdding ? (
           <motion.div
@@ -273,7 +273,7 @@ export default function ApprovalFlow({
             variants={containerVariants}
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
                 Approval Step
               </h2>
 
@@ -291,7 +291,7 @@ export default function ApprovalFlow({
                     </button>
                     <button
                       onClick={cancelDeleteMode}
-                      className="bg-gray-300 text-gray-800 text-xs px-4 py-2 rounded-sm hover:bg-gray-400 transition cursor-pointer"
+                      className="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs px-4 py-2 rounded-sm hover:bg-gray-400 dark:hover:bg-gray-600 transition cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -326,7 +326,7 @@ export default function ApprovalFlow({
             </div>
 
             {loading ? (
-              <p className="text-center text-sm text-gray-500 py-6">
+              <p className="text-center text-sm text-gray-500 dark:text-gray-400 py-6">
                 Loading latest approval flow steps ...
               </p>
             ) : (
@@ -340,10 +340,10 @@ export default function ApprovalFlow({
                   return (
                     <div
                       key={formTypeId}
-                      className="w-full overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-sm"
+                      className="w-full overflow-x-auto rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm"
                     >
                       {/* Form Type Header */}
-                      <div className="bg-gray-100 font-semibold text-gray-700 px-4 py-2 text-sm border-b border-gray-300">
+                      <div className="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-700 dark:text-gray-300 px-4 py-2 text-sm border-b border-gray-300 dark:border-gray-700">
                         {sortedSteps[0]?.formType?.name ?? "No Form Type"}
                       </div>
 
@@ -365,7 +365,7 @@ export default function ApprovalFlow({
 
                           handleSaveOrder(updatedSteps); // save updated order
                         }}
-                        className="divide-y divide-gray-100"
+                        className="divide-y divide-gray-100 dark:divide-gray-800"
                       >
                         {sortedSteps.map((item, index) => (
                           <Reorder.Item
@@ -393,12 +393,12 @@ export default function ApprovalFlow({
                                 handleRowClick(item);
                               }
                             }}
-                            className={`flex items-start gap-3 px-4 py-3 text-xs text-gray-700 transition-colors ${
+                            className={`flex items-start gap-3 px-4 py-3 text-xs text-gray-700 dark:text-gray-300 transition-colors ${
                               deleteMode
                                 ? selectedRows.includes(item.id)
-                                  ? "bg-red-50"
-                                  : "hover:bg-red-100"
-                                : "hover:bg-indigo-50"
+                                  ? "bg-red-50 dark:bg-red-950/40"
+                                  : "hover:bg-red-100 dark:hover:bg-red-900/40"
+                                : "hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
                             } ${
                               dragMode
                                 ? "cursor-grab active:cursor-grabbing touch-none"
@@ -413,19 +413,19 @@ export default function ApprovalFlow({
                               />
                             )}
 
-                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-800 font-semibold text-[0.7rem] shrink-0 mt-0.5">
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-400 font-semibold text-[0.7rem] shrink-0 mt-0.5">
                               {index + 1}
                             </div>
 
                             <div className="flex-1 min-w-0 text-left">
                               <div className="flex items-center gap-2 flex-wrap mb-1">
-                                <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[0.6rem] font-semibold uppercase tracking-wide">
+                                <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[0.6rem] font-semibold uppercase tracking-wide">
                                   {SOURCE_LABELS[item.approverSource] ?? "Role"}
                                 </span>
                                 {item.approverSource !== "FORM_FIELD" &&
                                   (hasFixedApprovalMode(item.formType?.name) ? (
                                     <span
-                                      className="px-2 py-0.5 rounded-full text-[0.6rem] font-semibold uppercase tracking-wide bg-gray-100 text-gray-500"
+                                      className="px-2 py-0.5 rounded-full text-[0.6rem] font-semibold uppercase tracking-wide bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
                                       title="This form type has its own built-in approval flow; Approval Mode does not apply."
                                     >
                                       Fixed by form
@@ -434,8 +434,8 @@ export default function ApprovalFlow({
                                     <span
                                       className={`px-2 py-0.5 rounded-full text-[0.6rem] font-semibold uppercase tracking-wide ${
                                         item.approvalMode === "ANY"
-                                          ? "bg-amber-100 text-amber-700"
-                                          : "bg-gray-100 text-gray-600"
+                                          ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400"
+                                          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                                       }`}
                                     >
                                       {APPROVAL_MODE_LABELS[item.approvalMode] ??
@@ -444,12 +444,12 @@ export default function ApprovalFlow({
                                   ))}
                               </div>
 
-                              <p className="text-gray-800">
+                              <p className="text-gray-800 dark:text-gray-200">
                                 {buildStepSummary(item)}
                               </p>
 
                               {item.approvalStepApprovers.length > 0 && (
-                                <p className="text-gray-500 mt-0.5">
+                                <p className="text-gray-500 dark:text-gray-400 mt-0.5">
                                   {item.approvalStepApprovers
                                     .sort((a, b) => a.id - b.id)
                                     .map((a) => a.user?.fullname ?? "No user")

@@ -175,27 +175,27 @@ export default function ApprovalFlowForm({
       </div>
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             Add Approval Step
           </h2>
           <PrimaryButton
             name="Back to list"
             icon={<IoReturnDownBack className="w-5 h-5" />}
             onClick={handleBack}
-            className="text-indigo-900 hover:text-indigo-500 text-xs font-medium cursor-pointer"
+            className="text-indigo-900 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 text-xs font-medium cursor-pointer"
           />
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Step */}
           <section className="flex flex-col gap-y-4">
-            <h3 className="text-sm font-semibold text-indigo-800">Step</h3>
+            <h3 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400">Step</h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div className={styleLink}>
                 <Label
                   name="Form Type"
                   htmlFor="formType"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <ComboBox
                   menu={formType.map((f) => ({
@@ -217,7 +217,7 @@ export default function ApprovalFlowForm({
                 <Label
                   name="Order"
                   htmlFor="order"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <Input
                   id="order"
@@ -226,17 +226,17 @@ export default function ApprovalFlowForm({
                   placeholder="Order"
                   value={data.order}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>
           </section>
 
-          <div className="w-full border-t border-gray-200" />
+          <div className="w-full border-t border-gray-200 dark:border-gray-700" />
 
           {/* Who Approves */}
           <section className="flex flex-col gap-y-4">
-            <h3 className="text-sm font-semibold text-indigo-800">
+            <h3 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400">
               Who Approves
             </h3>
 
@@ -244,7 +244,7 @@ export default function ApprovalFlowForm({
               <Label
                 name="Approver Source"
                 htmlFor="approverSource"
-                className="block text-sm font-medium text-gray-900"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-100"
               />
               <ComboBox
                 menu={APPROVER_SOURCE_OPTIONS}
@@ -265,7 +265,7 @@ export default function ApprovalFlowForm({
                     <Label
                       name="Role"
                       htmlFor="role"
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                     />
                     <ComboBox
                       menu={roles}
@@ -283,7 +283,7 @@ export default function ApprovalFlowForm({
                     <Label
                       name="Fallback Role"
                       htmlFor="fallbackRole"
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                     />
                     <ComboBox
                       menu={FALLBACK_ROLE_OPTIONS}
@@ -313,7 +313,7 @@ export default function ApprovalFlowForm({
                     }
                   >
                     <CheckBox checked={data.combineWithFallback} />
-                    <span className="text-xs text-gray-700">
+                    <span className="text-xs text-gray-700 dark:text-gray-300">
                       {data.combineWithFallback
                         ? "Combine: both roles are eligible at the same time (whichever approves first, wins)"
                         : "Fallback only: use this role only if the role above has no one assigned"}
@@ -326,7 +326,7 @@ export default function ApprovalFlowForm({
                     <Label
                       name="Division"
                       htmlFor="division"
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                     />
                     <ComboBox
                       menu={addDashOption(divisions)}
@@ -347,7 +347,7 @@ export default function ApprovalFlowForm({
                     <Label
                       name="Department"
                       htmlFor="department"
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                     />
                     <ComboBox
                       menu={addDashOption(departments)}
@@ -368,7 +368,7 @@ export default function ApprovalFlowForm({
                     <Label
                       name="Section"
                       htmlFor="section"
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                     />
                     <ComboBox
                       menu={addDashOption(sections)}
@@ -391,7 +391,7 @@ export default function ApprovalFlowForm({
                 <Label
                   name="Approver"
                   htmlFor="approver"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <MultiComboBox
                   menu={users.map((i) => ({ id: i.id, name: i.fullname }))}
@@ -411,7 +411,7 @@ export default function ApprovalFlowForm({
                 <Label
                   name="Form Field"
                   htmlFor="formFieldKey"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 {fieldOptions.length > 0 ? (
                   <ComboBox
@@ -428,7 +428,7 @@ export default function ApprovalFlowForm({
                     selectedValue={data.formFieldKey}
                   />
                 ) : (
-                  <p className="text-xs text-amber-700 border border-amber-300 bg-amber-50 rounded-md px-3 py-2">
+                  <p className="text-xs text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 rounded-md px-3 py-2">
                     {selectedFormType
                       ? `No approver-eligible fields are registered for "${selectedFormType.name}" yet.`
                       : "Select a Form Type above to see its available fields."}
@@ -440,15 +440,15 @@ export default function ApprovalFlowForm({
 
           {data.approverSource !== "FORM_FIELD" && (
             <>
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-gray-200 dark:border-gray-700" />
 
               {/* Approval Behavior */}
               <section className="flex flex-col gap-y-4">
-                <h3 className="text-sm font-semibold text-indigo-800">
+                <h3 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400">
                   Approval Behavior
                 </h3>
                 {approvalModeLocked ? (
-                  <p className="text-xs text-amber-700 border border-amber-300 bg-amber-50 rounded-md px-3 py-2 max-w-md">
+                  <p className="text-xs text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 rounded-md px-3 py-2 max-w-md">
                     {`"${selectedFormType?.name}" uses its own built-in approval flow (any one approver at this step decides). The Approval Mode setting does not apply to this form type.`}
                   </p>
                 ) : (
@@ -456,7 +456,7 @@ export default function ApprovalFlowForm({
                     <Label
                       name="Approval Mode"
                       htmlFor="approvalMode"
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                     />
                     <ComboBox
                       menu={APPROVAL_MODE_OPTIONS}

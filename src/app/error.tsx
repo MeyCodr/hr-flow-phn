@@ -14,12 +14,12 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 font-poppins">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 font-poppins">
       <div className="text-center p-8 max-w-md">
-        <h1 className="text-4xl font-bold text-indigo-800 mb-2">
+        <h1 className="text-4xl font-bold text-indigo-800 dark:text-indigo-400 mb-2">
           Something went wrong
         </h1>
-        <p className="text-gray-500 mb-6">
+        <p className="text-gray-500 dark:text-gray-400 mb-6">
           An unexpected error occurred. Please try again.
         </p>
         <button

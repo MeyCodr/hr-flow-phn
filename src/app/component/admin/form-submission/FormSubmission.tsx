@@ -28,10 +28,10 @@ const fmt = (date: string | Date) =>
   }).format(new Date(date));
 
 const statusColor = (status: string) => {
-  if (status === "APPROVED" || status === "RESOLVED") return "bg-green-100 text-green-700";
-  if (status === "REJECTED" || status === "CLOSED") return "bg-red-100 text-red-700";
-  if (status === "UNDER_REVIEW") return "bg-blue-100 text-blue-700";
-  return "bg-yellow-100 text-yellow-700";
+  if (status === "APPROVED" || status === "RESOLVED") return "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400";
+  if (status === "REJECTED" || status === "CLOSED") return "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400";
+  if (status === "UNDER_REVIEW") return "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400";
+  return "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400";
 };
 
 export default function FormSubmission({
@@ -116,12 +116,12 @@ export default function FormSubmission({
           </motion.div>
         ) : (
           <motion.div key="list-view" initial="hidden" animate="visible" exit="exit" variants={containerVariants}
-            className="p-6 w-full bg-white rounded-lg border border-gray-300"
+            className="p-6 w-full bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700"
           >
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Form Submission</h2>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Form Submission</h2>
 
             {loading ? (
-              <p className="text-center text-sm text-gray-500 py-6">Loading latest form submission ...</p>
+              <p className="text-center text-sm text-gray-500 dark:text-gray-400 py-6">Loading latest form submission ...</p>
             ) : (
               <>
                 <ApprovalTable
@@ -150,18 +150,18 @@ export default function FormSubmission({
                         <tr
                           key={`form-${submission.id}`}
                           onClick={() => setSelectedForm(submission)}
-                          className="cursor-pointer divide-x divide-gray-100 border-b border-gray-100 last:border-0 hover:bg-indigo-50 transition-colors"
+                          className="cursor-pointer divide-x divide-gray-100 dark:divide-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors"
                         >
-                          <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
+                          <td className="px-4 py-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap">
                             {submission.formType.name}
                           </td>
-                          <td className="px-4 py-3 text-xs font-medium text-indigo-700 whitespace-nowrap">
+                          <td className="px-4 py-3 text-xs font-medium text-indigo-700 dark:text-indigo-400 whitespace-nowrap">
                             {submission.createdBy.fullname}
                           </td>
-                          <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+                          <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
                             {fmt(submission.createdAt)}
                           </td>
-                          <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+                          <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
                             {latestApproval ? fmt(latestApproval) : "-"}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
@@ -178,21 +178,21 @@ export default function FormSubmission({
                       <tr
                         key={`shr-${report.id}`}
                         onClick={() => handleReportClick(report.id)}
-                        className="cursor-pointer divide-x divide-gray-100 border-b border-gray-100 last:border-0 hover:bg-indigo-50 transition-colors"
+                        className="cursor-pointer divide-x divide-gray-100 dark:divide-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors"
                       >
-                        <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
+                        <td className="px-4 py-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap">
                           <span className="inline-flex items-center gap-1.5">
-                            <FiShield className="text-indigo-600 flex-shrink-0" />
+                            <FiShield className="text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
                             Sexual Harassment Report
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-xs font-medium text-indigo-700 whitespace-nowrap">
+                        <td className="px-4 py-3 text-xs font-medium text-indigo-700 dark:text-indigo-400 whitespace-nowrap">
                           {report.reporterName}
                         </td>
-                        <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+                        <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
                           {fmt(report.createdAt)}
                         </td>
-                        <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">-</td>
+                        <td className="px-4 py-3 text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">-</td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span className={`text-[0.6rem] font-semibold px-2 py-0.5 rounded-full ${statusColor(report.status)}`}>
                             {report.status.toLowerCase().replace("_", " ")}
@@ -202,7 +202,7 @@ export default function FormSubmission({
                     );
                   }}
                 />
-                <p className="text-xs text-gray-500 mt-3 text-center sm:hidden">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center sm:hidden">
                   👉 Swipe left/right to view more columns
                 </p>
               </>

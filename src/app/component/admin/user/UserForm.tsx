@@ -87,10 +87,10 @@ function UserForm({
         name="Back to list"
         icon={<IoReturnDownBack className="w-5 h-5" />}
         onClick={onBack}
-        className="text-indigo-800 hover:text-indigo-800 text-xs font-medium cursor-pointer"
+        className="text-indigo-800 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-xs font-medium cursor-pointer"
       />
 
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
         Edit User: {data.fullname ?? ""} ({data.staffid ?? ""})
       </h2>
 
@@ -99,7 +99,7 @@ function UserForm({
           <Label
             name="Full Name"
             htmlFor="fullname"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
             id="fullname"
@@ -109,7 +109,7 @@ function UserForm({
             onChange={handleChange}
             placeholder="Full Name"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
@@ -117,7 +117,7 @@ function UserForm({
           <Label
             name="Email"
             htmlFor="email"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
             id="email"
@@ -127,7 +127,7 @@ function UserForm({
             onChange={handleChange}
             placeholder="Email"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
@@ -135,7 +135,7 @@ function UserForm({
           <Label
             name="Staff Id"
             htmlFor="staffid"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
             id="staffid"
@@ -145,14 +145,14 @@ function UserForm({
             onChange={handleChange}
             placeholder="Staff Id"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
         <div className={styleLink}>
           <Label
             name="Division"
             htmlFor="division"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <ComboBox
             menu={addDashOption(divisions)}
@@ -184,7 +184,7 @@ function UserForm({
           <Label
             name="Department"
             htmlFor="department"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <ComboBox
             menu={addDashOption(departments)}
@@ -213,7 +213,7 @@ function UserForm({
           <Label
             name="Section"
             htmlFor="section"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <ComboBox
             menu={addDashOption(sections)}
@@ -239,7 +239,7 @@ function UserForm({
           <Label
             name="Designation"
             htmlFor="designation"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
             id="designation"
@@ -249,14 +249,14 @@ function UserForm({
             onChange={handleChange}
             placeholder="Designation"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
         <div className={styleLink}>
           <Label
             name="Role"
             htmlFor="role"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <ComboBox
             menu={roles}

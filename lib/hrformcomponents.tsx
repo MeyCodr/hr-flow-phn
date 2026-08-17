@@ -34,21 +34,21 @@ export const FormApproverFieldOptions: Record<
 
 export const HrFormIcons: Record<string, JSX.Element> = {
   "man-power-requisition": (
-    <FiUserPlus className="w-12 h-12 rounded-xl bg-purple-200 text-indigo-800 p-3" />
+    <FiUserPlus className="w-12 h-12 rounded-xl bg-purple-200 dark:bg-purple-900/40 text-indigo-800 dark:text-indigo-400 p-3" />
   ),
   "grievance-report": (
-    <FiAlertTriangle className="w-12 h-12 rounded-xl bg-red-200 text-red-800 p-3" />
+    <FiAlertTriangle className="w-12 h-12 rounded-xl bg-red-200 dark:bg-red-900/40 text-red-800 dark:text-red-400 p-3" />
   ),
   "employee-monthly-performance": (
-    <FiClipboard className="w-12 h-12 rounded-xl bg-green-100 text-green-700 p-3" />
+    <FiClipboard className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 p-3" />
   ),
   "sexual-harassment-report": (
-    <FiShield className="w-12 h-12 rounded-xl bg-red-200 text-red-800 p-3" />
+    <FiShield className="w-12 h-12 rounded-xl bg-red-200 dark:bg-red-900/40 text-red-800 dark:text-red-400 p-3" />
   ),
   "flexible-working-arrangement": (
-    <FiClock className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 p-3" />
+    <FiClock className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 p-3" />
   ),
   default: (
-    <FiFileText className="w-12 h-12 rounded-xl bg-gray-200 text-gray-700 p-3" />
+    <FiFileText className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-3" />
   ),
 };

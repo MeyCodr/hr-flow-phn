@@ -188,8 +188,8 @@ export default function HrFormsClient({
             className="space-y-6"
           >
             <div>
-              <h1 className="font-bold text-3xl">HR Forms</h1>
-              <p className="text-indigo-800">
+              <h1 className="font-bold text-3xl text-gray-900 dark:text-gray-100">HR Forms</h1>
+              <p className="text-indigo-800 dark:text-indigo-400">
                 Select a form to submit your request
               </p>
             </div>
@@ -237,8 +237,8 @@ export default function HrFormsClient({
             <PrimaryButton
               name="Back"
               type="button"
-              className="flex items-center gap-2 px-4 py-2 text-xs rounded-md font-medium text-gray-700
-                        bg-white border border-gray-300 shadow-xs hover:bg-gray-100 
+              className="flex items-center gap-2 px-4 py-2 text-xs rounded-md font-medium text-gray-700 dark:text-gray-300
+                        bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow-xs hover:bg-gray-100 dark:hover:bg-gray-800
                         hover:shadow-md transition-all duration-200 active:scale-95 mb-6 cursor-pointer"
               onClick={handleBackClick}
               icon={<IoReturnDownBack className="w-5 h-5" />}

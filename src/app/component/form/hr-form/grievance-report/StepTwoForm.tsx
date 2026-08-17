@@ -26,10 +26,10 @@ function StepTwoForm({
   const formData = readOnly && parsedData ? parsedData : data;
   return (
     <>
-      <h2 className="font-semibold text-sm mb-4">
+      <h2 className="font-semibold text-sm mb-4 text-gray-900 dark:text-gray-100">
         Type of Complaint (Jenis Aduan)
       </h2>
-      <div className="w-full border-b mb-4 border-indigo-800/20"></div>
+      <div className="w-full border-b mb-4 border-indigo-800/20 dark:border-indigo-900"></div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="text-xs">
@@ -81,7 +81,7 @@ function StepTwoForm({
               <Label
                 name="Please specify / Sila Nyatakan"
                 htmlFor="others"
-                className="block text-sm font-medium text-gray-900"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-100"
               />
               <Input
                 id="others"
@@ -94,8 +94,8 @@ function StepTwoForm({
                 disabled={readOnly}
                 className={`w-full border rounded-md py-2 px-3 text-xs focus:ring-indigo-500 ${
                   readOnly
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "border-gray-300"
+                    ? "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    : "border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
                 }`}
               />
             </div>
@@ -119,7 +119,7 @@ function StepTwoForm({
               disabled={readOnly}
               rows={6}
               placeholder="Detail of Complaints"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
         </div>

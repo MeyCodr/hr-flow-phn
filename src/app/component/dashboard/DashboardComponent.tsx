@@ -67,7 +67,7 @@ export default function DashboardComponent({
       {/* Greeting */}
       <div>
         <h1 className="font-bold text-3xl">{getGreeting()}</h1>
-        <p className="text-indigo-800 mt-1">
+        <p className="text-indigo-800 dark:text-indigo-300 mt-1">
           Welcome back! Here&apos;s a quick overview of your HR forms today.
         </p>
       </div>
@@ -83,29 +83,25 @@ export default function DashboardComponent({
             name: "Pending Forms",
             count: countPendingForms,
             icon: <FiFileText />,
-            color: "yellow",
-            nameColor: "yellow-600",
+            color: "yellow" as const,
           },
           {
             name: "Approved",
             count: countApprovedForms,
             icon: <FiCheckCircle />,
-            color: "green",
-            nameColor: "green-600",
+            color: "green" as const,
           },
           {
             name: "Total Forms",
             count: totalForms,
             icon: <FiLayers />,
-            color: "blue",
-            nameColor: "blue-600",
+            color: "indigo" as const,
           },
           {
             name: "Total Members",
             count: totalMembers,
             icon: <FiUsers />,
-            color: "purple",
-            nameColor: "purple-600",
+            color: "purple" as const,
           },
         ].map((card, index) => (
           <motion.div key={index} variants={cardVariants} custom={index}>

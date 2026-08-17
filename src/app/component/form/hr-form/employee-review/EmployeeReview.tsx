@@ -82,9 +82,9 @@ const PERFORMANCE_CRITERIA: {
 const REVIEW_MONTHS = ["1", "2", "3", "4", "5"];
 
 const INPUT_CLASS =
-  "w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500";
+  "w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
-const LABEL_CLASS = "block text-sm font-medium text-gray-900";
+const LABEL_CLASS = "block text-sm font-medium text-gray-900 dark:text-gray-100";
 
 export default function EmployeeReview({
   divisions,
@@ -334,15 +334,15 @@ export default function EmployeeReview({
 
       <form
         onSubmit={handleSubmit}
-        className={`bg-white max-w-6xl rounded-xl ${readOnly ? "p-0" : "p-4"
+        className={`bg-white dark:bg-gray-900 max-w-6xl rounded-xl ${readOnly ? "p-0" : "p-4"
           }`}
       >
         {/* Form header */}
         <div>
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             {readOnly ? "" : fillInMode ? "" : "Employee Monthly Performance Review"}
           </h1>
-          <p className="text-sm text-indigo-800">
+          <p className="text-sm text-indigo-800 dark:text-indigo-400">
             {readOnly ? "" : fillInMode
               ? "Your performance review is complete. Please fill in your comments below."
               : "Fill in the employee performance details below"}
@@ -351,7 +351,7 @@ export default function EmployeeReview({
 
         {/* ── Employee Information ── */}
         <div className="mt-6">
-          <h2 className="text-sm font-semibold text-indigo-800 mb-4">
+          <h2 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400 mb-4">
             Employee Information
           </h2>
 
@@ -546,7 +546,7 @@ export default function EmployeeReview({
                     disabled={readOnly || fillInMode}
                     className={INPUT_CLASS}
                   />
-                  <span className="text-gray-400 text-xs shrink-0">to</span>
+                  <span className="text-gray-400 dark:text-gray-500 text-xs shrink-0">to</span>
                   <DatePicker
                     value={formData.reviewPeriodTo}
                     onChange={
@@ -585,12 +585,12 @@ export default function EmployeeReview({
                       <Label
                         name={month}
                         htmlFor=""
-                        className="block text-sm font-medium text-gray-900 cursor-pointer"
+                        className="block text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                       />
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-400 dark:text-gray-500">
                   (please tick the review month)
                 </p>
               </div>
@@ -598,23 +598,23 @@ export default function EmployeeReview({
           </div>
         </div>
 
-        <div className="w-full border border-indigo-800/60 my-6" />
+        <div className="w-full border border-indigo-800/60 dark:border-indigo-900 my-6" />
 
         {/* ── Performance Review ── */}
         <div>
-          <h2 className="text-sm font-semibold text-indigo-800 mb-4">
+          <h2 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400 mb-4">
             Performance Review
           </h2>
 
           <div className="overflow-x-auto">
             <table className="w-full text-xs border-collapse">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 pr-6 font-medium text-gray-500 w-2/5" />
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <th className="text-left py-2 pr-6 font-medium text-gray-500 dark:text-gray-400 w-2/5" />
                   {RATING_LABELS.map((label) => (
                     <th
                       key={label}
-                      className="text-center py-2 px-3 font-medium text-gray-700 whitespace-nowrap"
+                      className="text-center py-2 px-3 font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
                     >
                       {label}
                     </th>
@@ -625,10 +625,10 @@ export default function EmployeeReview({
                 {PERFORMANCE_CRITERIA.map((criterion, idx) => (
                   <React.Fragment key={criterion.field}>
                     <tr
-                      className={`border-t ${idx === 0 ? "border-gray-200" : "border-gray-100"
+                      className={`border-t ${idx === 0 ? "border-gray-200 dark:border-gray-700" : "border-gray-100 dark:border-gray-800"
                         }`}
                     >
-                      <td className="py-3 pr-6 font-medium text-gray-900">
+                      <td className="py-3 pr-6 font-medium text-gray-900 dark:text-gray-100">
                         {criterion.label}
                       </td>
                       {["1", "2", "3", "4", "5"].map((rating) => (
@@ -667,13 +667,13 @@ export default function EmployeeReview({
             </table>
           </div>
 
-          <div className="w-full border border-indigo-800/20 my-4" />
+          <div className="w-full border border-indigo-800/20 dark:border-indigo-900 my-4" />
 
           <div className="flex items-center gap-x-4">
             <Label
               name="Average Rating / Score:"
               htmlFor="averageRating"
-              className="text-sm font-medium text-gray-900"
+              className="text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <div className="flex items-center gap-x-2">
               <Input
@@ -684,9 +684,9 @@ export default function EmployeeReview({
                 onChange={readOnly ? () => { } : handleChange}
                 disabled
                 placeholder="—"
-                className="w-20 border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-20 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-              <span className="text-sm text-gray-500 font-medium leading-none">/25</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400 font-medium leading-none">/25</span>
             </div>
           </div>
 
@@ -702,11 +702,11 @@ export default function EmployeeReview({
           )}
         </div>
 
-        <div className="w-full border border-indigo-800/60 my-6" />
+        <div className="w-full border border-indigo-800/60 dark:border-indigo-900 my-6" />
 
         {/* ── Signatures ── */}
         <div>
-          <h2 className="text-sm font-semibold text-indigo-800 mb-4">
+          <h2 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400 mb-4">
             Acknowledgment
           </h2>
 
@@ -763,15 +763,15 @@ export default function EmployeeReview({
           </div>
         </div>
 
-        <div className="w-full border border-indigo-800/60 my-6" />
+        <div className="w-full border border-indigo-800/60 dark:border-indigo-900 my-6" />
 
         {/* ── Employee Comments and Goals ── */}
         <div>
-          <h2 className="text-sm font-semibold text-indigo-800 mb-1">
+          <h2 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400 mb-1">
             Employee Comments and Goals
             {fillInMode && <span className="text-red-500 ml-1">*</span>}
           </h2>
-          <p className="text-xs text-gray-500 mb-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
             (By signing this form, you confirm that you have discussed this
             review in detail with your superior and acknowledged on the comments
             and advices for improvements where necessary.)

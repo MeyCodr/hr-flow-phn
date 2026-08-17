@@ -150,7 +150,7 @@ export default function DateTimePicker({
           onClick={() => !disabled && setIsOpen(true)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`${className} cursor-pointer ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"}`}
+          className={`${className} cursor-pointer ${disabled ? "bg-gray-200 dark:bg-gray-700 cursor-not-allowed" : "bg-white dark:bg-gray-800"}`}
         />
         <button
           type="button"
@@ -164,19 +164,19 @@ export default function DateTimePicker({
         </button>
 
         {isOpen && !disabled && (
-          <div className="absolute top-full left-0 mt-2 z-10 bg-white rounded-2xl shadow-2xl border border-gray-300 p-6 w-80 animate-in fade-in-50 zoom-in-95">
+          <div className="absolute top-full left-0 mt-2 z-10 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-300 dark:border-gray-700 p-6 w-80 animate-in fade-in-50 zoom-in-95">
             {/* Month navigation */}
             <div className="flex items-center justify-between mb-4">
-              <button type="button" onClick={() => navigateMonth("prev")} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button type="button" onClick={() => navigateMonth("prev")} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h3 className="text-sm font-semibold text-gray-800">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
                 {currentMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
               </h3>
-              <button type="button" onClick={() => navigateMonth("next")} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button type="button" onClick={() => navigateMonth("next")} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -185,7 +185,7 @@ export default function DateTimePicker({
             {/* Days of week */}
             <div className="grid grid-cols-7 gap-1 mb-2">
               {daysOfWeek.map((day) => (
-                <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">{day}</div>
+                <div key={day} className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">{day}</div>
               ))}
             </div>
 
@@ -200,10 +200,10 @@ export default function DateTimePicker({
                     isSelected(date)
                       ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200"
                       : isToday(date)
-                        ? "bg-indigo-50 text-indigo-600 border border-indigo-200"
+                        ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
                         : isCurrentMonth(date)
-                          ? "text-gray-800 hover:bg-gray-100"
-                          : "text-gray-400 hover:bg-gray-50"
+                          ? "text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                          : "text-gray-400 dark:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
                   }`}
                 >
                   {date.getDate()}
@@ -212,12 +212,12 @@ export default function DateTimePicker({
             </div>
 
             {/* Time picker */}
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-xs font-medium text-gray-500 mb-2">Time</p>
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Time</p>
               <div className="flex items-center gap-2">
                 <div className="flex flex-col items-center flex-1">
-                  <button type="button" onClick={() => handleHourChange((Number(hour) + 1).toString())} className="p-1 hover:bg-gray-100 rounded transition-colors">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <button type="button" onClick={() => handleHourChange((Number(hour) + 1).toString())} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors">
+                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                     </svg>
                   </button>
@@ -227,20 +227,20 @@ export default function DateTimePicker({
                     max={23}
                     value={hour}
                     onChange={(e) => handleHourChange(e.target.value)}
-                    className="w-12 text-center text-sm font-semibold border border-gray-200 rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-12 text-center text-sm font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 dark:text-gray-100 rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
-                  <button type="button" onClick={() => handleHourChange((Number(hour) - 1).toString())} className="p-1 hover:bg-gray-100 rounded transition-colors">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <button type="button" onClick={() => handleHourChange((Number(hour) - 1).toString())} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors">
+                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
                 </div>
 
-                <span className="text-lg font-bold text-gray-400 mb-0.5">:</span>
+                <span className="text-lg font-bold text-gray-400 dark:text-gray-500 mb-0.5">:</span>
 
                 <div className="flex flex-col items-center flex-1">
-                  <button type="button" onClick={() => handleMinuteChange((Number(minute) + 1).toString())} className="p-1 hover:bg-gray-100 rounded transition-colors">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <button type="button" onClick={() => handleMinuteChange((Number(minute) + 1).toString())} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors">
+                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                     </svg>
                   </button>
@@ -250,29 +250,29 @@ export default function DateTimePicker({
                     max={59}
                     value={minute}
                     onChange={(e) => handleMinuteChange(e.target.value)}
-                    className="w-12 text-center text-sm font-semibold border border-gray-200 rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-12 text-center text-sm font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 dark:text-gray-100 rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
-                  <button type="button" onClick={() => handleMinuteChange((Number(minute) - 1).toString())} className="p-1 hover:bg-gray-100 rounded transition-colors">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <button type="button" onClick={() => handleMinuteChange((Number(minute) - 1).toString())} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors">
+                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
                 </div>
 
                 <div className="flex flex-col gap-1 ml-2">
-                  <span className="text-xs text-gray-400">HH</span>
-                  <span className="text-xs text-gray-400 mt-4">MM</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">HH</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 mt-4">MM</span>
                 </div>
               </div>
             </div>
 
             {/* Quick actions */}
-            <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
-              <button type="button" onClick={handleClear} className="px-3 py-2 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
+            <div className="flex justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <button type="button" onClick={handleClear} className="px-3 py-2 text-xs text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
                 Clear
               </button>
               <div className="flex gap-2">
-                <button type="button" onClick={handleNow} className="px-3 py-2 text-xs text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors">
+                <button type="button" onClick={handleNow} className="px-3 py-2 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-lg transition-colors">
                   Now
                 </button>
                 <button type="button" onClick={() => setIsOpen(false)} className="px-3 py-2 text-xs text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors">

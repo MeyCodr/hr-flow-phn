@@ -57,7 +57,7 @@ export default function HistoryContent({
   const hasItems = historyItems.length > 0 || sexualHarassmentReports.length > 0;
 
   if (!hasItems) {
-    return <p className="text-gray-600">No history found.</p>;
+    return <p className="text-gray-600 dark:text-gray-400">No history found.</p>;
   }
 
   return (

@@ -51,28 +51,28 @@ export default function ActionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center font-poppins bg-black/50">
       <div
-        className={`bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative transform transition-all duration-300
+        className={`bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-md w-full p-6 relative transform transition-all duration-300
           ${isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"}
         `}
       >
         {/* Close button */}
         <button
           onClick={onCancel}
-          className="absolute top-3 right-3 cursor-pointer text-gray-400 hover:text-gray-600"
+          className="absolute top-3 right-3 cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
         >
           <IoClose className="w-5 h-5" />
         </button>
 
         {/* Title */}
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{title}</h3>
 
         {/* Message */}
-        <p className="text-gray-700 text-sm mb-4">{message}</p>
+        <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">{message}</p>
 
         {/* ✅ Dynamic Input Field */}
         {inputType && (
           <div className="mb-6">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
               {inputLabel}
             </label>
 
@@ -82,7 +82,7 @@ export default function ActionModal({
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder={inputPlaceholder}
-                className="w-full border border-gray-300 rounded-md text-sm p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-gray-100 rounded-md text-sm p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             ) : (
               <input
@@ -90,7 +90,7 @@ export default function ActionModal({
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder={inputPlaceholder}
-                className="w-full border border-gray-300 rounded-md text-sm p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-gray-100 rounded-md text-sm p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             )}
           </div>
@@ -101,7 +101,7 @@ export default function ActionModal({
           <PrimaryButton
             name={cancelText}
             onClick={onCancel}
-            className={`px-4 py-2 rounded-sm bg-gray-200 text-gray-800 hover:bg-gray-300 text-xs cursor-pointer ${className}`}
+            className={`px-4 py-2 rounded-sm bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 text-xs cursor-pointer ${className}`}
           />
 
           <PrimaryButton

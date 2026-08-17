@@ -10,12 +10,12 @@ import ActionModal from "@/app/component/ui/ActionModal";
 import { withBasePath } from "@/lib/base-path";
 import { reportAsOptions, evidenceTypeOptions } from "@/lib/data";
 
-const labelClassName = "block text-xs font-medium text-gray-900";
+const labelClassName = "block text-xs font-medium text-gray-900 dark:text-gray-100";
 
 function ReadField({ value }: { value?: string | null }) {
   return (
-    <div className="w-full border border-gray-200 rounded-md py-2 px-3 text-xs bg-gray-50 text-gray-900 min-h-[34px]">
-      {value || <span className="text-gray-400 italic">—</span>}
+    <div className="w-full border border-gray-200 dark:border-gray-700 rounded-md py-2 px-3 text-xs bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-h-[34px]">
+      {value || <span className="text-gray-400 dark:text-gray-500 italic">—</span>}
     </div>
   );
 }
@@ -35,7 +35,7 @@ function ReadCheckboxGroup({
             className={`w-4 h-4 rounded border-2 flex-shrink-0 flex items-center justify-center ${
               value === option.value
                 ? "bg-indigo-700 border-indigo-700"
-                : "border-gray-300 bg-white"
+                : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
             }`}
           >
             {value === option.value && (
@@ -54,7 +54,7 @@ function ReadCheckboxGroup({
               </svg>
             )}
           </div>
-          <span className="text-xs text-gray-900">{option.label}</span>
+          <span className="text-xs text-gray-900 dark:text-gray-100">{option.label}</span>
         </div>
       ))}
     </div>
@@ -196,12 +196,12 @@ export default function ViewSexualHarassmentReport({
 
   const statusColor =
     report.status === "RESOLVED"
-      ? "bg-green-100 text-green-700"
+      ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
       : report.status === "CLOSED"
-        ? "bg-red-100 text-red-700"
+        ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400"
         : report.status === "UNDER_REVIEW"
-          ? "bg-blue-100 text-blue-700"
-          : "bg-yellow-100 text-yellow-700";
+          ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400"
+          : "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400";
 
   const activeConfig = pendingStatus ? ACTION_CONFIG[pendingStatus] : null;
 
@@ -213,13 +213,13 @@ export default function ViewSexualHarassmentReport({
 
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white rounded-lg px-6 py-4 text-sm font-medium text-gray-700 shadow-lg">
+          <div className="bg-white dark:bg-gray-900 rounded-lg px-6 py-4 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-lg">
             Saving...
           </div>
         </div>
       )}
 
-      <div className="bg-white my-6 p-6 rounded-lg border border-gray-300 shadow-xs">
+      <div className="bg-white dark:bg-gray-900 my-6 p-6 rounded-lg border border-gray-300 dark:border-gray-700 shadow-xs">
         {/* Header */}
         <div className="mb-4 flex justify-between">
           <PrimaryButton
@@ -236,7 +236,7 @@ export default function ViewSexualHarassmentReport({
         </div>
 
         <div className="mb-6">
-          <h1 className="text-xl font-semibold text-gray-800">
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             Sexual Harassment Report
           </h1>
           <p className="text-xs text-indigo-800 font-light">
@@ -386,9 +386,9 @@ export default function ViewSexualHarassmentReport({
             htmlFor="description"
             className={labelClassName}
           />
-          <div className="w-full border border-gray-200 rounded-md py-2 px-3 text-xs bg-gray-50 text-gray-900 min-h-[120px] whitespace-pre-wrap">
+          <div className="w-full border border-gray-200 dark:border-gray-700 rounded-md py-2 px-3 text-xs bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-h-[120px] whitespace-pre-wrap">
             {report.description || (
-              <span className="text-gray-400 italic">—</span>
+              <span className="text-gray-400 dark:text-gray-500 italic">—</span>
             )}
           </div>
         </div>
@@ -426,7 +426,7 @@ export default function ViewSexualHarassmentReport({
                 key={att.id}
                 type="button"
                 onClick={() => downloadAttachment(att.id)}
-                className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800 cursor-pointer transition"
+                className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-indigo-800 dark:hover:border-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-950/40 hover:text-indigo-800 dark:hover:text-indigo-400 cursor-pointer transition"
               >
                 <span className="truncate">📎 {att.fileName}</span>
                 <span className="ml-2 rounded px-3 py-1 text-xs font-medium text-white bg-indigo-800">

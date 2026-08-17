@@ -38,13 +38,13 @@ export default function QuickActions() {
 
   return (
     <motion.div
-      className="bg-white p-6 rounded-lg border border-gray-300 shadow-sm"
+      className="bg-white dark:bg-gray-900 p-6 rounded-lg border border-gray-300 dark:border-gray-700 shadow-sm"
       initial="hidden"
       animate="visible"
     >
       <div>
         <h1 className="text-lg font-semibold">Quick Actions</h1>
-        <p className="text-indigo-800 text-sm font-light">
+        <p className="text-indigo-800 dark:text-indigo-300 text-sm font-light">
           Submit a new form or check pending approvals
         </p>
       </div>
@@ -57,7 +57,7 @@ export default function QuickActions() {
               variants={cardVariants}
               whileHover={{ scale: 1 }}
               whileTap={{ scale: 0.97 }}
-              className="group border border-indigo-100 p-4 flex flex-col justify-center items-center bg-indigo-50 rounded-xl cursor-pointer hover:bg-indigo-800 transition-all duration-300 ease-in-out"
+              className="group border border-indigo-100 dark:border-indigo-900 p-4 flex flex-col justify-center items-center bg-indigo-50 dark:bg-indigo-950/40 rounded-xl cursor-pointer hover:bg-indigo-800 transition-all duration-300 ease-in-out"
             >
               {React.cloneElement(card.icon, {
                 className: "group-hover:text-white w-6 h-6 mb-4",
@@ -65,7 +65,7 @@ export default function QuickActions() {
               <h2 className="font-medium group-hover:text-white">
                 {card.title}
               </h2>
-              <p className="text-sm text-gray-500 group-hover:text-white text-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-white text-center">
                 {card.desc}
               </p>
             </motion.div>

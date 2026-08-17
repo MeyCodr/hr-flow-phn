@@ -366,14 +366,14 @@ export default function ManPower({
       <form
         action=""
         onSubmit={handleSubmit}
-        className={`bg-white max-w-6xl rounded-xl ${readOnly ? "p-0" : "p-4 border border-gray-300 "
+        className={`bg-white dark:bg-gray-900 max-w-6xl rounded-xl ${readOnly ? "p-0" : "p-4 border border-gray-300 dark:border-gray-700 "
           }`}
       >
         <div>
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             {readOnly ? "" : "Man Power Requisition"}
           </h1>
-          <p className="text-sm text-indigo-800">
+          <p className="text-sm text-indigo-800 dark:text-indigo-400">
             {readOnly ? "" : "Fill in the details below to submit your request"}
           </p>
         </div>
@@ -405,7 +405,7 @@ export default function ManPower({
                 <Label
                   name="Date of Submission"
                   htmlFor="createddate"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <DatePicker
                   value={readOnly ? parsedData?.createddate : data.createddate}
@@ -417,14 +417,14 @@ export default function ManPower({
                   className={`w-full border ${errors.dateOfSubmission
                     ? "border border-red-500 rounded-md"
                     : ""
-                    } border-gray-300  rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                    } border-gray-300 dark:border-gray-600  rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                 />
               </div>
               <div className="flex flex-col space-y-2">
                 <Label
                   name="Division"
                   htmlFor="division"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <ComboBox
                   menu={divisions}
@@ -452,7 +452,7 @@ export default function ManPower({
                 <Label
                   name="Department"
                   htmlFor="department"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <ComboBox
                   menu={addDashOption(departments)}
@@ -477,7 +477,7 @@ export default function ManPower({
                 <Label
                   name="Section"
                   htmlFor="section"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <ComboBox
                   menu={addDashOption(sections)}
@@ -497,7 +497,7 @@ export default function ManPower({
                 <Label
                   name="Designation"
                   htmlFor="designation"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <ComboBox
                   menu={designation}
@@ -519,7 +519,7 @@ export default function ManPower({
                 <Label
                   name="Reporting To"
                   htmlFor="reportingTo"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <ComboBox
                   menu={reportingToOptions}
@@ -540,7 +540,7 @@ export default function ManPower({
                 <Label
                   name="No Requested"
                   htmlFor="noRequested"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <Input
                   id="noRequested"
@@ -551,7 +551,7 @@ export default function ManPower({
                   onChange={readOnly ? () => { } : handleChange}
                   placeholder="No Requested"
                   required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -559,7 +559,7 @@ export default function ManPower({
                   <Label
                     name="Current Headcount"
                     htmlFor="currentHeadCount"
-                    className="block text-sm font-medium text-gray-900"
+                    className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                   />
                   <Input
                     id="currentHeadCount"
@@ -574,16 +574,16 @@ export default function ManPower({
                     disabled={readOnly}
                     placeholder="Current Headcount"
                     required
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
-                <span className="text-gray-500 mt-6">/</span>{" "}
+                <span className="text-gray-500 dark:text-gray-400 mt-6">/</span>{" "}
                 {/* The slash in the middle */}
                 <div className="flex-1 flex flex-col space-y-2">
                   <Label
                     name="Approved Requirement"
                     htmlFor="approvedRequirement"
-                    className="block text-sm font-medium text-gray-900"
+                    className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                   />
                   <Input
                     id="approvedRequirement"
@@ -598,7 +598,7 @@ export default function ManPower({
                     disabled={readOnly}
                     placeholder="Approved Requirement"
                     required
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -607,7 +607,7 @@ export default function ManPower({
                 <Label
                   name="Work Location"
                   htmlFor="workLocation"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <ComboBox
                   menu={workLocation}
@@ -627,7 +627,7 @@ export default function ManPower({
                 <Label
                   name="Workstation Availability"
                   htmlFor=""
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <div className="flex items-center gap-x-4">
                   <div
@@ -656,7 +656,7 @@ export default function ManPower({
                     <Label
                       name="Yes"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900 cursor-pointer"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                     />
                   </div>
                   <div
@@ -685,7 +685,7 @@ export default function ManPower({
                     <Label
                       name="No"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900 cursor-pointer"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                     />
                   </div>
                 </div>
@@ -694,7 +694,7 @@ export default function ManPower({
                 <Label
                   name="Employment Type"
                   htmlFor=""
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <div className="flex items-center gap-x-4">
                   <div
@@ -729,7 +729,7 @@ export default function ManPower({
                     <Label
                       name="Permanent"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900 cursor-pointer"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                     />
                   </div>
                   <div
@@ -762,7 +762,7 @@ export default function ManPower({
                     <Label
                       name="Contract"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900 cursor-pointer"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                     />
                   </div>
                 </div>
@@ -771,7 +771,7 @@ export default function ManPower({
                 <Label
                   name="Manpower Plan"
                   htmlFor=""
-                  className="block text-sm font-medium text-gray-900 "
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100 "
                 />
                 <div className="flex items-center gap-4 mb-2">
                   <div
@@ -802,7 +802,7 @@ export default function ManPower({
                     <Label
                       name="Budgeted"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900 cursor-pointer"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                     />
                   </div>
                   <div
@@ -837,7 +837,7 @@ export default function ManPower({
                     <Label
                       name="Non-Budgeted"
                       htmlFor=""
-                      className="block text-sm font-medium text-gray-900 cursor-pointer"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                     />
                   </div>
                 </div>
@@ -847,7 +847,7 @@ export default function ManPower({
                 <Label
                   name="Approved AMP"
                   htmlFor="approvedAmp"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <Input
                   id="approvedAmp"
@@ -858,20 +858,20 @@ export default function ManPower({
                   disabled={readOnly}
                   placeholder="Approved AMP"
                   required
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div> */}
             </div>
           </div>
 
-          <div className="w-full border border-indigo-800/60 my-2"></div>
+          <div className="w-full border border-indigo-800/60 dark:border-indigo-900 my-2"></div>
 
           <div className="grid grid-cols-1 gap-6">
             <div className="flex-1 flex flex-col space-y-2">
               <Label
                 name="Key Requirements"
                 htmlFor="keyRequirement"
-                className="block text-sm font-medium text-gray-900"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-100"
               />
               <TextArea
                 id="keyRequirement"
@@ -882,14 +882,14 @@ export default function ManPower({
                 onChange={handleTextAreaChange}
                 disabled={readOnly}
                 placeholder="Key Requirement"
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <div className="flex-1 flex flex-col space-y-2">
               <Label
                 name="Key Responsibility"
                 htmlFor="keyResponsibilities"
-                className="block text-sm font-medium text-gray-900"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-100"
               />
               <TextArea
                 id="keyRequirement"
@@ -902,17 +902,17 @@ export default function ManPower({
                 onChange={handleTextAreaChange}
                 disabled={readOnly}
                 placeholder="Key Responsibilities"
-                className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <div className="flex-1 flex flex-col space-y-2">
               <Label
                 name="Reason of Requisition"
                 htmlFor="reasonOfRequisition"
-                className="block text-sm font-medium text-gray-900"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-100"
               />
 
-              <div className="grid grid-cols-2 gap-6 my-4 border-2 p-4 rounded-lg shadow-lg border-indigo-800/60">
+              <div className="grid grid-cols-2 gap-6 my-4 border-2 p-4 rounded-lg shadow-lg border-indigo-800/60 dark:border-indigo-900">
                 <div>
                   <div className="flex flex-col ">
                     <div className="flex items-center gap-x-2">
@@ -945,7 +945,7 @@ export default function ManPower({
                       <Label
                         name="Replacement"
                         htmlFor="replacement"
-                        className="block text-sm font-medium text-gray-900"
+                        className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                       />
                     </div>
 
@@ -960,7 +960,7 @@ export default function ManPower({
                       <Label
                         name="Incumbent Name"
                         htmlFor="incumbentName"
-                        className="block text-sm font-medium text-gray-900"
+                        className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                       />
                       <Input
                         id="incumbentName"
@@ -984,8 +984,8 @@ export default function ManPower({
                             ? parsedData.selectedOption !==
                             "replacement"
                             : data.selectedOption !== "replacement")
-                            ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                            : "bg-white text-gray-900 border-gray-300"
+                            ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600 cursor-not-allowed"
+                            : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
                           }`}
                       />
                     </div>
@@ -993,7 +993,7 @@ export default function ManPower({
                       <Label
                         name="Last Working Day"
                         htmlFor="lastWorkingDay"
-                        className="block text-sm font-medium text-gray-900"
+                        className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                       />
                       <DatePicker
                         value={
@@ -1014,8 +1014,8 @@ export default function ManPower({
                             ? parsedData.selectedOption !==
                             "replacement"
                             : data.selectedOption !== "replacement")
-                            ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                            : "bg-white text-gray-900 border-gray-300"
+                            ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600 cursor-not-allowed"
+                            : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
                           }`}
                       />
                     </div>
@@ -1037,7 +1037,7 @@ export default function ManPower({
                     <Label
                       name="Additional"
                       htmlFor="additional"
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                     />
                   </div>
 
@@ -1082,7 +1082,7 @@ export default function ManPower({
                               <Label
                                 name={reason.label}
                                 htmlFor={reason.key}
-                                className="block text-sm font-medium text-gray-900"
+                                className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                               />
                             </div>
 
@@ -1100,8 +1100,8 @@ export default function ManPower({
                               required={isChecked}
                               disabled={readOnly || !isChecked}
                               className={`w-full border rounded-md py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 ${readOnly || !isChecked
-                                ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                                : "bg-white text-gray-900 border-gray-300"
+                                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600 cursor-not-allowed"
+                                : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
                                 }`}
                             />
                           </div>
@@ -1121,15 +1121,15 @@ export default function ManPower({
                 <Label
                   name={`File Attachment (Please attach Department Orga Chart, Job Description and Resignation info for replacement request)`}
                   htmlFor="fileAttachment"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 />
 
                 <label
                   htmlFor="fileAttachment"
                   className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs transition cursor-pointer
                   ${readOnly
-                      ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800"
+                      ? "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-indigo-800 dark:hover:border-indigo-900 hover:bg-indigo-100 dark:hover:bg-indigo-950/40 hover:text-indigo-800 dark:hover:text-indigo-400"
                     } ${errors.fileAttachment ? "border-red-500" : ""}`}
                 >
                   <span className="truncate">
@@ -1184,7 +1184,7 @@ export default function ManPower({
                 </label>
 
                 {files.length > 0 && (
-                  <div className="mt-1 w-full rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300">
+                  <div className="mt-1 w-full rounded-lg bg-gray-50 dark:bg-gray-800 p-3 text-xs text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">
                     {files.map((f, i) => (
                       <p key={i}>📎 {f.name}</p>
                     ))}
@@ -1192,7 +1192,7 @@ export default function ManPower({
                 )}
 
                 {!readOnly && (
-                  <p className="text-xs text-amber-700">
+                  <p className="text-xs text-amber-700 dark:text-amber-500">
                     Please keep the total attachment size at or below{" "}
                     {formatFileSize(MAX_FORM_ATTACHMENT_BYTES)} to avoid upload
                     errors such as request size limit issues.
@@ -1208,7 +1208,7 @@ export default function ManPower({
                     <p
                       key={i}
                       onClick={() => downloadDocument(item.fileName)}
-                      className="mt-1 block w-full cursor-pointer rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
+                      className="mt-1 block w-full cursor-pointer rounded-lg bg-gray-50 dark:bg-gray-800 p-3 text-xs text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-800 dark:hover:text-indigo-400 transition"
                     >
                       📎 <strong>Download:</strong> {item.fileName}
                     </p>
@@ -1221,7 +1221,7 @@ export default function ManPower({
                 <Label
                   name="Remarks"
                   htmlFor="remarks"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <TextArea
                   id="remarks"
@@ -1230,7 +1230,7 @@ export default function ManPower({
                   onChange={handleTextAreaChange}
                   disabled={readOnly}
                   placeholder="Remarks"
-                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>

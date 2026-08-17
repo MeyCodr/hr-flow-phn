@@ -55,10 +55,10 @@ const statusColors: Record<string, string> = {
 };
 
 const statusBgClasses: Record<string, string> = {
-  PENDING: "bg-amber-50 text-amber-700",
-  APPROVED: "bg-emerald-50 text-emerald-700",
-  REJECTED: "bg-red-50 text-red-700",
-  CANCELLED: "bg-gray-100 text-gray-700",
+  PENDING: "bg-amber-50 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400",
+  APPROVED: "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400",
+  REJECTED: "bg-red-50 dark:bg-red-900/40 text-red-700 dark:text-red-400",
+  CANCELLED: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300",
 };
 
 const barPalette = ["#4338ca", "#0f766e", "#b45309", "#7c3aed", "#0891b2", "#be123c", "#65a30d", "#9333ea"];
@@ -71,9 +71,9 @@ function StatusDonutChart({ data, total }: { data: StatusCount[]; total: number 
   const chartData = data.filter((entry) => entry.count > 0);
 
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-      <h2 className="text-lg font-semibold text-gray-900">Submissions by Status</h2>
-      <p className="text-sm text-gray-600">Distribution of all form submissions.</p>
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Submissions by Status</h2>
+      <p className="text-sm text-gray-600 dark:text-gray-400">Distribution of all form submissions.</p>
 
       <ChartContainer className="mt-4 h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -116,7 +116,7 @@ function StatusDonutChart({ data, total }: { data: StatusCount[]; total: number 
           <span
             key={entry.status}
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
-              statusBgClasses[entry.status] ?? "bg-gray-100 text-gray-700"
+              statusBgClasses[entry.status] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
             <span
@@ -148,10 +148,10 @@ function RankedBarChart({
 }) {
   if (data.length === 0) {
     return (
-      <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        <p className="text-sm text-gray-600">{description}</p>
-        <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+      <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+        <div className="mt-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
           {emptyMessage}
         </div>
       </article>
@@ -159,9 +159,9 @@ function RankedBarChart({
   }
 
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      <p className="text-sm text-gray-600">{description}</p>
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
+      <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
 
       <ChartContainer className={`mt-4 w-full ${chartHeight}`}>
         <ResponsiveContainer width="100%" height="100%">
@@ -237,9 +237,9 @@ function RankedBarChart({
 
 function MonthlyTrendChart({ data }: { data: MonthlyTrendPoint[] }) {
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0 xl:col-span-2">
-      <h2 className="text-lg font-semibold text-gray-900">Monthly Submission Trend</h2>
-      <p className="text-sm text-gray-600">
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0 xl:col-span-2">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Monthly Submission Trend</h2>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
         Submitted vs. resolved forms over the last 12 months.
       </p>
 
@@ -283,23 +283,23 @@ function MonthlyTrendChart({ data }: { data: MonthlyTrendPoint[] }) {
 
 function ApproverWorkloadList({ data }: { data: NameCount[] }) {
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-      <h2 className="text-lg font-semibold text-gray-900">Pending Approver Workload</h2>
-      <p className="text-sm text-gray-600">Approvers with the most forms currently waiting on them.</p>
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Pending Approver Workload</h2>
+      <p className="text-sm text-gray-600 dark:text-gray-400">Approvers with the most forms currently waiting on them.</p>
 
       {data.length > 0 ? (
-        <div className="mt-4 divide-y divide-gray-100">
+        <div className="mt-4 divide-y divide-gray-100 dark:divide-gray-800">
           {data.map((entry) => (
             <div key={entry.name} className="flex items-center justify-between gap-4 py-3">
-              <p className="text-sm font-medium text-gray-700">{entry.name}</p>
-              <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{entry.name}</p>
+              <span className="rounded-full bg-amber-50 dark:bg-amber-900/40 px-3 py-1 text-sm font-semibold text-amber-700 dark:text-amber-400">
                 {formatCount(entry.count)} pending
               </span>
             </div>
           ))}
         </div>
       ) : (
-        <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+        <div className="mt-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
           No pending approvals right now.
         </div>
       )}
@@ -334,36 +334,36 @@ export default function FormAnalyticsComponent({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-          <p className="text-sm font-medium text-gray-500">Total Submissions</p>
-          <h2 className="mt-3 text-3xl font-semibold text-gray-900">
+        <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Submissions</p>
+          <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-gray-100">
             {formatCount(totalSubmissions)}
           </h2>
         </article>
-        <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-          <p className="text-sm font-medium text-amber-600">Pending</p>
-          <h2 className="mt-3 text-3xl font-semibold text-amber-700">
+        <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+          <p className="text-sm font-medium text-amber-600 dark:text-amber-400">Pending</p>
+          <h2 className="mt-3 text-3xl font-semibold text-amber-700 dark:text-amber-400">
             {formatCount(countByStatus("PENDING"))}
           </h2>
         </article>
-        <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-          <p className="text-sm font-medium text-emerald-600">Approved</p>
-          <h2 className="mt-3 text-3xl font-semibold text-emerald-700">
+        <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+          <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Approved</p>
+          <h2 className="mt-3 text-3xl font-semibold text-emerald-700 dark:text-emerald-400">
             {formatCount(countByStatus("APPROVED"))}
           </h2>
         </article>
-        <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-          <p className="text-sm font-medium text-red-600">Rejected</p>
-          <h2 className="mt-3 text-3xl font-semibold text-red-700">
+        <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+          <p className="text-sm font-medium text-red-600 dark:text-red-400">Rejected</p>
+          <h2 className="mt-3 text-3xl font-semibold text-red-700 dark:text-red-400">
             {formatCount(countByStatus("REJECTED"))}
           </h2>
         </article>
-        <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-          <p className="text-sm font-medium text-gray-500">Avg. Turnaround</p>
-          <h2 className="mt-3 text-3xl font-semibold text-gray-900">
+        <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg. Turnaround</p>
+          <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-gray-100">
             {avgTurnaroundDays !== null ? `${avgTurnaroundDays.toFixed(1)}d` : "-"}
           </h2>
-          <p className="mt-1 text-xs text-gray-500">From submission to resolution</p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">From submission to resolution</p>
         </article>
       </div>
 
@@ -392,9 +392,9 @@ export default function FormAnalyticsComponent({
       </div>
 
       {totalPendingApprovals === 0 && totalSubmissions === 0 && (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900">No Data Yet</h2>
-          <p className="mt-2 text-sm text-gray-600">
+        <div className="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-10 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">No Data Yet</h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Once forms are submitted, this page will populate with live analytics.
           </p>
         </div>

@@ -47,7 +47,7 @@ export default function AccountDropdown({
   }, [onClose]);
 
   const buttonLink =
-    "flex items-center gap-3 px-4 py-2 hover:bg-gray-100 transition-colors text-gray-700 text-sm cursor-pointer rounded";
+    "flex items-center gap-3 px-4 py-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors text-gray-700 dark:text-gray-200 text-sm cursor-pointer rounded-lg mx-1.5";
 
   return (
     <>
@@ -58,20 +58,21 @@ export default function AccountDropdown({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="absolute right-0 top-12 w-52 bg-white border border-gray-300 shadow-md rounded-lg text-black font-poppins z-50"
+        className="absolute right-0 top-12 w-52 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-black dark:text-gray-100 shadow-xl shadow-black/10 font-poppins z-50 overflow-hidden"
       >
-        <div className="flex flex-col">
-          <div className="border-b border-gray-300 px-4 text-sm py-3 font-medium text-gray-700">
+        <div className="flex flex-col py-1.5">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 px-4 py-2.5 text-sm font-semibold text-gray-800 dark:text-gray-100">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
             My Account
           </div>
-          <button className={buttonLink} onClick={() => handleTab("profile")}>
-            <FaUser /> Profile
+          <button className={`${buttonLink} mt-1`} onClick={() => handleTab("profile")}>
+            <FaUser className="text-indigo-800 dark:text-indigo-400" /> Profile
           </button>
           {/* <button className={buttonLink} onClick={() => handleTab("setting")}>
             <FaCog /> Settings
           </button> */}
           <button
-            className={`${buttonLink} border-t border-gray-300 text-red-500`}
+            className={`${buttonLink} mb-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40`}
             onClick={handleSignOut}
           >
             <FaSignOutAlt /> Logout

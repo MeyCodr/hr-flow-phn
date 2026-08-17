@@ -108,7 +108,7 @@ export default function Register() {
   };
 
   return (
-    <div className="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 min-h-screen w-full">
+    <div className="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 dark:from-gray-950 dark:via-indigo-950 dark:to-gray-950 min-h-screen w-full">
       <div className="text-xs">
         <Toaster position="top-center" />
       </div>

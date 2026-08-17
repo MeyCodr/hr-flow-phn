@@ -330,29 +330,29 @@ export default function ApprovalComponent({
   const dateFilter = (
     <div className="flex items-center gap-2">
       <div className="flex flex-col gap-0.5">
-        <label className="text-xs font-medium text-gray-500">From</label>
+        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">From</label>
         <input
           type="date"
           value={dateFrom}
           max={dateTo || undefined}
           onChange={(e) => setDateFrom(e.target.value)}
-          className="text-xs border border-gray-300 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="text-xs border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
       </div>
       <div className="flex flex-col gap-0.5">
-        <label className="text-xs font-medium text-gray-500">To</label>
+        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">To</label>
         <input
           type="date"
           value={dateTo}
           min={dateFrom || undefined}
           onChange={(e) => setDateTo(e.target.value)}
-          className="text-xs border border-gray-300 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="text-xs border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
       </div>
       {hasFilter && (
         <button
           onClick={() => { setDateFrom(""); setDateTo(""); }}
-          className="text-xs text-indigo-700 hover:text-indigo-900 underline mt-4"
+          className="text-xs text-indigo-700 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 underline mt-4"
         >
           Clear
         </button>

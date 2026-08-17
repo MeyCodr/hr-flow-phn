@@ -27,7 +27,7 @@ export default function Tabs({ tabs, defaultIndex = 0, rightSlot }: TabsProps) {
     <div className="w-full">
       <TabGroup defaultIndex={defaultIndex}>
         <div className="flex items-center justify-between gap-4 flex-wrap">
-        <TabList className="relative flex justify-start gap-2 bg-indigo-100/60 rounded-full p-2 w-fit">
+        <TabList className="relative flex justify-start gap-2 bg-indigo-100/60 dark:bg-indigo-950/50 rounded-full p-2 w-fit">
           {tabs.map((tab) => (
             <Tab key={tab.name} className="relative focus:outline-none">
               {({ selected }) => (
@@ -48,7 +48,7 @@ export default function Tabs({ tabs, defaultIndex = 0, rightSlot }: TabsProps) {
                       "relative z-10 px-6 py-3 text-xs font-semibold transition-colors duration-200 cursor-pointer select-none",
                       selected
                         ? "text-white"
-                        : "text-indigo-700 hover:text-indigo-900"
+                        : "text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-indigo-100"
                     )}
                   >
                     {tab.name}

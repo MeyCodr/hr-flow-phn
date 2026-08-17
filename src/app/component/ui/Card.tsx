@@ -21,14 +21,14 @@ export default function Card({
   return (
     <div
       onClick={onClick}
-      className="group w-full h-full bg-white border border-gray-300 rounded-xl p-5 py-6 shadow-xs hover:scale-105 cursor-pointer ease-in-out duration-300 transition-all hover:shadow-lg"
+      className="group w-full h-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl p-5 py-6 shadow-xs hover:scale-105 cursor-pointer ease-in-out duration-300 transition-all hover:shadow-lg"
     >
       {icon}
       {/* <FiUserPlus className="w-12 h-12 rounded-xl bg-purple-200 text-indigo-800 p-3 group-hover:scale-105 ease-in-out duration-300 transition-all" /> */}
 
       <div className="flex flex-col gap-y-2 my-6">
         <h1 className="font-semibold">{title}</h1>
-        <p className="text-xs text-indigo-800">{description}</p>
+        <p className="text-xs text-indigo-800 dark:text-indigo-300">{description}</p>
       </div>
 
       <div className="flex justify-between items-center gap-x-4">

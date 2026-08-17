@@ -23,7 +23,7 @@ export default function CheckBox({
         ${
           checked
             ? "bg-indigo-800 border-indigo-800"
-            : "bg-white border-gray-300"
+            : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
         }
         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1
         ${disabled ? "cursor-not-allowed opacity-70" : ""}`}

@@ -45,7 +45,7 @@ function Input({
       type={type}
       placeholder={placeholder}
       className={`border rounded-md px-3 py-2 w-full
-    ${disabled ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}
+    ${disabled ? "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed" : "bg-white dark:bg-gray-800"}
     ${className}`}
       value={value}
       onChange={onChange}

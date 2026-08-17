@@ -71,7 +71,7 @@ function ResetPasswordForm({ resetPassword }: ResetPasswordFormProps) {
 
       <div className="flex flex-col space-y-10 w-full justify-center items-center">
         {/* Reset Password Card */}
-        <div className="bg-white p-10 rounded-lg shadow-lg max-w-md w-full">
+        <div className="bg-white dark:bg-gray-900 p-10 rounded-lg shadow-lg max-w-md w-full">
           <div className="flex flex-col space-y-1">
             <h1 className="font-bold text-2xl">Reset Password</h1>
           </div>
@@ -83,7 +83,7 @@ function ResetPasswordForm({ resetPassword }: ResetPasswordFormProps) {
               <Label
                 name="Password"
                 htmlFor="password"
-                className="text-sm font-medium text-gray-900"
+                className="text-sm font-medium text-gray-900 dark:text-gray-100"
               />
               <Input
                 id="password"
@@ -92,12 +92,12 @@ function ResetPasswordForm({ resetPassword }: ResetPasswordFormProps) {
                 value={data.password}
                 onChange={handleChange}
                 placeholder="Password"
-                className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-sm py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+                className="absolute right-3 top-9 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
               >
                 {showPassword ? (
                   <IoEyeOffOutline size={18} />
@@ -112,7 +112,7 @@ function ResetPasswordForm({ resetPassword }: ResetPasswordFormProps) {
               <Label
                 name="Confirm Password"
                 htmlFor="cpassword"
-                className="text-sm font-medium text-gray-900"
+                className="text-sm font-medium text-gray-900 dark:text-gray-100"
               />
               <Input
                 id="cpassword"
@@ -121,12 +121,12 @@ function ResetPasswordForm({ resetPassword }: ResetPasswordFormProps) {
                 value={data.cpassword}
                 onChange={handleChange}
                 placeholder="Confirm Password"
-                className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-sm py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowCPassword(!showCPassword)}
-                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+                className="absolute right-3 top-9 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
               >
                 {showCPassword ? (
                   <IoEyeOffOutline size={18} />

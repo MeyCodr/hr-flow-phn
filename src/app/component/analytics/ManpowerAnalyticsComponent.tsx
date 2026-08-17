@@ -101,7 +101,7 @@ const categoryOptions = [
 ];
 
 const currentDate = new Date();
-const chartBarColors = ["#0f766e", "#1d4ed8", "#b45309", "#7c3aed"];
+const chartBarColors = ["#0f766e", "#4338ca", "#b45309", "#7c3aed"];
 const preferredPlantOrder = [
   "SHAH ALAM 1 PLANT",
   "SHAH ALAM 2 PLANT",
@@ -298,18 +298,18 @@ function HeadcountBarChart({
   const topDivision = data[0];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm font-poppins min-w-0">
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-sm font-poppins min-w-0">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-          <p className="text-sm text-gray-600">{description}</p>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
         </div>
         {/* <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
           {badgeLabel}
         </span> */}
       </div>
 
-      <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
+      <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
         <span>Count</span>
         <span>Division</span>
       </div>
@@ -359,7 +359,7 @@ function HeadcountBarChart({
       </ChartContainer>
 
       {topDivision && (
-        <p className="mt-3 text-xs font-medium text-gray-600">
+        <p className="mt-3 text-xs font-medium text-gray-600 dark:text-gray-400">
           Top division: {topDivision.fullLabel ?? topDivision.label}
         </p>
       )}
@@ -388,13 +388,13 @@ function MonthlyHeadcountTrendChart({
         );
 
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Monthly Headcount Trend
           </h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Rolling 12-month headcount trend based on Date Join and Date Resignation.
           </p>
         </div>
@@ -478,9 +478,9 @@ function MonthlyHeadcountTrendChart({
       </div> */}
 
       {selectedPoint && (
-        <p className="mt-3 text-sm text-gray-600">
+        <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
           {selectedPoint.fullLabel} headcount:{" "}
-          <span className="font-semibold text-gray-900">
+          <span className="font-semibold text-gray-900 dark:text-gray-100">
             {formatCount(selectedPoint.value)}
           </span>
         </p>
@@ -495,10 +495,10 @@ function TurnoverTrendChart({
   data: TurnoverTrendPoint[];
 }) {
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Turnover Trend</h2>
-        <p className="text-sm text-gray-600">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Turnover Trend</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           Monthly resignations and turnover rate for the same rolling 12-month period.
         </p>
       </div>
@@ -579,13 +579,13 @@ function EmploymentTypeDonutChart({
       : `${((value / totalEmploymentCount) * 100).toFixed(1)}%`;
 
   const data = [
-    { name: "Permanent", value: permanentCount, color: "#1d4ed8" },
+    { name: "Permanent", value: permanentCount, color: "#4338ca" },
     { name: "Contract", value: contractCount, color: "#f59e0b" },
   ];
 
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-      <p className="text-sm font-medium text-gray-500">Employment Type</p>
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Employment Type</p>
       <ChartContainer className="mt-4 h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -625,13 +625,13 @@ function EmploymentTypeDonutChart({
         </ResponsiveContainer>
       </ChartContainer>
       <div className="mt-4 flex items-center justify-center gap-6 text-sm">
-        <div className="flex items-center gap-2 text-gray-700">
-          <span className="h-3 w-3 rounded-full bg-blue-700" />
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+          <span className="h-3 w-3 rounded-full bg-indigo-700" />
           <span>
             Permanent: {formatCount(permanentCount)} ({formatPercentage(permanentCount)})
           </span>
         </div>
-        <div className="flex items-center gap-2 text-gray-700">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
           <span className="h-3 w-3 rounded-full bg-amber-500" />
           <span>
             Contract: {formatCount(contractCount)} ({formatPercentage(contractCount)})
@@ -651,29 +651,29 @@ function LocalForeignChart({
 }) {
   return (
     <div className="">
-      <p className="text-sm font-medium text-gray-600">Local vs Foreign</p>
+      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Local vs Foreign</p>
 
       <div className="mt-3 grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3">
+        <div className="rounded-xl border border-emerald-100 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-emerald-600" />
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-400">
               Local
             </p>
           </div>
-          <p className="mt-3 text-2xl font-semibold text-emerald-900">
+          <p className="mt-3 text-2xl font-semibold text-emerald-900 dark:text-emerald-300">
             {localCount}
           </p>
         </div>
 
-        <div className="rounded-xl border border-orange-100 bg-orange-50 px-4 py-3">
+        <div className="rounded-xl border border-orange-100 dark:border-orange-900 bg-orange-50 dark:bg-orange-950/40 px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-orange-500" />
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-700 dark:text-orange-400">
               Foreign
             </p>
           </div>
-          <p className="mt-3 text-2xl font-semibold text-orange-900">
+          <p className="mt-3 text-2xl font-semibold text-orange-900 dark:text-orange-300">
             {foreignCount}
           </p>
         </div>
@@ -694,40 +694,40 @@ function LabourTypeSummaryCard({
   nonExecutiveCount: number;
 }) {
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-      <p className="text-sm font-medium text-gray-500">Workforce Mix</p>
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Workforce Mix</p>
       <div className="mt-4 grid gap-3">
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-emerald-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+          <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/40 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400">
               Total Direct
             </p>
-            <p className="mt-2 text-xl font-semibold text-emerald-900">
+            <p className="mt-2 text-xl font-semibold text-emerald-900 dark:text-emerald-300">
               {directCount}
             </p>
           </div>
-          <div className="rounded-xl bg-amber-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">
               Total Indirect
             </p>
-            <p className="mt-2 text-xl font-semibold text-amber-900">
+            <p className="mt-2 text-xl font-semibold text-amber-900 dark:text-amber-300">
               {indirectCount}
             </p>
           </div>
         </div>
-        <div className="rounded-xl bg-sky-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
+        <div className="rounded-xl bg-sky-50 dark:bg-sky-950/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-400">
             Executive
           </p>
-          <p className="mt-2 text-xl font-semibold text-sky-900">
+          <p className="mt-2 text-xl font-semibold text-sky-900 dark:text-sky-300">
             {executiveCount}
           </p>
         </div>
-        <div className="rounded-xl bg-violet-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-700">
+        <div className="rounded-xl bg-violet-50 dark:bg-violet-950/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-700 dark:text-violet-400">
             Non Executive
           </p>
-          <p className="mt-2 text-xl font-semibold text-violet-900">
+          <p className="mt-2 text-xl font-semibold text-violet-900 dark:text-violet-300">
             {nonExecutiveCount}
           </p>
         </div>
@@ -1230,7 +1230,7 @@ export default function ManpowerAnalyticsComponent() {
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="w-full rounded-lg border border-white/20 bg-white px-3 py-2 text-sm font-medium text-gray-800 outline-none transition focus:border-indigo-300"
+                className="w-full rounded-lg border border-white/20 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none transition focus:border-indigo-300"
               >
                 {monthNames.map((month) => (
                   <option key={month} value={month}>
@@ -1247,7 +1247,7 @@ export default function ManpowerAnalyticsComponent() {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="w-full rounded-lg border border-white/20 bg-white px-3 py-2 text-sm font-medium text-gray-800 outline-none transition focus:border-indigo-300"
+                className="w-full rounded-lg border border-white/20 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none transition focus:border-indigo-300"
               >
                 {years.map((year) => (
                   <option key={year} value={year.toString()}>
@@ -1260,13 +1260,13 @@ export default function ManpowerAnalyticsComponent() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm">
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Data Source
             </h2>
-            <p className="text-sm text-gray-600">{uploadMessage}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{uploadMessage}</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -1292,33 +1292,33 @@ export default function ManpowerAnalyticsComponent() {
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
             Active Records
           </p>
-          <p className="mt-2 text-2xl font-semibold text-gray-900">
+          <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-gray-100">
             {employees.length}
           </p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-          <p className="text-sm text-gray-600">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Filters</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Refine the manpower dashboard by plant, department, and category.
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <label className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+          <label className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
               Plant
             </span>
             <select
               value={selectedPlant}
               onChange={(e) => setSelectedPlant(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-800 outline-none transition focus:border-indigo-300"
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none transition focus:border-indigo-300"
             >
               {plantOptions.map((plant) => (
                 <option key={plant} value={plant}>
@@ -1328,14 +1328,14 @@ export default function ManpowerAnalyticsComponent() {
             </select>
           </label>
 
-          <label className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+          <label className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
               Department
             </span>
             <select
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-800 outline-none transition focus:border-indigo-300"
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none transition focus:border-indigo-300"
             >
               {departmentOptions.map((department) => (
                 <option key={department} value={department}>
@@ -1345,14 +1345,14 @@ export default function ManpowerAnalyticsComponent() {
             </select>
           </label>
 
-          <label className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+          <label className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
               Category
             </span>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-800 outline-none transition focus:border-indigo-300"
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none transition focus:border-indigo-300"
             >
               {categoryOptions.map((category) => (
                 <option key={category} value={category}>
@@ -1366,18 +1366,18 @@ export default function ManpowerAnalyticsComponent() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="grid gap-4">
-          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
-            <p className="text-sm font-medium text-gray-500">
+          <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Total Manpower
             </p>
-            <h2 className="mt-3 text-3xl font-semibold text-gray-900">
+            <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-gray-100">
               {totalManpower}
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Total loaded manpower records for the applied filters.
             </p>
           </article>
-          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm min-w-0">
+          <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
             <LocalForeignChart
               localCount={localCount}
               foreignCount={foreignCount}
@@ -1409,7 +1409,7 @@ export default function ManpowerAnalyticsComponent() {
       <div className="grid gap-4 xl:grid-cols-3">
         {chartPlants.map((plantName, index) => {
           const data = buildPlantDivisionData(plantName);
-          const gridColors = ["#ccfbf1", "#dbeafe", "#fef3c7", "#ede9fe"];
+          const gridColors = ["#ccfbf1", "#e0e7ff", "#fef3c7", "#ede9fe"];
 
           if (data.length === 0) {
             return null;
@@ -1426,13 +1426,13 @@ export default function ManpowerAnalyticsComponent() {
           );
         })}
 
-        <div className="rounded-2xl border border-dashed border-indigo-200 bg-white p-6 shadow-sm xl:col-span-3">
+        <div className="rounded-2xl border border-dashed border-indigo-200 dark:border-indigo-900 bg-white dark:bg-gray-900 p-6 shadow-sm xl:col-span-3">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Selected Snapshot
               </h2>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {selectedMonth === "All Months"
                   ? `Full year ${selectedYear} currently shows ${activeEmployees.length} employees for the applied filters.`
                   : `${selectedMonth} ${selectedYear} currently shows ${activeEmployees.length} active employees for the applied filters.`}
@@ -1440,48 +1440,48 @@ export default function ManpowerAnalyticsComponent() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <span className="inline-flex rounded-full bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700">
+              <span className="inline-flex rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-4 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-400">
                 {selectedMonth} {selectedYear}
               </span>
-              <span className="inline-flex rounded-full bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700">
+              <span className="inline-flex rounded-full bg-sky-50 dark:bg-sky-950/40 px-4 py-2 text-sm font-medium text-sky-700 dark:text-sky-400">
                 {selectedPlant}
               </span>
-              <span className="inline-flex rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
+              <span className="inline-flex rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
                 {selectedDepartment}
               </span>
-              <span className="inline-flex rounded-full bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
+              <span className="inline-flex rounded-full bg-amber-50 dark:bg-amber-950/40 px-4 py-2 text-sm font-medium text-amber-700 dark:text-amber-400">
                 {selectedCategory}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm col-span-3">
-          <p className="font-semibold text-lg">Breakdown Summary</p>
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm col-span-3">
+          <p className="font-semibold text-lg text-gray-900 dark:text-gray-100">Breakdown Summary</p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between ">
             <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700">
+              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
                 Division
               </h3>
             </div>
-            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase text-indigo-700">
+            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
               {divisionBreakdown.length} divisions
             </span>
           </div>
 
           {divisionBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50">
-              <div className="divide-y divide-gray-200">
+            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {divisionBreakdown.map(([division, count]) => (
                   <div
                     key={division}
                     className="flex items-center justify-between gap-4 px-4 py-3"
                   >
-                    <p className="text-sm font-medium text-gray-700">{division}</p>
-                    <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-900 shadow-sm">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{division}</p>
+                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
                       {count}
                     </span>
                   </div>
@@ -1489,36 +1489,36 @@ export default function ManpowerAnalyticsComponent() {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
               No division data available for the selected filters.
             </div>
           )}
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm ">
           <div className="mb-4 flex items-center justify-between ">
             <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700">
+              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
                 Department
               </h3>
             </div>
-            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase text-indigo-700">
+            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
               {departmentBreakdown.length} departments
             </span>
           </div>
 
           {departmentBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50">
-              <div className="divide-y divide-gray-200">
+            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {departmentBreakdown.map(([department, count]) => (
                   <div
                     key={department}
                     className="flex items-center justify-between gap-4 px-4 py-3"
                   >
-                    <p className="text-sm font-medium text-gray-700">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {department}
                     </p>
-                    <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-900 shadow-sm">
+                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
                       {count}
                     </span>
                   </div>
@@ -1526,34 +1526,34 @@ export default function ManpowerAnalyticsComponent() {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
               No department data available for the selected filters.
             </div>
           )}
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm ">
           <div className="mb-4 flex items-center justify-between ">
             <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700">
+              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
                 Section
               </h3>
             </div>
-            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase text-indigo-700">
+            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
               {sectionBreakdown.length} sections
             </span>
           </div>
 
           {sectionBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50">
-              <div className="divide-y divide-gray-200">
+            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {sectionBreakdown.map(([section, count]) => (
                   <div
                     key={section}
                     className="flex items-center justify-between gap-4 px-4 py-3"
                   >
-                    <p className="text-sm font-medium text-gray-700">{section}</p>
-                    <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-900 shadow-sm">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{section}</p>
+                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
                       {count}
                     </span>
                   </div>
@@ -1561,34 +1561,34 @@ export default function ManpowerAnalyticsComponent() {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
               No section data available for the selected filters.
             </div>
           )}
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm ">
           <div className="mb-4 flex items-center justify-between ">
             <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700">
+              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
                 Plant
               </h3>
             </div>
-            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase text-indigo-700">
+            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
               {plantBreakdown.length} plants
             </span>
           </div>
 
           {plantBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50">
-              <div className="divide-y divide-gray-200">
+            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {plantBreakdown.map(([plant, count]) => (
                   <div
                     key={plant}
                     className="flex items-center justify-between gap-4 px-4 py-3"
                   >
-                    <p className="text-sm font-medium text-gray-700">{plant}</p>
-                    <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-900 shadow-sm">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{plant}</p>
+                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
                       {count}
                     </span>
                   </div>
@@ -1596,34 +1596,34 @@ export default function ManpowerAnalyticsComponent() {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
               No plant data available for the selected filters.
             </div>
           )}
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm ">
           <div className="mb-4 flex items-center justify-between ">
             <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700">
+              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
                 Gender
               </h3>
             </div>
-            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase text-indigo-700">
+            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
               {genderBreakdown.length} groups
             </span>
           </div>
 
           {genderBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50">
-              <div className="divide-y divide-gray-200">
+            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {genderBreakdown.map(([gender, count]) => (
                   <div
                     key={gender}
                     className="flex items-center justify-between gap-4 px-4 py-3"
                   >
-                    <p className="text-sm font-medium text-gray-700">{gender}</p>
-                    <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-900 shadow-sm">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{gender}</p>
+                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
                       {count}
                     </span>
                   </div>
@@ -1631,7 +1631,7 @@ export default function ManpowerAnalyticsComponent() {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
               No gender data available for the selected filters.
             </div>
           )}
@@ -1639,11 +1639,11 @@ export default function ManpowerAnalyticsComponent() {
       </div>
 
       {employees.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-10 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             No Data Loaded
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Upload an Excel workbook to populate the manpower dashboard.
           </p>
         </div>

@@ -122,7 +122,7 @@ export default function ProfileComponent({
     >
       {/* LEFT COLUMN */}
       <motion.div variants={cardVariants}>
-        <div className="bg-white p-4 rounded-xl border border-gray-300 shadow-xs">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-300 dark:border-gray-700 shadow-xs">
           <DisplayProfile userProfile={userProfile} userSession={user} />
         </div>
       </motion.div>
@@ -130,12 +130,12 @@ export default function ProfileComponent({
       {/* RIGHT COLUMN */}
       <motion.div className="grid gap-6" variants={cardVariants}>
         <motion.div variants={cardVariants}>
-          <div className="bg-white p-4 rounded-xl border border-gray-300 shadow-xs">
+          <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-300 dark:border-gray-700 shadow-xs">
             <ActivityStats stats={stats} />
           </div>
         </motion.div>
         <motion.div variants={cardVariants}>
-          <div className="bg-white p-4 rounded-xl border border-gray-300 shadow-xs">
+          <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-300 dark:border-gray-700 shadow-xs">
             <PersonalInfo
               divisions={divisions}
               departments={departments}

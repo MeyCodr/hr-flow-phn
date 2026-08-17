@@ -110,14 +110,14 @@ export default function FormTypeForm({
         <Toaster position="top-right" />
       </div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
           Add New Form Type
         </h2>
         <PrimaryButton
           name="Back to list"
           icon={<IoReturnDownBack className="w-5 h-5" />}
           onClick={onBack}
-          className="text-indigo-800 hover:text-indigo-500 text-xs font-medium cursor-pointer"
+          className="text-indigo-800 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 text-xs font-medium cursor-pointer"
         />
       </div>
 
@@ -126,7 +126,7 @@ export default function FormTypeForm({
           <Label
             name="Form Name"
             htmlFor="name"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
             id="name"
@@ -136,7 +136,7 @@ export default function FormTypeForm({
             onChange={handleChange}
             placeholder="Form Name"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
@@ -144,7 +144,7 @@ export default function FormTypeForm({
           <Label
             name="Description"
             htmlFor="description"
-            className="block text-sm font-medium text-gray-900"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
             id="description"
@@ -154,7 +154,7 @@ export default function FormTypeForm({
             onChange={handleChange}
             placeholder="Form Description"
             required
-            className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 

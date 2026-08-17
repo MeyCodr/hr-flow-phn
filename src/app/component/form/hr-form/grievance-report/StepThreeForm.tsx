@@ -20,15 +20,15 @@ function StepThreeForm({
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
-        <h2 className="font-semibold text-sm mb-4">
+        <h2 className="font-semibold text-sm mb-4 text-gray-900 dark:text-gray-100">
           D. Attempts to Resolve The Issue (Cubaan Awal Untuk Menyelesaikan Isu)
         </h2>
-        <h2 className="font-semibold text-sm mb-4">
+        <h2 className="font-semibold text-sm mb-4 text-gray-900 dark:text-gray-100">
           E. Preferred Outcome (Penyelesaian Yang Diharapkan)
         </h2>
       </div>
 
-      <div className="w-full border-b mb-4 border-indigo-800/20"></div>
+      <div className="w-full border-b mb-4 border-indigo-800/20 dark:border-indigo-900"></div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="text-xs">
@@ -46,7 +46,7 @@ function StepThreeForm({
               disabled={readOnly}
               rows={6}
               placeholder="Attempts to Resolve"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
         </div>
@@ -65,7 +65,7 @@ function StepThreeForm({
               disabled={readOnly}
               rows={6}
               placeholder="Preferred Outcome"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
         </div>

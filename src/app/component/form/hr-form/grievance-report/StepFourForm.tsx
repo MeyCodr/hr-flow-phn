@@ -45,15 +45,15 @@ function StepFourForm({
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
-        <h2 className="font-semibold text-sm mb-4">
+        <h2 className="font-semibold text-sm mb-4 text-gray-900 dark:text-gray-100">
           F. Supporting Evidence (If any) / Bukti Sokongan (Jika Ada)
         </h2>
-        <h2 className="font-semibold text-sm mb-4">
+        <h2 className="font-semibold text-sm mb-4 text-gray-900 dark:text-gray-100">
           G. Declaration (Pengisytiharan)
         </h2>
       </div>
 
-      <div className="w-full border-b mb-4 border-indigo-800/20"></div>
+      <div className="w-full border-b mb-4 border-indigo-800/20 dark:border-indigo-900"></div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="text-xs">
@@ -69,8 +69,8 @@ function StepFourForm({
               className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs transition
                   ${
                     readOnly
-                      ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800 cursor-pointer"
+                      ? "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-indigo-800 dark:hover:border-indigo-900 hover:bg-indigo-100 dark:hover:bg-indigo-950/40 hover:text-indigo-800 dark:hover:text-indigo-400 cursor-pointer"
                   }`}
             >
               <span className="truncate">
@@ -98,7 +98,7 @@ function StepFourForm({
             </label>
 
             {file && (
-              <div className="mt-1 w-full rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300">
+              <div className="mt-1 w-full rounded-lg bg-gray-50 dark:bg-gray-800 p-3 text-xs text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">
                 📎 <strong>Selected:</strong> {file.name}
               </div>
             )}
@@ -108,7 +108,7 @@ function StepFourForm({
                 <p
                   key={i}
                   onClick={() => downloadDocument(item.fileName)}
-                  className="mt-1 block w-full cursor-pointer rounded-lg bg-gray-50 p-3 text-xs text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:text-indigo-800 transition"
+                  className="mt-1 block w-full cursor-pointer rounded-lg bg-gray-50 dark:bg-gray-800 p-3 text-xs text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-800 dark:hover:text-indigo-400 transition"
                 >
                   📎 <strong>Download:</strong> {item.fileName}
                 </p>

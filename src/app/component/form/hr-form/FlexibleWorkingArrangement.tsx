@@ -18,9 +18,9 @@ import { useRouter } from "next/navigation";
 import { withBasePath } from "@/lib/base-path";
 
 const INPUT_CLASS =
-  "w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500";
+  "w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
-const LABEL_CLASS = "block text-sm font-medium text-gray-900";
+const LABEL_CLASS = "block text-sm font-medium text-gray-900 dark:text-gray-100";
 
 const DAYS_OF_WEEK = [
   { id: 1, name: "Monday" },
@@ -279,15 +279,15 @@ export default function FlexibleWorkingArrangement({
 
       <form
         onSubmit={handleSubmit}
-        className={`bg-white max-w-6xl rounded-xl ${
-          readOnly ? "p-0" : "p-4 border border-gray-300 "
+        className={`bg-white dark:bg-gray-900 max-w-6xl rounded-xl ${
+          readOnly ? "p-0" : "p-4 border border-gray-300 dark:border-gray-700 "
         }`}
       >
         <div className="mb-4">
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             {readOnly ? "" : "Flexible Working Arrangement"}
           </h1>
-          <p className="text-sm text-indigo-800">
+          <p className="text-sm text-indigo-800 dark:text-indigo-400">
             {readOnly ? "" : "Fill in the details below to submit your request"}
           </p>
         </div>
@@ -295,7 +295,7 @@ export default function FlexibleWorkingArrangement({
         <div className="flex flex-col gap-y-8">
           {/* A: Employee Information */}
           <section className="flex flex-col gap-y-4">
-            <h2 className="text-sm font-semibold text-indigo-800">
+            <h2 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400">
               A. Employee Information
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
@@ -399,14 +399,14 @@ export default function FlexibleWorkingArrangement({
             </div>
           </section>
 
-          <div className="w-full border border-indigo-800/60" />
+          <div className="w-full border border-indigo-800/60 dark:border-indigo-900" />
 
           {/* B: Type of Flexible Working Requested */}
           <section className="flex flex-col gap-y-3">
-            <h2 className="text-sm font-semibold text-indigo-800">
+            <h2 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400">
               B. Type of Flexible Working Requested
             </h2>
-            <p className="text-xs text-gray-500">Please tick all that apply</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Please tick all that apply</p>
             <div className="flex flex-col gap-y-3">
               <div
                 className="flex items-center gap-x-2 cursor-pointer w-fit"
@@ -419,7 +419,7 @@ export default function FlexibleWorkingArrangement({
                 <Label
                   name="Flexible working hours"
                   htmlFor="flexibleHours"
-                  className="text-sm font-medium text-gray-900 cursor-pointer"
+                  className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                 />
               </div>
               <div
@@ -433,7 +433,7 @@ export default function FlexibleWorkingArrangement({
                 <Label
                   name="Flexible working days"
                   htmlFor="flexibleDays"
-                  className="text-sm font-medium text-gray-900 cursor-pointer"
+                  className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                 />
               </div>
               <div
@@ -447,7 +447,7 @@ export default function FlexibleWorkingArrangement({
                 <Label
                   name="Flexible place of work"
                   htmlFor="flexiblePlace"
-                  className="text-sm font-medium text-gray-900 cursor-pointer"
+                  className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                 />
               </div>
               <div className="flex flex-col gap-y-2">
@@ -468,7 +468,7 @@ export default function FlexibleWorkingArrangement({
                   <Label
                     name="Other (please specify)"
                     htmlFor="otherArrangement"
-                    className="text-sm font-medium text-gray-900 cursor-pointer"
+                    className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer"
                   />
                 </div>
                 <Input
@@ -483,7 +483,7 @@ export default function FlexibleWorkingArrangement({
                     errors.otherArrangementSpecify ? "border-red-500" : ""
                   } ${
                     !formData.otherArrangement
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                       : ""
                   }`}
                 />
@@ -499,11 +499,11 @@ export default function FlexibleWorkingArrangement({
             </div>
           </section>
 
-          <div className="w-full border border-indigo-800/60" />
+          <div className="w-full border border-indigo-800/60 dark:border-indigo-900" />
 
           {/* C: Proposed Arrangement Details */}
           <section className="flex flex-col gap-y-4">
-            <h2 className="text-sm font-semibold text-indigo-800">
+            <h2 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400">
               C. Proposed Arrangement Details
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
@@ -545,7 +545,7 @@ export default function FlexibleWorkingArrangement({
                     <Label
                       name="Day From"
                       htmlFor="workingDayFrom"
-                      className="text-xs text-gray-600"
+                      className="text-xs text-gray-600 dark:text-gray-400"
                     />
                     <ComboBox
                       menu={DAYS_OF_WEEK}
@@ -575,7 +575,7 @@ export default function FlexibleWorkingArrangement({
                     <Label
                       name="Day To"
                       htmlFor="workingDayTo"
-                      className="text-xs text-gray-600"
+                      className="text-xs text-gray-600 dark:text-gray-400"
                     />
                     <ComboBox
                       menu={DAYS_OF_WEEK}
@@ -603,7 +603,7 @@ export default function FlexibleWorkingArrangement({
                     <Label
                       name="Time From"
                       htmlFor="workingTimeFrom"
-                      className="text-xs text-gray-600"
+                      className="text-xs text-gray-600 dark:text-gray-400"
                     />
                     <TimePicker
                       value={formData.workingTimeFrom || null}
@@ -625,7 +625,7 @@ export default function FlexibleWorkingArrangement({
                     <Label
                       name="Time To"
                       htmlFor="workingTimeTo"
-                      className="text-xs text-gray-600"
+                      className="text-xs text-gray-600 dark:text-gray-400"
                     />
                     <TimePicker
                       value={formData.workingTimeTo || null}
@@ -670,14 +670,14 @@ export default function FlexibleWorkingArrangement({
             </div>
           </section>
 
-          <div className="w-full border border-indigo-800/60" />
+          <div className="w-full border border-indigo-800/60 dark:border-indigo-900" />
 
           {/* D: Reason for Request */}
           <section className="flex flex-col space-y-2">
             <Label
               name="D. Reason for Request (please provide justification)"
               htmlFor="reason"
-              className="text-sm font-semibold text-indigo-800"
+              className="text-sm font-semibold text-indigo-800 dark:text-indigo-400"
             />
             <TextArea
               id="reason"
@@ -694,11 +694,11 @@ export default function FlexibleWorkingArrangement({
             )}
           </section>
 
-          <div className="w-full border border-indigo-800/60" />
+          <div className="w-full border border-indigo-800/60 dark:border-indigo-900" />
 
           {/* E: Employee Declaration */}
           <section className="flex flex-col gap-y-2">
-            <h2 className="text-sm font-semibold text-indigo-800">
+            <h2 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400">
               E. Employee Declaration
             </h2>
             <div className="flex items-start gap-x-2">
@@ -714,7 +714,7 @@ export default function FlexibleWorkingArrangement({
                   disabled={readOnly}
                 />
               </div>
-              <p className="text-xs text-gray-700">{DECLARATION_TEXT}</p>
+              <p className="text-xs text-gray-700 dark:text-gray-300">{DECLARATION_TEXT}</p>
             </div>
             {errors.declaration && (
               <p className="text-xs text-red-600">{errors.declaration}</p>

@@ -5,7 +5,7 @@ export default function ActivityStats({ stats }: ProfileComponentProps) {
     return (
       <div>
         <h1 className="font-semibold text-xl">Activity Stats</h1>
-        <p className="text-indigo-800 text-sm font-light">
+        <p className="text-indigo-800 dark:text-indigo-400 text-sm font-light">
           No activity recorded yet.
         </p>
       </div>
@@ -16,7 +16,7 @@ export default function ActivityStats({ stats }: ProfileComponentProps) {
     <div>
       <div>
         <h1 className="font-semibold text-xl">Activity Stats</h1>
-        <p className="text-indigo-800 text-sm font-light">
+        <p className="text-indigo-800 dark:text-indigo-400 text-sm font-light">
           Your form submission overview
         </p>
       </div>
@@ -25,12 +25,12 @@ export default function ActivityStats({ stats }: ProfileComponentProps) {
         {stats.map((item, i) => (
           <div
             key={i}
-            className="flex-1 min-w-[120px] flex flex-col items-center justify-center p-4 rounded-lg bg-gray-100"
+            className="flex-1 min-w-[120px] flex flex-col items-center justify-center p-4 rounded-lg bg-gray-100 dark:bg-gray-800"
           >
             <p className={`text-2xl font-semibold ${item.color}`}>
               {item.value}
             </p>
-            <p className="text-xs text-gray-700 text-center whitespace-nowrap">
+            <p className="text-xs text-gray-700 dark:text-gray-300 text-center whitespace-nowrap">
               {item.label}
             </p>
           </div>

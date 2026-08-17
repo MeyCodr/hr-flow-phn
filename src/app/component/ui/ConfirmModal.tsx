@@ -27,22 +27,22 @@ export default function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-sm w-full p-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">{title}</h3>
           <button
             onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           >
             <IoClose className="w-5 h-5" />
           </button>
         </div>
-        <p className="text-sm text-gray-700 mb-6">{message}</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-6">{message}</p>
         <div className="flex justify-end gap-2">
           <PrimaryButton
             name={cancelText ?? ""}
             onClick={onCancel}
-            className="bg-gray-200 text-gray-800 px-4 py-2 text-xs  cursor-pointer rounded-sm hover:bg-gray-300"
+            className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 text-xs  cursor-pointer rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
           />
           <PrimaryButton
             name={okText ?? ""}

@@ -22,7 +22,7 @@ export default function ProgressBar({
 
   return (
     <div className="w-full">
-      <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden shadow-inner">
+      <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner">
         <div
           ref={barRef}
           className="h-full w-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-500 shadow-lg"

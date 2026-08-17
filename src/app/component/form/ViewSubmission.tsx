@@ -226,8 +226,8 @@ export default function ViewSubmission({
 
   if (!form) {
     return (
-      <div className="flex justify-center items-center h-[300px] bg-white my-6 p-6 rounded-lg border border-gray-300 shadow-xs">
-        <p className="text-center text-sm text-gray-500">
+      <div className="flex justify-center items-center h-[300px] bg-white dark:bg-gray-900 my-6 p-6 rounded-lg border border-gray-300 dark:border-gray-700 shadow-xs">
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400">
           Loading form data ...
         </p>
       </div>
@@ -237,25 +237,25 @@ export default function ViewSubmission({
   return (
     <>
       <LoadingScreen show={loading} />
-      <div className="bg-white my-6 p-6 rounded-lg border border-gray-300 shadow-xs">
+      <div className="bg-white dark:bg-gray-900 my-6 p-6 rounded-lg border border-gray-300 dark:border-gray-700 shadow-xs">
         {/* Header */}
         <div className="mb-4 flex justify-between">
           <PrimaryButton
             name="Back to list"
             icon={<IoReturnDownBack className="w-5 h-5" />}
             onClick={onBack}
-            className="text-indigo-800 hover:text-indigo-500 text-xs font-medium cursor-pointer"
+            className="text-indigo-800 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 text-xs font-medium cursor-pointer"
           />
           <div className="flex gap-x-4">
             <span
               className={` px-4 py-2 text-xs font-semibold rounded ${
                 form.status === "APPROVED"
-                  ? "bg-green-100 text-green-700"
+                  ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
                   : form.status === "REJECTED"
-                    ? "bg-red-100 text-red-700"
+                    ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400"
                     : form.status === "WAITING"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-gray-100 text-gray-700"
+                      ? "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
               }`}
             >
               {form.status}
@@ -265,10 +265,10 @@ export default function ViewSubmission({
 
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-gray-800">
+            <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
               {form.formType.name}
             </h1>
-            <p className="text-xs text-indigo-800 font-light">
+            <p className="text-xs text-indigo-800 dark:text-indigo-400 font-light">
               This form is strictly for reference/viewing.
             </p>
           </div>
@@ -312,7 +312,7 @@ export default function ViewSubmission({
               isApprover={approve}
             />
           ) : (
-            <p className="text-sm text-gray-500">Form type not supported.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Form type not supported.</p>
           )}
 
           {/* Approve / Reject Buttons — hidden in employee fill-in mode */}
@@ -356,41 +356,41 @@ export default function ViewSubmission({
       {form.approvals && form.approvals.length > 0 && (
         <div className="mt-10">
           <div className="mb-6">
-            <h1 className="font-semibold text-lg text-gray-800">
+            <h1 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
               Approval Timeline
             </h1>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Track each approval step and its remarks below.
             </p>
           </div>
 
-          <div className="relative border-l border-gray-300 pl-6 space-y-8">
+          <div className="relative border-l border-gray-300 dark:border-gray-700 pl-6 space-y-8">
             {uniqueApprovals.map((approval, index) => (
               <div key={approval.id} className="relative">
                 <div
                   className={`absolute -left-[10px] top-1 w-4 h-4 rounded-full border-2 ${
                     approval.status === "PENDING"
-                      ? "border-gray-600 bg-gray-100"
+                      ? "border-gray-600 dark:border-gray-500 bg-gray-100 dark:bg-gray-800"
                       : approval.status === "APPROVED"
-                        ? "border-green-600 bg-green-100"
+                        ? "border-green-600 dark:border-green-500 bg-green-100 dark:bg-green-900/40"
                         : approval.status === "REJECTED"
-                          ? "border-red-600 bg-red-100"
+                          ? "border-red-600 dark:border-red-500 bg-red-100 dark:bg-red-900/40"
                           : approval.status === "ESCALATED"
-                            ? "border-orange-600 bg-orange-100"
+                            ? "border-orange-600 dark:border-orange-500 bg-orange-100 dark:bg-orange-900/40"
                             : approval.status === "WAITING"
-                              ? "border-yellow-600 bg-yellow-100"
-                              : "border-gray-600 bg-gray-100"
+                              ? "border-yellow-600 dark:border-yellow-500 bg-yellow-100 dark:bg-yellow-900/40"
+                              : "border-gray-600 dark:border-gray-500 bg-gray-100 dark:bg-gray-800"
                   }`}
                 ></div>
 
-                <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-4">
                   <div className="flex justify-between items-center mb-2">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         Level {index + 1} —{" "}
                         {approval.approver?.fullname || "Approver"}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {approval.approvedAt
                           ? new Date(approval.approvedAt).toLocaleString(
                               "en-GB",
@@ -409,7 +409,7 @@ export default function ViewSubmission({
 
                     {userSession?.role === "ADMIN" ? (
                       <select
-                        className="text-xs border border-gray-300 rounded px-2 py-1 bg-white cursor-pointer"
+                        className="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 cursor-pointer"
                         value={
                           editedApprovals[approval.id]?.status ||
                           approval.status
@@ -435,16 +435,16 @@ export default function ViewSubmission({
                       <span
                         className={`text-xs font-semibold px-2 py-1 rounded-full ${
                           approval.status === "PENDING"
-                            ? "bg-gray-100 text-gray-700"
+                            ? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                             : approval.status === "APPROVED"
-                              ? "bg-green-100 text-green-700"
+                              ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
                               : approval.status === "REJECTED"
-                                ? "bg-red-100 text-red-700"
+                                ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400"
                                 : approval.status === "ESCALATED"
-                                  ? "bg-orange-100 text-orange-700"
+                                  ? "bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400"
                                   : approval.status === "WAITING"
-                                    ? "bg-yellow-100 text-yellow-700"
-                                    : "bg-gray-100 text-gray-700"
+                                    ? "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400"
+                                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                         }`}
                       >
                         {displayStatus(approval.status)}
@@ -456,13 +456,13 @@ export default function ViewSubmission({
                     <Label
                       name="Remarks"
                       htmlFor={`remarks-${approval.id}`}
-                      className="block text-xs font-semibold text-gray-700 mb-1"
+                      className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1"
                     />
                     <TextArea
                       id={`remarks-${approval.id}`}
                       value={approval.remarks || "No remarks provided."}
                       disabled
-                      className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-800 text-xs bg-gray-50 resize-none focus:outline-none"
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-md py-2 px-3 text-gray-800 dark:text-gray-100 text-xs bg-gray-50 dark:bg-gray-800 resize-none focus:outline-none"
                       name="remarks"
                       onChange={() => {}}
                       placeholder={""}

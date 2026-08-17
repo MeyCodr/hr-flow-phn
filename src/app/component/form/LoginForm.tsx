@@ -101,16 +101,16 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
           {/* Header */}
           <div className="flex flex-col space-y-2">
             <h1 className="font-bold text-3xl text-center">PHN FMS</h1>
-            <p className="text-center text-gray-600">
+            <p className="text-center text-gray-600 dark:text-gray-400">
               PHN Forms Management System
             </p>
           </div>
 
           {/* Login Card */}
-          <div className="bg-white p-10 rounded-lg shadow-lg max-w-md w-full">
+          <div className="bg-white dark:bg-gray-900 p-10 rounded-lg shadow-lg max-w-md w-full">
             <div className="flex flex-col space-y-1">
               <h1 className="font-bold text-2xl">Welcome back</h1>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-400 dark:text-gray-500">
                 Sign in to your account to continue
               </p>
             </div>
@@ -122,7 +122,7 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
                 <Label
                   name="Staff Id"
                   htmlFor="staffid"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <Input
                   id="staffid"
@@ -131,7 +131,7 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
                   value={data.staffid.toUpperCase()}
                   onChange={handleChange}
                   placeholder="Staff ID"
-                  className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-sm py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
@@ -140,7 +140,7 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
                 <Label
                   name="Password"
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-900"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-100"
                 />
                 <Input
                   id="password"
@@ -149,13 +149,13 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
                   value={data.password}
                   onChange={handleChange}
                   placeholder="Password"
-                  className="w-full border border-gray-300 rounded-sm py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-sm py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
                 />
                 {/* Eye toggle button */}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="absolute right-3 top-9 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
                 >
                   {showPassword ? (
                     <IoEyeOffOutline size={18} />
@@ -165,7 +165,7 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
                 </button>
                 <p
                   onClick={() => setOpen(true)}
-                  className="flex justify-end text-xs text-indigo-600 hover:underline cursor-pointer"
+                  className="flex justify-end text-xs text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                 >
                   Forgot Password?
                 </p>
@@ -183,7 +183,7 @@ function LoginForm({ onLogin, sendPassword }: LoginFormProps) {
                 Don&apos;t have an account?{" "}
                 <span
                   onClick={handleNavigateToRegister}
-                  className="text-indigo-600 hover:text-indigo-700 cursor-pointer"
+                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 cursor-pointer"
                 >
                   Sign up
                 </span>

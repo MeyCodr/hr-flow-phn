@@ -74,12 +74,12 @@ function FormInfo({
       division: userInfo.divisionId ? userInfo.divisionId.toString() : "",
       department: userInfo.departmentId ? userInfo.departmentId.toString() : "",
       section: userInfo.sectionId ? userInfo.sectionId.toString() : "",
-      workLocation: userInfo.workLocation.toString() || "",
+      workLocation: userInfo.workLocation ? userInfo.workLocation.toString() : "",
       staffid: userInfo.staffid.toString().toUpperCase() || "",
       email: userInfo.email.toString() || "",
       fullname: userInfo.fullname.toString().toUpperCase() || "",
       password: userInfo.password.toString() || "",
-      designation: userInfo.designation.toString().toUpperCase() || "",
+      designation: userInfo.designation ? userInfo.designation.toString().toUpperCase() : "",
     }));
 
     if (userInfo.divisionId)
@@ -160,7 +160,7 @@ function FormInfo({
             <Label
               name="Staff Id"
               htmlFor="staffid"
-              className={"text-sm font-medium text-gray-900"}
+              className={"text-sm font-medium text-gray-900 dark:text-gray-100"}
             />
             <Input
               id="staffid"
@@ -170,7 +170,7 @@ function FormInfo({
               onChange={handleChange}
               placeholder="Staff ID"
               disabled
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -179,7 +179,7 @@ function FormInfo({
             <Label
               name="Work Email"
               htmlFor="email"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <Input
               id="email"
@@ -188,7 +188,7 @@ function FormInfo({
               value={data.email}
               onChange={handleChange}
               placeholder="@phn.com.my"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -197,7 +197,7 @@ function FormInfo({
             <Label
               name="Full Name"
               htmlFor="fullname"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <Input
               id="fullname"
@@ -206,7 +206,7 @@ function FormInfo({
               value={data.fullname.toUpperCase()}
               onChange={handleChange}
               placeholder="Full Name"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -215,7 +215,7 @@ function FormInfo({
             <Label
               name="Password"
               htmlFor="password"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <Input
               id="password"
@@ -224,12 +224,12 @@ function FormInfo({
               value={data.password}
               onChange={handleChange}
               placeholder="Password"
-              className="w-full border border-gray-300 rounded-md py-2 pl-3 pr-10 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 pl-3 pr-10 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="absolute right-3 top-9 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
             >
               {showPassword ? (
                 <IoEyeOffOutline size={18} />
@@ -244,7 +244,7 @@ function FormInfo({
             <Label
               name="Designation"
               htmlFor="designation"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <Input
               id="designation"
@@ -253,7 +253,7 @@ function FormInfo({
               value={data.designation.toUpperCase()}
               onChange={handleChange}
               placeholder="Designation"
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -262,7 +262,7 @@ function FormInfo({
             <Label
               name="Division"
               htmlFor="division"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <ComboBox
               menu={divisions}
@@ -286,7 +286,7 @@ function FormInfo({
             <Label
               name="Department"
               htmlFor="department"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <ComboBox
               menu={addDashOption(departments)}
@@ -307,7 +307,7 @@ function FormInfo({
             <Label
               name="Section"
               htmlFor="section"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <ComboBox
               menu={addDashOption(sections)}
@@ -323,7 +323,7 @@ function FormInfo({
             <Label
               name="Work Location"
               htmlFor="workLocation "
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
             />
             <ComboBox
               menu={workLocation}

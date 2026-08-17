@@ -74,36 +74,36 @@ export default function ApprovalTable<T>({
   };
 
   if (items.length === 0) {
-    return <p className="text-gray-600">{emptyMessage}</p>;
+    return <p className="text-gray-600 dark:text-gray-400">{emptyMessage}</p>;
   }
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-left">
-          <thead className="bg-gray-50">
-            <tr className="divide-x divide-gray-200">
+      <div className="overflow-x-auto rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-left">
+          <thead className="bg-gray-50 dark:bg-gray-800">
+            <tr className="divide-x divide-gray-200 dark:divide-gray-700">
               {columns.map((column) => (
                 <th
                   key={column.label}
                   scope="col"
-                  className="px-4 py-3 text-[0.65rem] font-semibold uppercase tracking-wide text-gray-500 whitespace-nowrap"
+                  className="px-4 py-3 text-[0.65rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 whitespace-nowrap"
                 >
                   {column.sortAccessor ? (
                     <button
                       type="button"
                       onClick={() => handleSort(column)}
-                      className="flex items-center gap-1.5 hover:text-gray-700 transition-colors cursor-pointer"
+                      className="flex items-center gap-1.5 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer"
                     >
                       {column.label}
                       {sortLabel === column.label ? (
                         sortDirection === "asc" ? (
-                          <FaSortUp className="text-indigo-700" />
+                          <FaSortUp className="text-indigo-700 dark:text-indigo-400" />
                         ) : (
-                          <FaSortDown className="text-indigo-700" />
+                          <FaSortDown className="text-indigo-700 dark:text-indigo-400" />
                         )
                       ) : (
-                        <FaSort className="text-gray-300" />
+                        <FaSort className="text-gray-300 dark:text-gray-600" />
                       )}
                     </button>
                   ) : (
@@ -113,7 +113,7 @@ export default function ApprovalTable<T>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {pageItems.map(renderRow)}
           </tbody>
         </table>
@@ -128,7 +128,7 @@ export default function ApprovalTable<T>({
               className={`px-3 py-1 rounded text-xs ${
                 safePage === i + 1
                   ? "bg-indigo-600 text-white"
-                  : "bg-gray-200 text-gray-700"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
               }`}
             >
               {i + 1}

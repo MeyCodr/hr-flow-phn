@@ -28,8 +28,8 @@ import {
 } from "@/lib/data";
 
 const inputClassName =
-  "w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500";
-const labelClassName = "block text-xs font-medium text-gray-900";
+  "w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500";
+const labelClassName = "block text-xs font-medium text-gray-900 dark:text-gray-100";
 
 interface SexualHarassmentReportFormProps {
   divisions: Division[];
@@ -189,11 +189,11 @@ export default function SexualHarassmentReportForm({
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white max-w-3xl rounded-xl p-6 border border-gray-300"
+        className="bg-white dark:bg-gray-900 max-w-3xl rounded-xl p-6 border border-gray-300 dark:border-gray-700"
       >
         <div className="mb-4">
-          <h1 className="text-xl font-semibold">Sexual Harassment Report</h1>
-          <p className="text-sm text-indigo-800">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Sexual Harassment Report</h1>
+          <p className="text-sm text-indigo-800 dark:text-indigo-400">
             This form does not require you to log in. Your report will only be
             visible to our designated compliance officers, not your manager or
             any department head.
@@ -214,7 +214,7 @@ export default function SexualHarassmentReportForm({
           />
         </div>
 
-        <h2 className="font-semibold text-sm mb-4">Your details</h2>
+        <h2 className="font-semibold text-sm mb-4 text-gray-900 dark:text-gray-100">Your details</h2>
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <div className="flex flex-col space-y-2">
             <Label
@@ -366,7 +366,7 @@ export default function SexualHarassmentReportForm({
           </div>
         </div>
 
-        <h2 className="font-semibold text-sm mb-4">What happened</h2>
+        <h2 className="font-semibold text-sm mb-4 text-gray-900 dark:text-gray-100">What happened</h2>
 
         <div className="flex flex-col space-y-2 mb-6">
           <Label
@@ -559,7 +559,7 @@ export default function SexualHarassmentReportForm({
           />
           <label
             htmlFor="supportEvidence"
-            className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs bg-white border-gray-300 text-gray-600 hover:border-indigo-800 hover:bg-indigo-100 hover:text-indigo-800 cursor-pointer transition"
+            className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-xs bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-indigo-800 dark:hover:border-indigo-900 hover:bg-indigo-100 dark:hover:bg-indigo-950/40 hover:text-indigo-800 dark:hover:text-indigo-400 cursor-pointer transition"
           >
             <span className="truncate">
               {data.supportEvidence

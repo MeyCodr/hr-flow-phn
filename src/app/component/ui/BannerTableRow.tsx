@@ -84,10 +84,10 @@ export default function BannerTableRow({
 
   const statusColor =
     status === "APPROVED"
-      ? "bg-green-100 text-green-700"
+      ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
       : status === "REJECTED"
-        ? "bg-red-100 text-red-700"
-        : "bg-yellow-100 text-yellow-700";
+        ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400"
+        : "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400";
 
   const performApproval = async (remarks: string) => {
     if (!approvalId || !actionType) return;
@@ -145,7 +145,7 @@ export default function BannerTableRow({
     <>
       <tr
         onClick={openForm}
-        className="cursor-pointer divide-x divide-gray-100 border-b border-gray-100 last:border-0 hover:bg-indigo-50 transition-colors"
+        className="cursor-pointer divide-x divide-gray-100 dark:divide-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors"
       >
         <td className="px-4 py-3">
           <div className="flex items-center gap-3">
@@ -163,23 +163,23 @@ export default function BannerTableRow({
                 <span>{initials}</span>
               )}
             </div>
-            <span className="font-medium text-indigo-700 text-xs">{name}</span>
+            <span className="font-medium text-indigo-700 dark:text-indigo-400 text-xs">{name}</span>
           </div>
         </td>
 
-        <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
+        <td className="px-4 py-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap">
           {title}
         </td>
 
-        <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
+        <td className="px-4 py-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap">
           {department || "-"}
         </td>
 
-        <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+        <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
           {formattedDate}
         </td>
 
-        <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap text-center">
+        <td className="px-4 py-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap text-center">
           {currentLevel} / {totalLevel}
         </td>
 
@@ -193,7 +193,7 @@ export default function BannerTableRow({
           )}
         </td>
 
-        <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+        <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
           {formattedLastApprovalDate}
         </td>
 
@@ -202,7 +202,7 @@ export default function BannerTableRow({
           onClick={(e) => e.stopPropagation()}
         >
           {!roles || roles === "STAFF" ? (
-            <span className="text-gray-300 text-xs">-</span>
+            <span className="text-gray-300 dark:text-gray-600 text-xs">-</span>
           ) : canApprove ? (
             <div className="flex flex-col items-start gap-1">
               <div className="flex gap-2">
@@ -211,7 +211,7 @@ export default function BannerTableRow({
                   disabled={isLocked || loading}
                   className={`w-20 rounded-md py-1.5 text-xs font-medium transition-all duration-200 ${
                     isLocked
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                       : "bg-red-600 hover:bg-red-700 text-white cursor-pointer"
                   }`}
                   onClick={(e) => {
@@ -224,7 +224,7 @@ export default function BannerTableRow({
                   disabled={isLocked || loading}
                   className={`w-20 rounded-md py-1.5 text-xs font-medium transition-all duration-200 ${
                     isLocked
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                       : "bg-indigo-700 hover:bg-indigo-800 text-white cursor-pointer"
                   }`}
                   onClick={(e) => {
@@ -234,7 +234,7 @@ export default function BannerTableRow({
                 />
               </div>
               {isLocked && (
-                <p className="text-[0.6rem] text-gray-500 italic">
+                <p className="text-[0.6rem] text-gray-500 dark:text-gray-400 italic">
                   Waiting for Level {activeLevel}
                 </p>
               )}
@@ -242,13 +242,13 @@ export default function BannerTableRow({
           ) : isFormCompleted ? (
             <span
               className={`text-[0.65rem] italic ${
-                status === "APPROVED" ? "text-green-600" : "text-red-600"
+                status === "APPROVED" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
               }`}
             >
               {status?.toLowerCase()}
             </span>
           ) : (
-            <span className="text-gray-300 text-xs">-</span>
+            <span className="text-gray-300 dark:text-gray-600 text-xs">-</span>
           )}
         </td>
       </tr>

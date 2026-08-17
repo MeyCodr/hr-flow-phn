@@ -139,7 +139,7 @@ export default function DatePicker({
           placeholder={placeholder}
           disabled={disabled}
           className={`${className} ${
-            disabled ? `bg-gray-200 cursor-not-allowed` : `bg-white`
+            disabled ? `bg-gray-200 dark:bg-gray-700 cursor-not-allowed` : `bg-white dark:bg-gray-800`
           }`}
         />
         <button
@@ -157,16 +157,16 @@ export default function DatePicker({
 
         {/* Calendar Popup */}
         {isOpen && !disabled && (
-          <div className="absolute top-full left-0 mt-2 z-10 bg-white rounded-2xl shadow-2xl border border-gray-300 p-6 w-80 animate-in fade-in-50 zoom-in-95">
+          <div className="absolute top-full left-0 mt-2 z-10 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-300 dark:border-gray-700 p-6 w-80 animate-in fade-in-50 zoom-in-95">
             {/* Calendar Header */}
             <div className="flex items-center justify-between mb-4">
               <button
                 type="button"
                 onClick={() => navigateMonth("prev")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600"
+                  className="w-5 h-5 text-gray-600 dark:text-gray-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -180,17 +180,17 @@ export default function DatePicker({
                 </svg>
               </button>
 
-              <h3 className="text-sm font-semibold text-gray-800">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
                 {formatMonthYear(currentMonth)}
               </h3>
 
               <button
                 type="button"
                 onClick={() => navigateMonth("next")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600"
+                  className="w-5 h-5 text-gray-600 dark:text-gray-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -210,7 +210,7 @@ export default function DatePicker({
               {daysOfWeek.map((day) => (
                 <div
                   key={day}
-                  className="text-center text-xs font-medium text-gray-500 py-2"
+                  className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2"
                 >
                   {day}
                 </div>
@@ -234,10 +234,10 @@ export default function DatePicker({
                         selected
                           ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200"
                           : today
-                          ? "bg-indigo-50 text-indigo-600 border border-indigo-200"
+                          ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
                           : currentMonthDay
-                          ? "text-gray-800 hover:bg-gray-100"
-                          : "text-gray-400 hover:bg-gray-50"
+                          ? "text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                          : "text-gray-400 dark:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
                       }`}
                   >
                     {date.getDate()}
@@ -247,7 +247,7 @@ export default function DatePicker({
             </div>
 
             {/* Quick Actions */}
-            <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
+            <div className="flex justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
               <button
                 type="button"
                 onClick={() => {
@@ -256,14 +256,14 @@ export default function DatePicker({
                   onChange(null);
                   setIsOpen(false);
                 }}
-                className="px-3 py-2 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-3 py-2 text-xs text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 Clear
               </button>
               <button
                 type="button"
                 onClick={() => handleDateSelect(new Date())}
-                className="px-3 py-2 text-xs text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
+                className="px-3 py-2 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-lg transition-colors"
               >
                 Today
               </button>

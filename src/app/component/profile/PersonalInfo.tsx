@@ -29,7 +29,7 @@ export default function PersonalInfo({
     <div>
       <div>
         <h1 className="font-semibold text-xl">Personal Information</h1>
-        <p className="text-indigo-800 text-sm font-light">
+        <p className="text-indigo-800 dark:text-indigo-400 text-sm font-light">
           Update your profile details
         </p>
       </div>

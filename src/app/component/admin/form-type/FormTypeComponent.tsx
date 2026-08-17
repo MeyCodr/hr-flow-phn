@@ -62,7 +62,7 @@ export default function FormTypeComponent({
   };
 
   return (
-    <div className="p-6 w-full bg-white rounded-lg border border-gray-300">
+    <div className="p-6 w-full bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700">
       <AnimatePresence mode="wait">
         {!isAdding ? (
           <motion.div
@@ -73,7 +73,7 @@ export default function FormTypeComponent({
             variants={containerVariants}
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Form Type</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Form Type</h2>
               <button
                 onClick={handleAddForm}
                 className="bg-indigo-800 text-white text-xs px-4 py-2 rounded-sm hover:bg-indigo-700 transition cursor-pointer"
@@ -83,7 +83,7 @@ export default function FormTypeComponent({
             </div>
 
             {loading ? (
-              <p className="text-center text-sm text-gray-500 py-6">
+              <p className="text-center text-sm text-gray-500 dark:text-gray-400 py-6">
                 Loading latest form types...
               </p>
             ) : (
@@ -104,15 +104,15 @@ export default function FormTypeComponent({
                     <tr
                       key={item.id}
                       onClick={() => handleRowClick(item)}
-                      className="cursor-pointer divide-x divide-gray-100 border-b border-gray-100 last:border-0 hover:bg-indigo-50 transition-colors"
+                      className="cursor-pointer divide-x divide-gray-100 dark:divide-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors"
                     >
-                      <td className="px-4 py-3 text-xs font-medium text-indigo-700 whitespace-nowrap">
+                      <td className="px-4 py-3 text-xs font-medium text-indigo-700 dark:text-indigo-400 whitespace-nowrap">
                         {item.name}
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
+                      <td className="px-4 py-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap">
                         {item.description}
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+                      <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
                         {item.createdAt
                           ? new Date(item.createdAt).toLocaleDateString("en-GB", {
                               day: "2-digit",
@@ -124,7 +124,7 @@ export default function FormTypeComponent({
                     </tr>
                   )}
                 />
-                <p className="text-xs text-gray-500 mt-3 text-center sm:hidden">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center sm:hidden">
                   👉 Swipe left/right to view more columns
                 </p>
               </>

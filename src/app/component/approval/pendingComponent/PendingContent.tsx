@@ -58,7 +58,7 @@ export default function PendingContent({
   const hasItems = pendingItems.length > 0 || sexualHarassmentReports.length > 0;
 
   if (!hasItems) {
-    return <p className="text-gray-600">No pending items found.</p>;
+    return <p className="text-gray-600 dark:text-gray-400">No pending items found.</p>;
   }
 
   return (

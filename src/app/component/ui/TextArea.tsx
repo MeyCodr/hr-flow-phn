@@ -31,7 +31,7 @@ function TextArea({
       rows={rows}
       disabled={disabled} // ✅ apply disabled
       className={`${className} ${
-        disabled ? "bg-gray-200 text-gray-400 cursor-not-allowed" : ""
+        disabled ? "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed" : ""
       }`}
     ></Textarea>
   );

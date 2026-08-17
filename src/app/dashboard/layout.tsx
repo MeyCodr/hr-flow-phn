@@ -66,7 +66,7 @@ export default function DashboardLayout({
 
   return (
     <>
-      <div className="flex min-h-screen bg-gray-100 relative overflow-y-hidden">
+      <div className="flex min-h-screen bg-gray-100 dark:bg-gray-950 relative overflow-y-hidden">
         <Sidebar
           isOpen={isSidebarOpen}
           toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -103,7 +103,7 @@ export default function DashboardLayout({
       </div>
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow-lg max-w-sm text-center">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-lg max-w-sm text-center">
             <h2 className="text-xl font-bold mb-2">Session Expired</h2>
             <p>Your session has expired. Please log in again.</p>
             <button
