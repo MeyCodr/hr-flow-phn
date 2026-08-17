@@ -12,8 +12,20 @@ export async function POST(req: NextRequest) {
     }
     const body = await req.json();
 
-    const { formTypeId, order, role, division, department, section, approver } =
-      body;
+    const {
+      formTypeId,
+      order,
+      role,
+      fallbackRole,
+      combineWithFallback,
+      division,
+      department,
+      section,
+      approver,
+      approverSource,
+      formFieldKey,
+      approvalMode,
+    } = body;
 
     // Treat "0" or "" as null
     const parseNullableNumber = (value: string) => {
@@ -25,10 +37,17 @@ export async function POST(req: NextRequest) {
       data: {
         formTypeId: Number(formTypeId),
         order: Number(order),
-        role,
+        // "role" is unused when approverSource is MANUAL/FORM_FIELD, but the
+        // column is required, so fall back to a harmless placeholder.
+        role: role || "STAFF",
+        fallbackRole: fallbackRole || null,
+        combineWithFallback: Boolean(fallbackRole) && Boolean(combineWithFallback),
         divisionId: parseNullableNumber(division),
         departmentId: parseNullableNumber(department),
         sectionId: parseNullableNumber(section),
+        approverSource: approverSource || "ROLE",
+        formFieldKey: formFieldKey || null,
+        approvalMode: approvalMode || "ALL",
       },
     });
 

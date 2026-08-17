@@ -19,7 +19,23 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { ApprovalFlowStep } from "./ApprovalFlow";
 import MultiComboBox from "../../ui/MultiComboBox";
+import CheckBox from "../../ui/CheckBox";
 import { withBasePath } from "@/lib/base-path";
+import { FormApproverFieldOptions } from "../../../../../lib/hrformcomponents";
+import { hasFixedApprovalMode, sanitizeName } from "../../../../../lib/utils";
+
+const APPROVER_SOURCE_OPTIONS = [
+  { id: "ROLE", name: "Role-based" },
+  { id: "MANUAL", name: "Manual (specific people)" },
+  { id: "FORM_FIELD", name: "Form Field (from submission)" },
+];
+
+const FALLBACK_ROLE_OPTIONS = [{ id: "", name: "None" }, ...roles];
+
+const APPROVAL_MODE_OPTIONS = [
+  { id: "ALL", name: "All approvers required" },
+  { id: "ANY", name: "Any one approver" },
+];
 
 interface ApprovalFlowFormProps {
   handleBack?: () => void;
@@ -48,10 +64,15 @@ export default function ApprovalFlowForm({
     formTypeId: "",
     order: "",
     role: "",
+    fallbackRole: "",
+    combineWithFallback: false,
     division: "",
     department: "",
     section: "",
     approver: [] as string[],
+    approverSource: "ROLE",
+    formFieldKey: "",
+    approvalMode: "ALL",
   });
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -63,6 +84,8 @@ export default function ApprovalFlowForm({
         formTypeId: selectedStep.formTypeId.toString(),
         order: selectedStep.order.toString(),
         role: selectedStep.role,
+        fallbackRole: selectedStep.fallbackRole || "",
+        combineWithFallback: selectedStep.combineWithFallback ?? false,
         division: selectedStep.divisionId
           ? selectedStep.divisionId.toString()
           : "",
@@ -75,6 +98,9 @@ export default function ApprovalFlowForm({
         approver: selectedStep.approvalStepApprovers
           ? selectedStep.approvalStepApprovers.map((a) => a.user.id.toString())
           : [],
+        approverSource: selectedStep.approverSource || "ROLE",
+        formFieldKey: selectedStep.formFieldKey || "",
+        approvalMode: selectedStep.approvalMode || "ALL",
       });
     }
   }, [selectedStep]);
@@ -104,7 +130,11 @@ export default function ApprovalFlowForm({
     const method = selectedStep ? axios.put : axios.post;
     setLoading(true);
     try {
-      await method(url, data);
+      // These form types ignore approvalMode server-side; keep the stored
+      // value in sync with reality so the list view doesn't show a mode
+      // that isn't actually in effect.
+      const payload = approvalModeLocked ? { ...data, approvalMode: "ALL" } : data;
+      await method(url, payload);
       if (method === axios.put) {
         toast.success("Approval Flow Step updated successfully");
       } else {
@@ -130,6 +160,14 @@ export default function ApprovalFlowForm({
     return menu;
   };
 
+  const selectedFormType = formType.find(
+    (f) => f.id.toString() === data.formTypeId,
+  );
+  const fieldOptions = selectedFormType
+    ? (FormApproverFieldOptions[sanitizeName(selectedFormType.name)] ?? [])
+    : [];
+  const approvalModeLocked = hasFixedApprovalMode(selectedFormType?.name);
+
   return (
     <>
       <div className="text-xs">
@@ -148,141 +186,293 @@ export default function ApprovalFlowForm({
           />
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className={styleLink}>
-            <Label
-              name="Form Type"
-              htmlFor="formType"
-              className="block text-sm font-medium text-gray-900"
-            />
-            <ComboBox
-              menu={formType.map((f) => ({
-                id: f.id.toString(),
-                name: f.name,
-              }))}
-              onSelect={(item) => {
-                setData((prev) => ({
-                  ...prev,
-                  formTypeId: item ? item.id.toString() : "",
-                }));
-              }}
-              selectedValue={data.formTypeId}
-            />
-          </div>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Step */}
+          <section className="flex flex-col gap-y-4">
+            <h3 className="text-sm font-semibold text-indigo-800">Step</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className={styleLink}>
+                <Label
+                  name="Form Type"
+                  htmlFor="formType"
+                  className="block text-sm font-medium text-gray-900"
+                />
+                <ComboBox
+                  menu={formType.map((f) => ({
+                    id: f.id.toString(),
+                    name: f.name,
+                  }))}
+                  onSelect={(item) => {
+                    setData((prev) => ({
+                      ...prev,
+                      formTypeId: item ? item.id.toString() : "",
+                      formFieldKey: "", // available fields depend on the form type
+                    }));
+                  }}
+                  selectedValue={data.formTypeId}
+                />
+              </div>
 
-          <div className={styleLink}>
-            <Label
-              name="Order"
-              htmlFor="order"
-              className="block text-sm font-medium text-gray-900"
-            />
-            <Input
-              id="order"
-              name="order"
-              type="number"
-              placeholder="Order"
-              value={data.order}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+              <div className={styleLink}>
+                <Label
+                  name="Order"
+                  htmlFor="order"
+                  className="block text-sm font-medium text-gray-900"
+                />
+                <Input
+                  id="order"
+                  name="order"
+                  type="number"
+                  placeholder="Order"
+                  value={data.order}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-900 placeholder:text-gray-400 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+          </section>
 
-          <div className={styleLink}>
-            <Label
-              name="Roles"
-              htmlFor="role"
-              className="block text-sm font-medium text-gray-900"
-            />
-            <ComboBox
-              menu={roles}
-              onSelect={(item) => {
-                setData((prev) => ({
-                  ...prev,
-                  role: item?.id as Role, // cast to Role type
-                }));
-              }}
-              selectedValue={data.role}
-            />
-          </div>
+          <div className="w-full border-t border-gray-200" />
 
-          <div className={styleLink}>
-            <Label
-              name="Division"
-              htmlFor="division"
-              className="block text-sm font-medium text-gray-900"
-            />
-            <ComboBox
-              menu={addDashOption(divisions)}
-              onSelect={(item) => {
-                const divisionId = item ? item.id.toString() : "";
-                setData((prev) => ({
-                  ...prev,
-                  division: divisionId,
-                  department: "",
-                  section: "",
-                }));
-                setSelectedDivision(divisionId); // ✅ trigger parent handler
-              }}
-              selectedValue={data.division}
-            />
-          </div>
-          <div className={styleLink}>
-            <Label
-              name="Department"
-              htmlFor="department"
-              className="block text-sm font-medium text-gray-900"
-            />
-            <ComboBox
-              menu={addDashOption(departments)}
-              onSelect={(item) => {
-                const departmentId = item ? item.id.toString() : "";
-                setData((prev) => ({
-                  ...prev,
-                  department: departmentId,
-                  section: "",
-                }));
-                setSelectedDepartment(departmentId);
-              }}
-              selectedValue={data.department}
-            />
-          </div>
+          {/* Who Approves */}
+          <section className="flex flex-col gap-y-4">
+            <h3 className="text-sm font-semibold text-indigo-800">
+              Who Approves
+            </h3>
 
-          <div className={styleLink}>
-            <Label
-              name="Section"
-              htmlFor="section"
-              className="block text-sm font-medium text-gray-900"
-            />
-            <ComboBox
-              menu={addDashOption(sections)}
-              onSelect={(item) => {
-                const sectionId = item ? item.id.toString() : "";
-                setData((prev) => ({
-                  ...prev,
-                  section: sectionId,
-                }));
-              }}
-              selectedValue={data.section}
-            />
-          </div>
+            <div className={styleLink}>
+              <Label
+                name="Approver Source"
+                htmlFor="approverSource"
+                className="block text-sm font-medium text-gray-900"
+              />
+              <ComboBox
+                menu={APPROVER_SOURCE_OPTIONS}
+                onSelect={(item) => {
+                  setData((prev) => ({
+                    ...prev,
+                    approverSource: (item?.id as string) || "ROLE",
+                  }));
+                }}
+                selectedValue={data.approverSource}
+              />
+            </div>
 
-          <div className={styleLink}>
-            <Label
-              name="Approver"
-              htmlFor="approver"
-              className="block text-sm font-medium text-gray-900"
-            />
-            <MultiComboBox
-              menu={users.map((i) => ({ id: i.id, name: i.fullname }))}
-              selectedValues={data.approver}
-              onSelect={(items) => {
-                setData((prev) => ({
-                  ...prev,
-                  approver: items.map((i) => i.id.toString()),
-                }));
-              }}
-            />
-          </div>
+            {data.approverSource === "ROLE" && (
+              <>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className={styleLink}>
+                    <Label
+                      name="Role"
+                      htmlFor="role"
+                      className="block text-sm font-medium text-gray-900"
+                    />
+                    <ComboBox
+                      menu={roles}
+                      onSelect={(item) => {
+                        setData((prev) => ({
+                          ...prev,
+                          role: item?.id as Role, // cast to Role type
+                        }));
+                      }}
+                      selectedValue={data.role}
+                    />
+                  </div>
+
+                  <div className={styleLink}>
+                    <Label
+                      name="Fallback Role"
+                      htmlFor="fallbackRole"
+                      className="block text-sm font-medium text-gray-900"
+                    />
+                    <ComboBox
+                      menu={FALLBACK_ROLE_OPTIONS}
+                      onSelect={(item) => {
+                        const value = (item?.id as string) || "";
+                        setData((prev) => ({
+                          ...prev,
+                          fallbackRole: value,
+                          combineWithFallback: value
+                            ? prev.combineWithFallback
+                            : false,
+                        }));
+                      }}
+                      selectedValue={data.fallbackRole}
+                    />
+                  </div>
+                </div>
+
+                {data.fallbackRole && (
+                  <div
+                    className="flex items-center gap-x-2 cursor-pointer w-fit -mt-2"
+                    onClick={() =>
+                      setData((prev) => ({
+                        ...prev,
+                        combineWithFallback: !prev.combineWithFallback,
+                      }))
+                    }
+                  >
+                    <CheckBox checked={data.combineWithFallback} />
+                    <span className="text-xs text-gray-700">
+                      {data.combineWithFallback
+                        ? "Combine: both roles are eligible at the same time (whichever approves first, wins)"
+                        : "Fallback only: use this role only if the role above has no one assigned"}
+                    </span>
+                  </div>
+                )}
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className={styleLink}>
+                    <Label
+                      name="Division"
+                      htmlFor="division"
+                      className="block text-sm font-medium text-gray-900"
+                    />
+                    <ComboBox
+                      menu={addDashOption(divisions)}
+                      onSelect={(item) => {
+                        const divisionId = item ? item.id.toString() : "";
+                        setData((prev) => ({
+                          ...prev,
+                          division: divisionId,
+                          department: "",
+                          section: "",
+                        }));
+                        setSelectedDivision(divisionId); // ✅ trigger parent handler
+                      }}
+                      selectedValue={data.division}
+                    />
+                  </div>
+                  <div className={styleLink}>
+                    <Label
+                      name="Department"
+                      htmlFor="department"
+                      className="block text-sm font-medium text-gray-900"
+                    />
+                    <ComboBox
+                      menu={addDashOption(departments)}
+                      onSelect={(item) => {
+                        const departmentId = item ? item.id.toString() : "";
+                        setData((prev) => ({
+                          ...prev,
+                          department: departmentId,
+                          section: "",
+                        }));
+                        setSelectedDepartment(departmentId);
+                      }}
+                      selectedValue={data.department}
+                    />
+                  </div>
+
+                  <div className={styleLink}>
+                    <Label
+                      name="Section"
+                      htmlFor="section"
+                      className="block text-sm font-medium text-gray-900"
+                    />
+                    <ComboBox
+                      menu={addDashOption(sections)}
+                      onSelect={(item) => {
+                        const sectionId = item ? item.id.toString() : "";
+                        setData((prev) => ({
+                          ...prev,
+                          section: sectionId,
+                        }));
+                      }}
+                      selectedValue={data.section}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {data.approverSource === "MANUAL" && (
+              <div className={styleLink}>
+                <Label
+                  name="Approver"
+                  htmlFor="approver"
+                  className="block text-sm font-medium text-gray-900"
+                />
+                <MultiComboBox
+                  menu={users.map((i) => ({ id: i.id, name: i.fullname }))}
+                  selectedValues={data.approver}
+                  onSelect={(items) => {
+                    setData((prev) => ({
+                      ...prev,
+                      approver: items.map((i) => i.id.toString()),
+                    }));
+                  }}
+                />
+              </div>
+            )}
+
+            {data.approverSource === "FORM_FIELD" && (
+              <div className={styleLink}>
+                <Label
+                  name="Form Field"
+                  htmlFor="formFieldKey"
+                  className="block text-sm font-medium text-gray-900"
+                />
+                {fieldOptions.length > 0 ? (
+                  <ComboBox
+                    menu={fieldOptions.map((f) => ({
+                      id: f.key,
+                      name: f.label,
+                    }))}
+                    onSelect={(item) => {
+                      setData((prev) => ({
+                        ...prev,
+                        formFieldKey: (item?.id as string) || "",
+                      }));
+                    }}
+                    selectedValue={data.formFieldKey}
+                  />
+                ) : (
+                  <p className="text-xs text-amber-700 border border-amber-300 bg-amber-50 rounded-md px-3 py-2">
+                    {selectedFormType
+                      ? `No approver-eligible fields are registered for "${selectedFormType.name}" yet.`
+                      : "Select a Form Type above to see its available fields."}
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
+
+          {data.approverSource !== "FORM_FIELD" && (
+            <>
+              <div className="w-full border-t border-gray-200" />
+
+              {/* Approval Behavior */}
+              <section className="flex flex-col gap-y-4">
+                <h3 className="text-sm font-semibold text-indigo-800">
+                  Approval Behavior
+                </h3>
+                {approvalModeLocked ? (
+                  <p className="text-xs text-amber-700 border border-amber-300 bg-amber-50 rounded-md px-3 py-2 max-w-md">
+                    {`"${selectedFormType?.name}" uses its own built-in approval flow (any one approver at this step decides). The Approval Mode setting does not apply to this form type.`}
+                  </p>
+                ) : (
+                  <div className={`${styleLink} max-w-sm`}>
+                    <Label
+                      name="Approval Mode"
+                      htmlFor="approvalMode"
+                      className="block text-sm font-medium text-gray-900"
+                    />
+                    <ComboBox
+                      menu={APPROVAL_MODE_OPTIONS}
+                      onSelect={(item) => {
+                        setData((prev) => ({
+                          ...prev,
+                          approvalMode: (item?.id as string) || "ALL",
+                        }));
+                      }}
+                      selectedValue={data.approvalMode}
+                    />
+                  </div>
+                )}
+              </section>
+            </>
+          )}
 
           <div className="flex justify-end">
             <PrimaryButton

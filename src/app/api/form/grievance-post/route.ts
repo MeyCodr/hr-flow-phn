@@ -7,6 +7,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
 import { Prisma, User } from "@/generated/client";
 import { getGrievanceStepDeadline } from "../../../../../lib/grievance-deadline";
+import {
+  applyFallbackRole,
+  resolveFormFieldApprover,
+} from "../../../../../lib/approverResolution";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -98,7 +102,17 @@ export async function POST(req: NextRequest) {
         include: { user: true },
       });
 
-      if (manualApprovers.length) {
+      if (step.approverSource === "FORM_FIELD" && step.formFieldKey) {
+        const resolved = await resolveFormFieldApprover(
+          data as Record<string, unknown>,
+          step,
+          findUser,
+        );
+        if ("error" in resolved) {
+          return NextResponse.json({ error: resolved.error }, { status: 400 });
+        }
+        approvers = [resolved.approver];
+      } else if (step.approverSource === "MANUAL" || manualApprovers.length) {
         approvers = manualApprovers.map((a) => a.user);
       } else {
         // If a previous step already covered this role via fallback, skip it
@@ -148,6 +162,9 @@ export async function POST(req: NextRequest) {
             }
           }
         }
+
+        // Admin-configured fallback/combine role (generic, opt-in via the builder)
+        approvers = await applyFallbackRole(approvers, step, findUser, seenApproverIds);
       }
 
       // Deduplicate across steps

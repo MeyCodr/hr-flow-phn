@@ -133,14 +133,19 @@ model ManpowerUpload {
 }
 
 model ApprovalFlowStep {
-  id           Int      @id @default(autoincrement())
-  formTypeId   Int
-  order        Int
-  role         Role
-  departmentId Int?
-  divisionId   Int?
-  sectionId    Int?
-  createdAt    DateTime @default(now())
+  id                  Int                @id @default(autoincrement())
+  formTypeId          Int
+  order               Int
+  role                Role
+  fallbackRole        Role?
+  combineWithFallback Boolean            @default(false)
+  departmentId        Int?
+  divisionId          Int?
+  sectionId           Int?
+  approverSource      ApproverSourceType @default(ROLE)
+  formFieldKey        String?
+  approvalMode        ApprovalMode       @default(ALL)
+  createdAt           DateTime           @default(now())
 
   // Relations
   formType              FormType               @relation(fields: [formTypeId], references: [id])
@@ -150,6 +155,17 @@ model ApprovalFlowStep {
   approvalStepApprovers ApprovalStepApprover[]
   user                  User?                  @relation(fields: [userId], references: [id])
   userId                Int?
+}
+
+enum ApproverSourceType {
+  ROLE
+  MANUAL
+  FORM_FIELD
+}
+
+enum ApprovalMode {
+  ALL
+  ANY
 }
 
 model Approval {

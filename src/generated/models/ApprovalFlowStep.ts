@@ -51,9 +51,14 @@ export type ApprovalFlowStepMinAggregateOutputType = {
   formTypeId: number | null
   order: number | null
   role: $Enums.Role | null
+  fallbackRole: $Enums.Role | null
+  combineWithFallback: boolean | null
   departmentId: number | null
   divisionId: number | null
   sectionId: number | null
+  approverSource: $Enums.ApproverSourceType | null
+  formFieldKey: string | null
+  approvalMode: $Enums.ApprovalMode | null
   createdAt: Date | null
   userId: number | null
 }
@@ -63,9 +68,14 @@ export type ApprovalFlowStepMaxAggregateOutputType = {
   formTypeId: number | null
   order: number | null
   role: $Enums.Role | null
+  fallbackRole: $Enums.Role | null
+  combineWithFallback: boolean | null
   departmentId: number | null
   divisionId: number | null
   sectionId: number | null
+  approverSource: $Enums.ApproverSourceType | null
+  formFieldKey: string | null
+  approvalMode: $Enums.ApprovalMode | null
   createdAt: Date | null
   userId: number | null
 }
@@ -75,9 +85,14 @@ export type ApprovalFlowStepCountAggregateOutputType = {
   formTypeId: number
   order: number
   role: number
+  fallbackRole: number
+  combineWithFallback: number
   departmentId: number
   divisionId: number
   sectionId: number
+  approverSource: number
+  formFieldKey: number
+  approvalMode: number
   createdAt: number
   userId: number
   _all: number
@@ -109,9 +124,14 @@ export type ApprovalFlowStepMinAggregateInputType = {
   formTypeId?: true
   order?: true
   role?: true
+  fallbackRole?: true
+  combineWithFallback?: true
   departmentId?: true
   divisionId?: true
   sectionId?: true
+  approverSource?: true
+  formFieldKey?: true
+  approvalMode?: true
   createdAt?: true
   userId?: true
 }
@@ -121,9 +141,14 @@ export type ApprovalFlowStepMaxAggregateInputType = {
   formTypeId?: true
   order?: true
   role?: true
+  fallbackRole?: true
+  combineWithFallback?: true
   departmentId?: true
   divisionId?: true
   sectionId?: true
+  approverSource?: true
+  formFieldKey?: true
+  approvalMode?: true
   createdAt?: true
   userId?: true
 }
@@ -133,9 +158,14 @@ export type ApprovalFlowStepCountAggregateInputType = {
   formTypeId?: true
   order?: true
   role?: true
+  fallbackRole?: true
+  combineWithFallback?: true
   departmentId?: true
   divisionId?: true
   sectionId?: true
+  approverSource?: true
+  formFieldKey?: true
+  approvalMode?: true
   createdAt?: true
   userId?: true
   _all?: true
@@ -232,9 +262,14 @@ export type ApprovalFlowStepGroupByOutputType = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole: $Enums.Role | null
+  combineWithFallback: boolean
   departmentId: number | null
   divisionId: number | null
   sectionId: number | null
+  approverSource: $Enums.ApproverSourceType
+  formFieldKey: string | null
+  approvalMode: $Enums.ApprovalMode
   createdAt: Date
   userId: number | null
   _count: ApprovalFlowStepCountAggregateOutputType | null
@@ -267,9 +302,14 @@ export type ApprovalFlowStepWhereInput = {
   formTypeId?: Prisma.IntFilter<"ApprovalFlowStep"> | number
   order?: Prisma.IntFilter<"ApprovalFlowStep"> | number
   role?: Prisma.EnumRoleFilter<"ApprovalFlowStep"> | $Enums.Role
+  fallbackRole?: Prisma.EnumRoleNullableFilter<"ApprovalFlowStep"> | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFilter<"ApprovalFlowStep"> | boolean
   departmentId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
   divisionId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
   sectionId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFilter<"ApprovalFlowStep"> | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.StringNullableFilter<"ApprovalFlowStep"> | string | null
+  approvalMode?: Prisma.EnumApprovalModeFilter<"ApprovalFlowStep"> | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFilter<"ApprovalFlowStep"> | Date | string
   userId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
   formType?: Prisma.XOR<Prisma.FormTypeScalarRelationFilter, Prisma.FormTypeWhereInput>
@@ -285,9 +325,14 @@ export type ApprovalFlowStepOrderByWithRelationInput = {
   formTypeId?: Prisma.SortOrder
   order?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  fallbackRole?: Prisma.SortOrderInput | Prisma.SortOrder
+  combineWithFallback?: Prisma.SortOrder
   departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   divisionId?: Prisma.SortOrderInput | Prisma.SortOrder
   sectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approverSource?: Prisma.SortOrder
+  formFieldKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalMode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   formType?: Prisma.FormTypeOrderByWithRelationInput
@@ -296,6 +341,7 @@ export type ApprovalFlowStepOrderByWithRelationInput = {
   section?: Prisma.SectionOrderByWithRelationInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverOrderByRelationAggregateInput
   user?: Prisma.UserOrderByWithRelationInput
+  _relevance?: Prisma.ApprovalFlowStepOrderByRelevanceInput
 }
 
 export type ApprovalFlowStepWhereUniqueInput = Prisma.AtLeast<{
@@ -306,9 +352,14 @@ export type ApprovalFlowStepWhereUniqueInput = Prisma.AtLeast<{
   formTypeId?: Prisma.IntFilter<"ApprovalFlowStep"> | number
   order?: Prisma.IntFilter<"ApprovalFlowStep"> | number
   role?: Prisma.EnumRoleFilter<"ApprovalFlowStep"> | $Enums.Role
+  fallbackRole?: Prisma.EnumRoleNullableFilter<"ApprovalFlowStep"> | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFilter<"ApprovalFlowStep"> | boolean
   departmentId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
   divisionId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
   sectionId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFilter<"ApprovalFlowStep"> | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.StringNullableFilter<"ApprovalFlowStep"> | string | null
+  approvalMode?: Prisma.EnumApprovalModeFilter<"ApprovalFlowStep"> | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFilter<"ApprovalFlowStep"> | Date | string
   userId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
   formType?: Prisma.XOR<Prisma.FormTypeScalarRelationFilter, Prisma.FormTypeWhereInput>
@@ -324,9 +375,14 @@ export type ApprovalFlowStepOrderByWithAggregationInput = {
   formTypeId?: Prisma.SortOrder
   order?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  fallbackRole?: Prisma.SortOrderInput | Prisma.SortOrder
+  combineWithFallback?: Prisma.SortOrder
   departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   divisionId?: Prisma.SortOrderInput | Prisma.SortOrder
   sectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approverSource?: Prisma.SortOrder
+  formFieldKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalMode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ApprovalFlowStepCountOrderByAggregateInput
@@ -344,9 +400,14 @@ export type ApprovalFlowStepScalarWhereWithAggregatesInput = {
   formTypeId?: Prisma.IntWithAggregatesFilter<"ApprovalFlowStep"> | number
   order?: Prisma.IntWithAggregatesFilter<"ApprovalFlowStep"> | number
   role?: Prisma.EnumRoleWithAggregatesFilter<"ApprovalFlowStep"> | $Enums.Role
+  fallbackRole?: Prisma.EnumRoleNullableWithAggregatesFilter<"ApprovalFlowStep"> | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolWithAggregatesFilter<"ApprovalFlowStep"> | boolean
   departmentId?: Prisma.IntNullableWithAggregatesFilter<"ApprovalFlowStep"> | number | null
   divisionId?: Prisma.IntNullableWithAggregatesFilter<"ApprovalFlowStep"> | number | null
   sectionId?: Prisma.IntNullableWithAggregatesFilter<"ApprovalFlowStep"> | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeWithAggregatesFilter<"ApprovalFlowStep"> | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.StringNullableWithAggregatesFilter<"ApprovalFlowStep"> | string | null
+  approvalMode?: Prisma.EnumApprovalModeWithAggregatesFilter<"ApprovalFlowStep"> | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ApprovalFlowStep"> | Date | string
   userId?: Prisma.IntNullableWithAggregatesFilter<"ApprovalFlowStep"> | number | null
 }
@@ -354,6 +415,11 @@ export type ApprovalFlowStepScalarWhereWithAggregatesInput = {
 export type ApprovalFlowStepCreateInput = {
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   formType: Prisma.FormTypeCreateNestedOneWithoutFlowStepsInput
   department?: Prisma.DepartmentCreateNestedOneWithoutApprovalFlowStepInput
@@ -368,9 +434,14 @@ export type ApprovalFlowStepUncheckedCreateInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   divisionId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutStepInput
@@ -379,6 +450,11 @@ export type ApprovalFlowStepUncheckedCreateInput = {
 export type ApprovalFlowStepUpdateInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formType?: Prisma.FormTypeUpdateOneRequiredWithoutFlowStepsNestedInput
   department?: Prisma.DepartmentUpdateOneWithoutApprovalFlowStepNestedInput
@@ -393,9 +469,14 @@ export type ApprovalFlowStepUncheckedUpdateInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutStepNestedInput
@@ -406,9 +487,14 @@ export type ApprovalFlowStepCreateManyInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   divisionId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
 }
@@ -416,6 +502,11 @@ export type ApprovalFlowStepCreateManyInput = {
 export type ApprovalFlowStepUpdateManyMutationInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -424,9 +515,14 @@ export type ApprovalFlowStepUncheckedUpdateManyInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -441,14 +537,25 @@ export type ApprovalFlowStepOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type ApprovalFlowStepOrderByRelevanceInput = {
+  fields: Prisma.ApprovalFlowStepOrderByRelevanceFieldEnum | Prisma.ApprovalFlowStepOrderByRelevanceFieldEnum[]
+  sort: Prisma.SortOrder
+  search: string
+}
+
 export type ApprovalFlowStepCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   formTypeId?: Prisma.SortOrder
   order?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  fallbackRole?: Prisma.SortOrder
+  combineWithFallback?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   divisionId?: Prisma.SortOrder
   sectionId?: Prisma.SortOrder
+  approverSource?: Prisma.SortOrder
+  formFieldKey?: Prisma.SortOrder
+  approvalMode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -468,9 +575,14 @@ export type ApprovalFlowStepMaxOrderByAggregateInput = {
   formTypeId?: Prisma.SortOrder
   order?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  fallbackRole?: Prisma.SortOrder
+  combineWithFallback?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   divisionId?: Prisma.SortOrder
   sectionId?: Prisma.SortOrder
+  approverSource?: Prisma.SortOrder
+  formFieldKey?: Prisma.SortOrder
+  approvalMode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -480,9 +592,14 @@ export type ApprovalFlowStepMinOrderByAggregateInput = {
   formTypeId?: Prisma.SortOrder
   order?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  fallbackRole?: Prisma.SortOrder
+  combineWithFallback?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   divisionId?: Prisma.SortOrder
   sectionId?: Prisma.SortOrder
+  approverSource?: Prisma.SortOrder
+  formFieldKey?: Prisma.SortOrder
+  approvalMode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -712,6 +829,22 @@ export type ApprovalFlowStepUncheckedUpdateManyWithoutFormTypeNestedInput = {
   deleteMany?: Prisma.ApprovalFlowStepScalarWhereInput | Prisma.ApprovalFlowStepScalarWhereInput[]
 }
 
+export type NullableEnumRoleFieldUpdateOperationsInput = {
+  set?: $Enums.Role | null
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
+export type EnumApproverSourceTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ApproverSourceType
+}
+
+export type EnumApprovalModeFieldUpdateOperationsInput = {
+  set?: $Enums.ApprovalMode
+}
+
 export type ApprovalFlowStepCreateNestedOneWithoutApprovalStepApproversInput = {
   create?: Prisma.XOR<Prisma.ApprovalFlowStepCreateWithoutApprovalStepApproversInput, Prisma.ApprovalFlowStepUncheckedCreateWithoutApprovalStepApproversInput>
   connectOrCreate?: Prisma.ApprovalFlowStepCreateOrConnectWithoutApprovalStepApproversInput
@@ -729,6 +862,11 @@ export type ApprovalFlowStepUpdateOneRequiredWithoutApprovalStepApproversNestedI
 export type ApprovalFlowStepCreateWithoutUserInput = {
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   formType: Prisma.FormTypeCreateNestedOneWithoutFlowStepsInput
   department?: Prisma.DepartmentCreateNestedOneWithoutApprovalFlowStepInput
@@ -742,9 +880,14 @@ export type ApprovalFlowStepUncheckedCreateWithoutUserInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   divisionId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutStepInput
 }
@@ -783,9 +926,14 @@ export type ApprovalFlowStepScalarWhereInput = {
   formTypeId?: Prisma.IntFilter<"ApprovalFlowStep"> | number
   order?: Prisma.IntFilter<"ApprovalFlowStep"> | number
   role?: Prisma.EnumRoleFilter<"ApprovalFlowStep"> | $Enums.Role
+  fallbackRole?: Prisma.EnumRoleNullableFilter<"ApprovalFlowStep"> | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFilter<"ApprovalFlowStep"> | boolean
   departmentId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
   divisionId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
   sectionId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFilter<"ApprovalFlowStep"> | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.StringNullableFilter<"ApprovalFlowStep"> | string | null
+  approvalMode?: Prisma.EnumApprovalModeFilter<"ApprovalFlowStep"> | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFilter<"ApprovalFlowStep"> | Date | string
   userId?: Prisma.IntNullableFilter<"ApprovalFlowStep"> | number | null
 }
@@ -793,6 +941,11 @@ export type ApprovalFlowStepScalarWhereInput = {
 export type ApprovalFlowStepCreateWithoutDivisionInput = {
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   formType: Prisma.FormTypeCreateNestedOneWithoutFlowStepsInput
   department?: Prisma.DepartmentCreateNestedOneWithoutApprovalFlowStepInput
@@ -806,8 +959,13 @@ export type ApprovalFlowStepUncheckedCreateWithoutDivisionInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutStepInput
@@ -842,6 +1000,11 @@ export type ApprovalFlowStepUpdateManyWithWhereWithoutDivisionInput = {
 export type ApprovalFlowStepCreateWithoutDepartmentInput = {
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   formType: Prisma.FormTypeCreateNestedOneWithoutFlowStepsInput
   division?: Prisma.DivisionCreateNestedOneWithoutApprovalFlowStepInput
@@ -855,8 +1018,13 @@ export type ApprovalFlowStepUncheckedCreateWithoutDepartmentInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   divisionId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutStepInput
@@ -891,6 +1059,11 @@ export type ApprovalFlowStepUpdateManyWithWhereWithoutDepartmentInput = {
 export type ApprovalFlowStepCreateWithoutSectionInput = {
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   formType: Prisma.FormTypeCreateNestedOneWithoutFlowStepsInput
   department?: Prisma.DepartmentCreateNestedOneWithoutApprovalFlowStepInput
@@ -904,8 +1077,13 @@ export type ApprovalFlowStepUncheckedCreateWithoutSectionInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   divisionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutStepInput
@@ -940,6 +1118,11 @@ export type ApprovalFlowStepUpdateManyWithWhereWithoutSectionInput = {
 export type ApprovalFlowStepCreateWithoutFormTypeInput = {
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   department?: Prisma.DepartmentCreateNestedOneWithoutApprovalFlowStepInput
   division?: Prisma.DivisionCreateNestedOneWithoutApprovalFlowStepInput
@@ -952,9 +1135,14 @@ export type ApprovalFlowStepUncheckedCreateWithoutFormTypeInput = {
   id?: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   divisionId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutStepInput
@@ -989,6 +1177,11 @@ export type ApprovalFlowStepUpdateManyWithWhereWithoutFormTypeInput = {
 export type ApprovalFlowStepCreateWithoutApprovalStepApproversInput = {
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   formType: Prisma.FormTypeCreateNestedOneWithoutFlowStepsInput
   department?: Prisma.DepartmentCreateNestedOneWithoutApprovalFlowStepInput
@@ -1002,9 +1195,14 @@ export type ApprovalFlowStepUncheckedCreateWithoutApprovalStepApproversInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   divisionId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
 }
@@ -1028,6 +1226,11 @@ export type ApprovalFlowStepUpdateToOneWithWhereWithoutApprovalStepApproversInpu
 export type ApprovalFlowStepUpdateWithoutApprovalStepApproversInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formType?: Prisma.FormTypeUpdateOneRequiredWithoutFlowStepsNestedInput
   department?: Prisma.DepartmentUpdateOneWithoutApprovalFlowStepNestedInput
@@ -1041,9 +1244,14 @@ export type ApprovalFlowStepUncheckedUpdateWithoutApprovalStepApproversInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1053,15 +1261,25 @@ export type ApprovalFlowStepCreateManyUserInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   divisionId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
 }
 
 export type ApprovalFlowStepUpdateWithoutUserInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formType?: Prisma.FormTypeUpdateOneRequiredWithoutFlowStepsNestedInput
   department?: Prisma.DepartmentUpdateOneWithoutApprovalFlowStepNestedInput
@@ -1075,9 +1293,14 @@ export type ApprovalFlowStepUncheckedUpdateWithoutUserInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutStepNestedInput
 }
@@ -1087,9 +1310,14 @@ export type ApprovalFlowStepUncheckedUpdateManyWithoutUserInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1098,8 +1326,13 @@ export type ApprovalFlowStepCreateManyDivisionInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
 }
@@ -1107,6 +1340,11 @@ export type ApprovalFlowStepCreateManyDivisionInput = {
 export type ApprovalFlowStepUpdateWithoutDivisionInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formType?: Prisma.FormTypeUpdateOneRequiredWithoutFlowStepsNestedInput
   department?: Prisma.DepartmentUpdateOneWithoutApprovalFlowStepNestedInput
@@ -1120,8 +1358,13 @@ export type ApprovalFlowStepUncheckedUpdateWithoutDivisionInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutStepNestedInput
@@ -1132,8 +1375,13 @@ export type ApprovalFlowStepUncheckedUpdateManyWithoutDivisionInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1143,8 +1391,13 @@ export type ApprovalFlowStepCreateManyDepartmentInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   divisionId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
 }
@@ -1152,6 +1405,11 @@ export type ApprovalFlowStepCreateManyDepartmentInput = {
 export type ApprovalFlowStepUpdateWithoutDepartmentInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formType?: Prisma.FormTypeUpdateOneRequiredWithoutFlowStepsNestedInput
   division?: Prisma.DivisionUpdateOneWithoutApprovalFlowStepNestedInput
@@ -1165,8 +1423,13 @@ export type ApprovalFlowStepUncheckedUpdateWithoutDepartmentInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutStepNestedInput
@@ -1177,8 +1440,13 @@ export type ApprovalFlowStepUncheckedUpdateManyWithoutDepartmentInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1188,8 +1456,13 @@ export type ApprovalFlowStepCreateManySectionInput = {
   formTypeId: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   divisionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
 }
@@ -1197,6 +1470,11 @@ export type ApprovalFlowStepCreateManySectionInput = {
 export type ApprovalFlowStepUpdateWithoutSectionInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formType?: Prisma.FormTypeUpdateOneRequiredWithoutFlowStepsNestedInput
   department?: Prisma.DepartmentUpdateOneWithoutApprovalFlowStepNestedInput
@@ -1210,8 +1488,13 @@ export type ApprovalFlowStepUncheckedUpdateWithoutSectionInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutStepNestedInput
@@ -1222,8 +1505,13 @@ export type ApprovalFlowStepUncheckedUpdateManyWithoutSectionInput = {
   formTypeId?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1232,9 +1520,14 @@ export type ApprovalFlowStepCreateManyFormTypeInput = {
   id?: number
   order: number
   role: $Enums.Role
+  fallbackRole?: $Enums.Role | null
+  combineWithFallback?: boolean
   departmentId?: number | null
   divisionId?: number | null
   sectionId?: number | null
+  approverSource?: $Enums.ApproverSourceType
+  formFieldKey?: string | null
+  approvalMode?: $Enums.ApprovalMode
   createdAt?: Date | string
   userId?: number | null
 }
@@ -1242,6 +1535,11 @@ export type ApprovalFlowStepCreateManyFormTypeInput = {
 export type ApprovalFlowStepUpdateWithoutFormTypeInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   department?: Prisma.DepartmentUpdateOneWithoutApprovalFlowStepNestedInput
   division?: Prisma.DivisionUpdateOneWithoutApprovalFlowStepNestedInput
@@ -1254,9 +1552,14 @@ export type ApprovalFlowStepUncheckedUpdateWithoutFormTypeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutStepNestedInput
@@ -1266,9 +1569,14 @@ export type ApprovalFlowStepUncheckedUpdateManyWithoutFormTypeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  fallbackRole?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
+  combineWithFallback?: Prisma.BoolFieldUpdateOperationsInput | boolean
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approverSource?: Prisma.EnumApproverSourceTypeFieldUpdateOperationsInput | $Enums.ApproverSourceType
+  formFieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalMode?: Prisma.EnumApprovalModeFieldUpdateOperationsInput | $Enums.ApprovalMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1309,9 +1617,14 @@ export type ApprovalFlowStepSelect<ExtArgs extends runtime.Types.Extensions.Inte
   formTypeId?: boolean
   order?: boolean
   role?: boolean
+  fallbackRole?: boolean
+  combineWithFallback?: boolean
   departmentId?: boolean
   divisionId?: boolean
   sectionId?: boolean
+  approverSource?: boolean
+  formFieldKey?: boolean
+  approvalMode?: boolean
   createdAt?: boolean
   userId?: boolean
   formType?: boolean | Prisma.FormTypeDefaultArgs<ExtArgs>
@@ -1330,14 +1643,19 @@ export type ApprovalFlowStepSelectScalar = {
   formTypeId?: boolean
   order?: boolean
   role?: boolean
+  fallbackRole?: boolean
+  combineWithFallback?: boolean
   departmentId?: boolean
   divisionId?: boolean
   sectionId?: boolean
+  approverSource?: boolean
+  formFieldKey?: boolean
+  approvalMode?: boolean
   createdAt?: boolean
   userId?: boolean
 }
 
-export type ApprovalFlowStepOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "formTypeId" | "order" | "role" | "departmentId" | "divisionId" | "sectionId" | "createdAt" | "userId", ExtArgs["result"]["approvalFlowStep"]>
+export type ApprovalFlowStepOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "formTypeId" | "order" | "role" | "fallbackRole" | "combineWithFallback" | "departmentId" | "divisionId" | "sectionId" | "approverSource" | "formFieldKey" | "approvalMode" | "createdAt" | "userId", ExtArgs["result"]["approvalFlowStep"]>
 export type ApprovalFlowStepInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   formType?: boolean | Prisma.FormTypeDefaultArgs<ExtArgs>
   department?: boolean | Prisma.ApprovalFlowStep$departmentArgs<ExtArgs>
@@ -1363,9 +1681,14 @@ export type $ApprovalFlowStepPayload<ExtArgs extends runtime.Types.Extensions.In
     formTypeId: number
     order: number
     role: $Enums.Role
+    fallbackRole: $Enums.Role | null
+    combineWithFallback: boolean
     departmentId: number | null
     divisionId: number | null
     sectionId: number | null
+    approverSource: $Enums.ApproverSourceType
+    formFieldKey: string | null
+    approvalMode: $Enums.ApprovalMode
     createdAt: Date
     userId: number | null
   }, ExtArgs["result"]["approvalFlowStep"]>
@@ -1747,9 +2070,14 @@ export interface ApprovalFlowStepFieldRefs {
   readonly formTypeId: Prisma.FieldRef<"ApprovalFlowStep", 'Int'>
   readonly order: Prisma.FieldRef<"ApprovalFlowStep", 'Int'>
   readonly role: Prisma.FieldRef<"ApprovalFlowStep", 'Role'>
+  readonly fallbackRole: Prisma.FieldRef<"ApprovalFlowStep", 'Role'>
+  readonly combineWithFallback: Prisma.FieldRef<"ApprovalFlowStep", 'Boolean'>
   readonly departmentId: Prisma.FieldRef<"ApprovalFlowStep", 'Int'>
   readonly divisionId: Prisma.FieldRef<"ApprovalFlowStep", 'Int'>
   readonly sectionId: Prisma.FieldRef<"ApprovalFlowStep", 'Int'>
+  readonly approverSource: Prisma.FieldRef<"ApprovalFlowStep", 'ApproverSourceType'>
+  readonly formFieldKey: Prisma.FieldRef<"ApprovalFlowStep", 'String'>
+  readonly approvalMode: Prisma.FieldRef<"ApprovalFlowStep", 'ApprovalMode'>
   readonly createdAt: Prisma.FieldRef<"ApprovalFlowStep", 'DateTime'>
   readonly userId: Prisma.FieldRef<"ApprovalFlowStep", 'Int'>
 }

@@ -20,6 +20,8 @@ import {
   Variants,
   Reorder,
 } from "framer-motion";
+import { FormApproverFieldOptions } from "../../../../../lib/hrformcomponents";
+import { hasFixedApprovalMode, sanitizeName } from "../../../../../lib/utils";
 
 export interface ApprovalFlowStep {
   id: number;
@@ -29,6 +31,8 @@ export interface ApprovalFlowStep {
   formTypeId: number;
   order: number;
   role: string;
+  fallbackRole: string | null;
+  combineWithFallback: boolean;
   sectionId: number | null;
   user?: UserType[];
   formType?: FormType;
@@ -36,6 +40,9 @@ export interface ApprovalFlowStep {
   department?: Department;
   section?: Section;
   approvalStepApprovers: ApprovalStepApprover[];
+  approverSource: string;
+  formFieldKey: string | null;
+  approvalMode: string;
 }
 
 export interface ApprovalStepApprover {
@@ -43,6 +50,65 @@ export interface ApprovalStepApprover {
   stepId: number;
   userId: number;
   user: UserType;
+}
+
+const SOURCE_LABELS: Record<string, string> = {
+  ROLE: "Role",
+  MANUAL: "Manual",
+  FORM_FIELD: "Form Field",
+};
+
+const APPROVAL_MODE_LABELS: Record<string, string> = {
+  ALL: "All required",
+  ANY: "Any one",
+};
+
+function getFormFieldLabel(formTypeName: string | undefined, key: string | null) {
+  if (!key) return "-";
+  const options = formTypeName
+    ? FormApproverFieldOptions[sanitizeName(formTypeName)]
+    : undefined;
+  return options?.find((f) => f.key === key)?.label ?? key;
+}
+
+function titleCaseRole(role: string) {
+  return role
+    .split("_")
+    .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function buildStepSummary(item: ApprovalFlowStep) {
+  if (item.approverSource === "FORM_FIELD") {
+    return `Whoever the requester selected as "${getFormFieldLabel(
+      item.formType?.name,
+      item.formFieldKey,
+    )}"`;
+  }
+
+  if (item.approvalStepApprovers.length > 0) {
+    return item.approverSource === "MANUAL"
+      ? "Specific people (listed below)"
+      : "Manually assigned approvers (overrides role-based resolution)";
+  }
+
+  if (item.approverSource === "MANUAL") {
+    return "No approvers assigned yet";
+  }
+
+  // ROLE, resolved dynamically per submitter
+  const scope = [item.division?.name, item.department?.name, item.section?.name]
+    .filter(Boolean)
+    .join(" → ");
+  let text = `${titleCaseRole(item.role)}${
+    scope ? ` (${scope})` : " (requester's own org unit)"
+  }`;
+  if (item.fallbackRole) {
+    text += item.combineWithFallback
+      ? `, together with ${titleCaseRole(item.fallbackRole)}`
+      : `, or ${titleCaseRole(item.fallbackRole)} if none assigned`;
+  }
+  return text;
 }
 
 interface ApprovalFlowProps {
@@ -281,22 +347,6 @@ export default function ApprovalFlow({
                         {sortedSteps[0]?.formType?.name ?? "No Form Type"}
                       </div>
 
-                      {/* Column Header Row */}
-                      <div
-                        className={`w-full grid ${
-                          deleteMode ? "grid-cols-8" : "grid-cols-7"
-                        } divide-x divide-gray-200 bg-gray-50 text-[0.65rem] font-semibold uppercase tracking-wide text-gray-500 text-center`}
-                      >
-                        {deleteMode && <div className="px-4 py-3">Select</div>}
-                        <div className="px-4 py-3 w-full">Form Type</div>
-                        <div className="px-4 py-3 w-full">Order</div>
-                        <div className="px-4 py-3 w-full">Role</div>
-                        <div className="px-4 py-3 w-full">Division</div>
-                        <div className="px-4 py-3 w-full">Department</div>
-                        <div className="px-4 py-3 w-full">Section</div>
-                        <div className="px-4 py-3 w-full">Approver</div>
-                      </div>
-
                       <Reorder.Group
                         axis="y"
                         values={sortedSteps}
@@ -343,9 +393,7 @@ export default function ApprovalFlow({
                                 handleRowClick(item);
                               }
                             }}
-                            className={`grid ${
-                              deleteMode ? "grid-cols-8" : "grid-cols-7"
-                            } divide-x divide-gray-100 items-center text-xs text-gray-700 text-center transition-colors ${
+                            className={`flex items-start gap-3 px-4 py-3 text-xs text-gray-700 transition-colors ${
                               deleteMode
                                 ? selectedRows.includes(item.id)
                                   ? "bg-red-50"
@@ -358,46 +406,56 @@ export default function ApprovalFlow({
                             }`}
                           >
                             {deleteMode && (
-                              <div className="px-4 py-3">
-                                <CheckBox
-                                  checked={selectedRows.includes(item.id)}
-                                  onChange={() => toggleSelect(item.id)}
-                                />
-                              </div>
+                              <CheckBox
+                                checked={selectedRows.includes(item.id)}
+                                onChange={() => toggleSelect(item.id)}
+                                className="mt-1 shrink-0"
+                              />
                             )}
 
-                            <div className="px-4 py-3 text-nowrap text-center">
-                              {item.formType?.name}
-                            </div>
-
-                            <div className="px-4 py-3 text-center">
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-800 font-semibold text-[0.7rem] shrink-0 mt-0.5">
                               {index + 1}
                             </div>
 
-                            <div className="px-4 py-3 text-indigo-700 font-medium text-center">
-                              {item.role}
-                            </div>
+                            <div className="flex-1 min-w-0 text-left">
+                              <div className="flex items-center gap-2 flex-wrap mb-1">
+                                <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[0.6rem] font-semibold uppercase tracking-wide">
+                                  {SOURCE_LABELS[item.approverSource] ?? "Role"}
+                                </span>
+                                {item.approverSource !== "FORM_FIELD" &&
+                                  (hasFixedApprovalMode(item.formType?.name) ? (
+                                    <span
+                                      className="px-2 py-0.5 rounded-full text-[0.6rem] font-semibold uppercase tracking-wide bg-gray-100 text-gray-500"
+                                      title="This form type has its own built-in approval flow; Approval Mode does not apply."
+                                    >
+                                      Fixed by form
+                                    </span>
+                                  ) : (
+                                    <span
+                                      className={`px-2 py-0.5 rounded-full text-[0.6rem] font-semibold uppercase tracking-wide ${
+                                        item.approvalMode === "ANY"
+                                          ? "bg-amber-100 text-amber-700"
+                                          : "bg-gray-100 text-gray-600"
+                                      }`}
+                                    >
+                                      {APPROVAL_MODE_LABELS[item.approvalMode] ??
+                                        item.approvalMode}
+                                    </span>
+                                  ))}
+                              </div>
 
-                            <div className="px-4 py-3 text-center">
-                              {item.division?.name || "-"}
-                            </div>
+                              <p className="text-gray-800">
+                                {buildStepSummary(item)}
+                              </p>
 
-                            <div className="px-4 py-3">
-                              {item.department?.name || "-"}
-                            </div>
-
-                            <div className="px-4 py-3 text-center">
-                              {item.section?.name || "-"}
-                            </div>
-
-                            <div className="px-4 py-3 text-center">
-                              {item.approvalStepApprovers
-                                .sort((a, b) => a.id - b.id)
-                                .map((a, i) => (
-                                  <div key={a.user?.id ?? i}>
-                                    {i + 1}. {a.user?.fullname ?? "No user"}
-                                  </div>
-                                ))}
+                              {item.approvalStepApprovers.length > 0 && (
+                                <p className="text-gray-500 mt-0.5">
+                                  {item.approvalStepApprovers
+                                    .sort((a, b) => a.id - b.id)
+                                    .map((a) => a.user?.fullname ?? "No user")
+                                    .join(", ")}
+                                </p>
+                              )}
                             </div>
                           </Reorder.Item>
                         ))}

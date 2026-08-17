@@ -191,9 +191,14 @@ export const ApprovalFlowStepScalarFieldEnum = {
   formTypeId: 'formTypeId',
   order: 'order',
   role: 'role',
+  fallbackRole: 'fallbackRole',
+  combineWithFallback: 'combineWithFallback',
   departmentId: 'departmentId',
   divisionId: 'divisionId',
   sectionId: 'sectionId',
+  approverSource: 'approverSource',
+  formFieldKey: 'formFieldKey',
+  approvalMode: 'approvalMode',
   createdAt: 'createdAt',
   userId: 'userId'
 } as const
@@ -375,6 +380,13 @@ export const ManpowerUploadOrderByRelevanceFieldEnum = {
 } as const
 
 export type ManpowerUploadOrderByRelevanceFieldEnum = (typeof ManpowerUploadOrderByRelevanceFieldEnum)[keyof typeof ManpowerUploadOrderByRelevanceFieldEnum]
+
+
+export const ApprovalFlowStepOrderByRelevanceFieldEnum = {
+  formFieldKey: 'formFieldKey'
+} as const
+
+export type ApprovalFlowStepOrderByRelevanceFieldEnum = (typeof ApprovalFlowStepOrderByRelevanceFieldEnum)[keyof typeof ApprovalFlowStepOrderByRelevanceFieldEnum]
 
 
 export const ApprovalOrderByRelevanceFieldEnum = {

@@ -9,6 +9,23 @@
 * 🟢 You can import this file directly.
 */
 
+export const ApproverSourceType = {
+  ROLE: 'ROLE',
+  MANUAL: 'MANUAL',
+  FORM_FIELD: 'FORM_FIELD'
+} as const
+
+export type ApproverSourceType = (typeof ApproverSourceType)[keyof typeof ApproverSourceType]
+
+
+export const ApprovalMode = {
+  ALL: 'ALL',
+  ANY: 'ANY'
+} as const
+
+export type ApprovalMode = (typeof ApprovalMode)[keyof typeof ApprovalMode]
+
+
 export const SexualHarassmentReportStatus = {
   SUBMITTED: 'SUBMITTED',
   UNDER_REVIEW: 'UNDER_REVIEW',

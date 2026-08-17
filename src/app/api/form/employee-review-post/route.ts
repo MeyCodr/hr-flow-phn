@@ -4,6 +4,11 @@ import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
 import { Prisma, User } from "@/generated/client";
+import {
+  applyFallbackRole,
+  buildRoleWhere,
+  resolveFormFieldApprover,
+} from "@/lib/approverResolution";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -75,30 +80,33 @@ export async function POST(req: NextRequest) {
     let firstActiveStepOrder: number | null = null;
 
     for (const step of approvalFlowSteps) {
-      const baseWhere: Prisma.UserWhereInput = {
-        role: step.role,
-        id: { notIn: assignedApprovers },
-      };
-
-      if (step.divisionId !== null) baseWhere.divisionId = Number(step.divisionId);
-      if (step.departmentId !== null) baseWhere.departmentId = Number(step.departmentId);
-      if (step.sectionId !== null) baseWhere.sectionId = Number(step.sectionId);
-
-      if (step.divisionId === null && step.departmentId === null && step.sectionId === null) {
-        if (step.role === "HEAD_OF_DEPARTMENT") baseWhere.departmentId = currentUser.departmentId;
-        else if (step.role === "HEAD_OF_DIVISION") baseWhere.divisionId = currentUser.divisionId;
-        else if (step.role === "HEAD_OF_SECTION") baseWhere.sectionId = currentUser.sectionId;
-      }
-
       // Manual approvers take priority
       const manualApprovers = await prisma.approvalStepApprover.findMany({
         where: { stepId: step.id },
         include: { user: true },
       });
 
-      let approvers: User[] = manualApprovers.length > 0
-        ? manualApprovers.map((a: ManualApproverWithUser) => a.user)
-        : await prisma.user.findMany({ where: baseWhere });
+      let approvers: User[];
+
+      if (step.approverSource === "FORM_FIELD" && step.formFieldKey) {
+        const resolved = await resolveFormFieldApprover(
+          enrichedData as Record<string, unknown>,
+          step,
+          currentUser,
+        );
+        if ("error" in resolved) {
+          return NextResponse.json({ error: resolved.error }, { status: 400 });
+        }
+        approvers = [resolved.approver];
+      } else if (step.approverSource === "MANUAL" || manualApprovers.length > 0) {
+        approvers = manualApprovers.map((a: ManualApproverWithUser) => a.user);
+      } else {
+        approvers = await prisma.user.findMany({
+          where: buildRoleWhere(step.role, step, currentUser, assignedApprovers),
+        });
+
+        approvers = await applyFallbackRole(approvers, step, currentUser, assignedApprovers);
+      }
 
       approvers = approvers.filter(
         (a: User) => a.id !== currentUser.id && !assignedApprovers.includes(a.id)

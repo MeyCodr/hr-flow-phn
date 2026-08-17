@@ -5,8 +5,13 @@ import path from "path";
 import { transporter } from "../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
-import { ApprovalStepApprover, Prisma, User } from "@/generated/client";
+import { ApprovalStepApprover, User } from "@/generated/client";
 import { formatFileSize, MAX_FORM_ATTACHMENT_BYTES } from "@/lib/uploadLimits";
+import {
+  applyFallbackRole,
+  buildRoleWhere,
+  resolveFormFieldApprover,
+} from "@/lib/approverResolution";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -223,36 +228,6 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      const baseWhere: Prisma.UserWhereInput = {
-        role: step.role,
-        id: { notIn: assignedApprovers },
-      };
-
-      if (step.divisionId !== null) {
-        baseWhere.divisionId = Number(step.divisionId);
-      }
-
-      if (step.departmentId !== null) {
-        baseWhere.departmentId = Number(step.departmentId);
-      }
-
-      if (step.sectionId !== null) {
-        baseWhere.sectionId = Number(step.sectionId);
-      }
-
-      if (
-        step.divisionId === null &&
-        step.departmentId === null &&
-        step.sectionId === null
-      ) {
-        if (step.role === "HEAD_OF_DEPARTMENT") {
-          baseWhere.departmentId = findUser.departmentId;
-        } else if (step.role === "HEAD_OF_DIVISION") {
-          baseWhere.divisionId = findUser.divisionId;
-        } else if (step.role === "HEAD_OF_SECTION") {
-          baseWhere.sectionId = findUser.sectionId;
-        }
-      }
       // 1️⃣ Load manual approvers
       const manualApprovers = await prisma.approvalStepApprover.findMany({
         where: { stepId: step.id },
@@ -261,14 +236,23 @@ export async function POST(req: NextRequest) {
 
       let approvers: User[] = [];
 
-      // 1️⃣ If manual approvers exist → use them
-      if (manualApprovers.length > 0) {
+      if (step.approverSource === "FORM_FIELD" && step.formFieldKey) {
+        // Approver comes from a value the requester picked on the form itself
+        const resolved = await resolveFormFieldApprover(data, step, findUser);
+        if ("error" in resolved) {
+          return NextResponse.json({ error: resolved.error }, { status: 400 });
+        }
+        approvers = [resolved.approver];
+      } else if (step.approverSource === "MANUAL" || manualApprovers.length > 0) {
+        // 1️⃣ If manual approvers exist → use them
         approvers = manualApprovers.map((a: ManualApproverWithUser) => a.user);
       } else {
         // 2️⃣ Try to find normal approvers based on role
-        approvers = await prisma.user.findMany({ where: baseWhere });
+        approvers = await prisma.user.findMany({
+          where: buildRoleWhere(step.role, step, findUser, assignedApprovers),
+        });
 
-        // 3️⃣ 🔥 Fallback logic for STEP 1
+        // 3️⃣ 🔥 Legacy fallback for STEP 1 (kept as-is for backward compatibility)
         if (
           approvers.length === 0 &&
           step.order === 1 &&
@@ -286,6 +270,9 @@ export async function POST(req: NextRequest) {
             },
           });
         }
+
+        // 4️⃣ Admin-configured fallback/combine role (generic, any step/form)
+        approvers = await applyFallbackRole(approvers, step, findUser, assignedApprovers);
       }
       // Prevent duplicates
       approvers = approvers.filter(

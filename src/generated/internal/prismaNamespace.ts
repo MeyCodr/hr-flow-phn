@@ -1488,9 +1488,14 @@ export const ApprovalFlowStepScalarFieldEnum = {
   formTypeId: 'formTypeId',
   order: 'order',
   role: 'role',
+  fallbackRole: 'fallbackRole',
+  combineWithFallback: 'combineWithFallback',
   departmentId: 'departmentId',
   divisionId: 'divisionId',
   sectionId: 'sectionId',
+  approverSource: 'approverSource',
+  formFieldKey: 'formFieldKey',
+  approvalMode: 'approvalMode',
   createdAt: 'createdAt',
   userId: 'userId'
 } as const
@@ -1674,6 +1679,13 @@ export const ManpowerUploadOrderByRelevanceFieldEnum = {
 export type ManpowerUploadOrderByRelevanceFieldEnum = (typeof ManpowerUploadOrderByRelevanceFieldEnum)[keyof typeof ManpowerUploadOrderByRelevanceFieldEnum]
 
 
+export const ApprovalFlowStepOrderByRelevanceFieldEnum = {
+  formFieldKey: 'formFieldKey'
+} as const
+
+export type ApprovalFlowStepOrderByRelevanceFieldEnum = (typeof ApprovalFlowStepOrderByRelevanceFieldEnum)[keyof typeof ApprovalFlowStepOrderByRelevanceFieldEnum]
+
+
 export const ApprovalOrderByRelevanceFieldEnum = {
   status: 'status',
   remarks: 'remarks'
@@ -1787,6 +1799,20 @@ export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'ApproverSourceType'
+ */
+export type EnumApproverSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApproverSourceType'>
+    
+
+
+/**
+ * Reference to a field of type 'ApprovalMode'
+ */
+export type EnumApprovalModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApprovalMode'>
     
 
 

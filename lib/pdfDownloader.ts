@@ -1,4 +1,9 @@
-import { ApprovalUser, EmployeeReviewTypes, ManPowerTypes } from "@/app/types/types";
+import {
+  ApprovalUser,
+  EmployeeReviewTypes,
+  GrievanceReportTypes,
+  ManPowerTypes,
+} from "@/app/types/types";
 import { Prisma } from "@/generated/client";
 import jsPDF from "jspdf";
 import autoTable, { RowInput } from "jspdf-autotable";
@@ -21,6 +26,33 @@ export interface FormPDFData {
 }
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH;
 const logoUrl = `${basePath}/company-logo-phn.png`;
+
+const getFinalY = (doc: jsPDF) =>
+  (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+
+// Chained autoTable calls reuse the previous table's finalY as the next
+// startY; if that lands too close to (or past) the bottom margin, autoTable
+// tries to draw a cell rect off the page and jsPDF throws. Force a fresh
+// page whenever there isn't enough room left for the next section.
+const ensureSpace = (doc: jsPDF, y: number, minSpace = 30) => {
+  const pageHeight = doc.internal.pageSize.getHeight();
+  if (y > pageHeight - minSpace) {
+    doc.addPage();
+    return 20;
+  }
+  return y;
+};
+
+// A fresh object per call: jspdf-autotable can mutate a cell's styles
+// object in place with computed layout values, so a single shared object
+// reused across tables with different column counts corrupts later tables.
+const sectionHeaderStyle = () => ({
+  fillColor: [55, 48, 163] as [number, number, number], // indigo-800 (matches sidebar)
+  textColor: [255, 255, 255] as [number, number, number],
+  fontStyle: "bold" as const,
+  halign: "left" as const,
+  fontSize: 8,
+});
 
 const loadImage = async (url: string): Promise<string> => {
   const res = await fetch(url);
@@ -328,44 +360,111 @@ const generateManPowerPDF = (doc: jsPDF, data: FormPDFData) => {
 
 const generateGrievancePDF = (doc: jsPDF, data: FormPDFData) => {
   const { formData, divisionName, departmentName, sectionName } = data;
-  const parsedForm = formData as {
-    dateOfComplaint: string;
-    complaintTypes: string;
-    detailComplaints: string;
-    attemptsResolve: string;
-    preferredOutcome: string;
-    contactNo: string;
-    declaration: boolean;
-    fullname: string;
-    others: string;
-    remarks: string;
-    staffId: string;
-    designation: string;
-    supportEvidence: string;
-  };
+  const parsedForm = (formData as unknown as GrievanceReportTypes) ?? ({} as GrievanceReportTypes);
 
-  const tableData: RowInput[] = [
-    ["Full Name", parsedForm.fullname || "-"],
-    ["Staff ID", parsedForm.staffId || "-"],
-    ["Division", divisionName || "-"],
-    ["Department", departmentName || "-"],
-    ["Section", sectionName || "-"],
-    ["Contact No", parsedForm.contactNo || "-"],
-    ["Designation", parsedForm.designation || "-"],
-    ["Date of Complaint", parsedForm.dateOfComplaint || "-"],
-    ["Type of Complaint", parsedForm.complaintTypes || "-"],
-    ["Complaint Detail", parsedForm.detailComplaints || "-"],
-    ["Attempt Resolve", parsedForm.attemptsResolve || "-"],
-    ["Preferred Outcome", parsedForm.preferredOutcome || "-"],
-    ["Support Evidence", parsedForm.supportEvidence || "-"],
-    ["Declaration", parsedForm.declaration || "-"],
-  ];
+  const val = (v: unknown) => (v ? String(v) : "-");
+  const margin = 14;
+
+  const complaintTypeLabel =
+    parsedForm.complaintTypes === "Other" && parsedForm.others
+      ? `Other - ${parsedForm.others}`
+      : val(parsedForm.complaintTypes);
+  const supportEvidenceLabel = parsedForm.supportEvidence ? "Yes" : "No";
+  const declarationCheckbox = parsedForm.declaration ? "[X]" : "[ ]";
 
   autoTable(doc, {
     startY: 40,
-    body: tableData,
+    head: [[{ content: "COMPLAINANT INFORMATION", colSpan: 4, styles: sectionHeaderStyle() }]],
+    body: [
+      [
+        { content: "Full Name", styles: { fontStyle: "bold" } },
+        val(parsedForm.fullname),
+        { content: "Staff ID", styles: { fontStyle: "bold" } },
+        val(parsedForm.staffId),
+      ],
+      [
+        { content: "Designation", styles: { fontStyle: "bold" } },
+        val(parsedForm.designation),
+        { content: "Contact No", styles: { fontStyle: "bold" } },
+        val(parsedForm.contactNo),
+      ],
+      [
+        { content: "Division", styles: { fontStyle: "bold" } },
+        val(divisionName),
+        { content: "Department", styles: { fontStyle: "bold" } },
+        val(departmentName),
+      ],
+      [
+        { content: "Section", styles: { fontStyle: "bold" } },
+        val(sectionName),
+        { content: "Date of Complaint", styles: { fontStyle: "bold" } },
+        val(parsedForm.dateOfComplaint),
+      ],
+    ] as RowInput[],
     theme: "grid",
-    styles: { fontSize: 8, cellPadding: 3 },
+    styles: { fontSize: 7, cellPadding: 3 },
+    columnStyles: { 0: { cellWidth: 32 }, 2: { cellWidth: 32 } },
+    margin: { left: margin, right: margin },
+  });
+
+  let y = ensureSpace(doc, getFinalY(doc));
+
+  autoTable(doc, {
+    startY: y,
+    head: [[{ content: "COMPLAINT DETAILS", colSpan: 2, styles: sectionHeaderStyle() }]],
+    body: [
+      [{ content: "Type of Complaint", styles: { fontStyle: "bold" } }, complaintTypeLabel],
+      [{ content: "Complaint Detail", styles: { fontStyle: "bold" } }, val(parsedForm.detailComplaints)],
+    ] as RowInput[],
+    theme: "grid",
+    styles: { fontSize: 7, cellPadding: 3 },
+    columnStyles: { 0: { cellWidth: 38 } },
+    margin: { left: margin, right: margin },
+  });
+
+  y = ensureSpace(doc, getFinalY(doc));
+
+  autoTable(doc, {
+    startY: y,
+    head: [[
+      {
+        content: "ATTEMPTS TO RESOLVE & PREFERRED OUTCOME",
+        colSpan: 2,
+        styles: sectionHeaderStyle(),
+      },
+    ]],
+    body: [
+      [{ content: "Attempts to Resolve", styles: { fontStyle: "bold" } }, val(parsedForm.attemptsResolve)],
+      [{ content: "Preferred Outcome", styles: { fontStyle: "bold" } }, val(parsedForm.preferredOutcome)],
+      [{ content: "Supporting Evidence Attached", styles: { fontStyle: "bold" } }, supportEvidenceLabel],
+    ] as RowInput[],
+    theme: "grid",
+    styles: { fontSize: 7, cellPadding: 3 },
+    columnStyles: { 0: { cellWidth: 38 } },
+    margin: { left: margin, right: margin },
+  });
+
+  y = ensureSpace(doc, getFinalY(doc));
+
+  const remarksRows: RowInput[] = parsedForm.remarks
+    ? [[{ content: "Remarks", styles: { fontStyle: "bold" } }, val(parsedForm.remarks)]]
+    : [];
+
+  autoTable(doc, {
+    startY: y,
+    head: [[{ content: "DECLARATION", colSpan: 2, styles: sectionHeaderStyle() }]],
+    body: [
+      ...remarksRows,
+      [
+        {
+          content: `${declarationCheckbox} I declare that the information provided is true and understand that false claims may lead to disciplinary action.`,
+          colSpan: 2,
+        },
+      ],
+    ] as RowInput[],
+    theme: "grid",
+    styles: { fontSize: 7, cellPadding: 3 },
+    margin: { left: margin, right: margin },
   });
 };
 
@@ -394,7 +493,7 @@ const generateEmployeeReviewPDF = (doc: jsPDF, data: FormPDFData, logoBase64: st
     },
   });
 
-  let y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 3;
+  let y = getFinalY(doc) + 3;
 
   // ── Please Note ──
   doc.setFontSize(7);
@@ -411,7 +510,7 @@ const generateEmployeeReviewPDF = (doc: jsPDF, data: FormPDFData, logoBase64: st
   // ── Employee Information ──
   autoTable(doc, {
     startY: y,
-    head: [[{ content: "Employee Information", colSpan: 4, styles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: "bold", halign: "left" } }]],
+    head: [[{ content: "EMPLOYEE INFORMATION", colSpan: 4, styles: sectionHeaderStyle() }]],
     body: [
       [{ content: "Employee Name", styles: { fontStyle: "bold" } }, val(f.staffName), { content: "Employee ID", styles: { fontStyle: "bold" } }, val(f.staffId)],
       [{ content: "Job Title", styles: { fontStyle: "bold" } }, val(f.jobTitle), { content: "Date Join", styles: { fontStyle: "bold" } }, val(f.dateJoin)],
@@ -424,7 +523,7 @@ const generateEmployeeReviewPDF = (doc: jsPDF, data: FormPDFData, logoBase64: st
     margin: { left: margin, right: margin },
   });
 
-  y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 3;
+  y = ensureSpace(doc, getFinalY(doc) + 3);
 
   // ── Section 1: Month + Review Period ──
   doc.setFontSize(7);
@@ -466,7 +565,7 @@ const generateEmployeeReviewPDF = (doc: jsPDF, data: FormPDFData, logoBase64: st
   autoTable(doc, {
     startY: y,
     head: [[
-      { content: "", styles: { cellWidth: 60 } },
+      { content: "" },
       { content: "1 = Poor" },
       { content: "2 = Fair" },
       { content: "3 = Satisfactory" },
@@ -476,19 +575,25 @@ const generateEmployeeReviewPDF = (doc: jsPDF, data: FormPDFData, logoBase64: st
     body: perfBody,
     theme: "grid",
     styles: { fontSize: 7, cellPadding: 2, halign: "center" },
+    headStyles: sectionHeaderStyle(),
     columnStyles: {
-      0: { halign: "left", fontStyle: "bold", cellWidth: 60 },
+      // Column 0 (criteria label) is left unset so autoTable auto-fills the
+      // remaining width — every other column below has a fixed width, so
+      // giving column 0 one too left the table narrower than the full-width
+      // section header bars, misaligning the right edge.
+      0: { halign: "left", fontStyle: "bold" },
       1: { cellWidth: 20 }, 2: { cellWidth: 20 },
       3: { cellWidth: 28 }, 4: { cellWidth: 20 }, 5: { cellWidth: 22 },
     },
     margin: { left: margin, right: margin },
   });
 
-  y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+  y = ensureSpace(doc, getFinalY(doc));
 
   // ── Superior & HOD Signatures ──
   autoTable(doc, {
     startY: y,
+    head: [[{ content: "SUPERVISOR & HOD ENDORSEMENT", colSpan: 4, styles: sectionHeaderStyle() }]],
     body: [
       [
         { content: "Superior Signature:", styles: { fontStyle: "bold" } }, val(f.superiorSignature),
@@ -505,15 +610,16 @@ const generateEmployeeReviewPDF = (doc: jsPDF, data: FormPDFData, logoBase64: st
     margin: { left: margin, right: margin },
   });
 
-  y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+  y = ensureSpace(doc, getFinalY(doc));
 
   // ── Employee Comments and Goals ──
   autoTable(doc, {
     startY: y,
+    head: [[{ content: "EMPLOYEE COMMENTS & GOALS", styles: sectionHeaderStyle() }]],
     body: [
       [{
-        content: "Employee Comments and Goals:\n(By signing this form, you confirm that you have discussed this review in detail with your superior and acknowledged on the comments and advices for improvements where necessary.)",
-        styles: { fontStyle: "bold", fontSize: 7 },
+        content: "By signing this form, you confirm that you have discussed this review in detail with your superior and acknowledged on the comments and advices for improvements where necessary.",
+        styles: { fontStyle: "italic", fontSize: 6.5, textColor: [80, 80, 80] },
       }],
       [{ content: val(f.employeeComments), styles: { minCellHeight: 18, fontSize: 7 } }],
     ],
@@ -522,11 +628,12 @@ const generateEmployeeReviewPDF = (doc: jsPDF, data: FormPDFData, logoBase64: st
     margin: { left: margin, right: margin },
   });
 
-  y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+  y = ensureSpace(doc, getFinalY(doc));
 
   // ── Employee Signature & HCD Acknowledgement ──
   autoTable(doc, {
     startY: y,
+    head: [[{ content: "EMPLOYEE ACKNOWLEDGEMENT", colSpan: 4, styles: sectionHeaderStyle() }]],
     body: [
       [
         { content: "Employee Signature:", styles: { fontStyle: "bold" } }, val(f.employeeSignature),

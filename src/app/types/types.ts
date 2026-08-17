@@ -143,6 +143,30 @@ export interface GrievanceReportTypes {
   sectionName?: string;
 }
 
+export interface FlexibleWorkingArrangementTypes {
+  fullname: string;
+  staffId: string;
+  jobTitle: string;
+  department: string;
+  immediateSuperior: string;
+  immediateSuperiorStaffId: string;
+  dateOfRequest: DateValueType;
+  flexibleHours: boolean;
+  flexibleDays: boolean;
+  flexiblePlace: boolean;
+  otherArrangement: boolean;
+  otherArrangementSpecify: string;
+  startDate: DateValueType;
+  endDate: DateValueType;
+  workingDayFrom: string;
+  workingDayTo: string;
+  workingTimeFrom: string;
+  workingTimeTo: string;
+  workLocation: string;
+  reason: string;
+  declaration: boolean;
+}
+
 export interface SexualHarassmentReportTypes {
   reporterName: string;
   reporterContact: string;

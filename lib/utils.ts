@@ -74,6 +74,22 @@ export function sanitizeName(name: string) {
     .replace(/-+/g, "-");
 }
 
+// Grievance Report and Employee Review submissions carry hardcoded, stage-driven
+// approval logic (see src/app/api/approval-form/action/route.ts) that ignores
+// each step's configured approvalMode. Keep this check in one place so the
+// admin UI can warn/lock accordingly instead of implying the setting applies.
+export function isGrievanceFormType(formTypeName: string | undefined | null): boolean {
+  return (formTypeName ?? "").trim().toLowerCase() === "grievance report";
+}
+
+export function isEmployeeReviewFormType(formTypeName: string | undefined | null): boolean {
+  return (formTypeName ?? "").trim().toLowerCase().includes("employee monthly performance");
+}
+
+export function hasFixedApprovalMode(formTypeName: string | undefined | null): boolean {
+  return isGrievanceFormType(formTypeName) || isEmployeeReviewFormType(formTypeName);
+}
+
 export function formatPhoneNumber(phone: string, countryCode: string = "60"): string {
   if (!phone) return "";
 

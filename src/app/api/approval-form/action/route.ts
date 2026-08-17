@@ -5,10 +5,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
 import { Prisma } from "@/generated/client";
 import { getGrievanceStepDeadline } from "../../../../../lib/grievance-deadline";
+import { isEmployeeReviewFormType, isGrievanceFormType } from "../../../../../lib/utils";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
-const EMPLOYEE_REVIEW_IDENTIFIER = "employee monthly performance";
 
 type ApprovalWithSubmission = Prisma.ApprovalGetPayload<{
   include: {
@@ -66,7 +66,7 @@ async function normalizeApprovalQueue(submissionId: number) {
     data: { status: "WAITING" },
   });
 
-  return prisma.approval.findFirst({
+  return prisma.approval.findMany({
     where: {
       submissionId,
       stepOrder: nextStepOrder,
@@ -156,10 +156,10 @@ export async function POST(req: NextRequest) {
     });
 
     // 3️⃣ Handle next step
-    const isGrievance = formType.name.trim().toLowerCase() === "grievance report";
+    const isGrievance = isGrievanceFormType(formType.name);
 
     if (action === "approve") {
-      const isEmployeeReview = formType.name.trim().toLowerCase().includes(EMPLOYEE_REVIEW_IDENTIFIER);
+      const isEmployeeReview = isEmployeeReviewFormType(formType.name);
       const currentFormData = submission.formData as Record<string, unknown> | null;
       const reviewStage = (currentFormData?.reviewStage as string) ?? "EVALUATOR_SUBMITTED";
       const today = new Date().toISOString().split("T")[0];
@@ -316,16 +316,34 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      const nextStep = await normalizeApprovalQueue(submissionId);
+      const currentStep = await prisma.approvalFlowStep.findFirst({
+        where: { formTypeId: submission.formTypeId, order: approval.stepOrder },
+      });
 
-      if (nextStep) {
+      if (currentStep?.approvalMode === "ANY") {
+        // Any-one-approves: satisfy the rest of this step now that one approver has acted
+        await prisma.approval.updateMany({
+          where: {
+            submissionId,
+            stepOrder: approval.stepOrder,
+            status: { notIn: ["APPROVED", "REJECTED"] },
+          },
+          data: { status: "APPROVED", approvedAt: new Date() },
+        });
+      }
+
+      const nextStepApprovers = await normalizeApprovalQueue(submissionId);
+
+      if (nextStepApprovers && nextStepApprovers.length > 0) {
+        const [firstNext, ...otherNext] = nextStepApprovers;
         const mailOptions = {
           from: emailFrom,
-          to: nextStep.approver.email,
+          to: firstNext.approver.email,
+          cc: otherNext.map((a) => a.approver.email),
           subject: "Action Required: Request Pending Your Approval",
           template: "nextApproval",
           context: {
-            nextApproverName: nextStep.approver.fullname,
+            nextApproverName: firstNext.approver.fullname,
             previousApproverName: approval.approver.fullname,
             formTitle: formType.name,
             requestorName: requestor.fullname,
