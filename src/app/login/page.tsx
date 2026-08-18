@@ -5,6 +5,7 @@ import { LoginForm } from "../component/form/LoginForm";
 import { signIn, useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import LoadingScreen from "../component/ui/LoadingScreen";
+import WhatsNewModal from "../component/ui/WhatsNewModal";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { withBasePath } from "@/lib/base-path";
@@ -61,6 +62,7 @@ export default function Login() {
     <div className="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 dark:from-gray-950 dark:via-indigo-950 dark:to-gray-950 min-h-screen w-full">
       <LoginForm onLogin={handleLogin} sendPassword={sendPasswordLogin} />
       <LoadingScreen show={loading} />
+      <WhatsNewModal />
     </div>
   );
 }
