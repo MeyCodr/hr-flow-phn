@@ -132,18 +132,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const findDepartment = await prisma.department.findUnique({
-      where: {
-        id: Number(requestor.departmentId),
-      },
-    });
-
-    if (!findDepartment) {
-      return NextResponse.json(
-        { error: "Department not found" },
-        { status: 400 },
-      );
-    }
+    // The requestor's department is optional (heads of division and other
+    // staff sit directly under a division). It only labels the notification
+    // emails below, so a missing one must not block the approval itself.
+    const findDepartment = requestor.departmentId
+      ? await prisma.department.findUnique({
+          where: { id: requestor.departmentId },
+        })
+      : null;
+    const requestorDepartmentName = findDepartment?.name ?? "-";
 
     // 2️⃣ Update current approval
     await prisma.approval.update({
@@ -193,7 +190,7 @@ export async function POST(req: NextRequest) {
             requestorName: requestor.fullname,
             requestorStaffId: requestor.staffid,
             submittedAt: submission.createdAt.toLocaleString(),
-            department: findDepartment.name,
+            department: requestorDepartmentName,
             finalApproverName: approval.approver.fullname,
             requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
           },
@@ -258,7 +255,7 @@ export async function POST(req: NextRequest) {
                 formTitle: formType.name,
                 requestorName: requestor.fullname,
                 requestorStaffId: requestor.staffid,
-                department: findDepartment.name,
+                department: requestorDepartmentName,
                 submittedAt: submission.createdAt.toLocaleString(),
                 status: "Pending Your Comments",
                 approvalLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
@@ -299,7 +296,7 @@ export async function POST(req: NextRequest) {
             requestorName: requestor.fullname,
             requestorStaffId: requestor.staffid,
             submittedAt: submission.createdAt.toLocaleString(),
-            department: findDepartment.name,
+            department: requestorDepartmentName,
             finalApproverName: approval.approver.fullname,
             requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
           },
@@ -348,7 +345,7 @@ export async function POST(req: NextRequest) {
             formTitle: formType.name,
             requestorName: requestor.fullname,
             requestorStaffId: requestor.staffid,
-            department: findDepartment.name,
+            department: requestorDepartmentName,
             submittedAt: submission.createdAt.toLocaleString(),
             status: "Pending Approval",
             approvalLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
@@ -378,7 +375,7 @@ export async function POST(req: NextRequest) {
             requestorName: requestor.fullname,
             requestorStaffId: requestor.staffid,
             submittedAt: submission.createdAt.toLocaleString(),
-            department: findDepartment.name,
+            department: requestorDepartmentName,
             finalApproverName: approval.approver.fullname,
             requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
           },
@@ -436,7 +433,7 @@ export async function POST(req: NextRequest) {
               formTitle: formType.name,
               requestorName: requestor.fullname,
               requestorStaffId: requestor.staffid,
-              department: findDepartment.name,
+              department: requestorDepartmentName,
               submittedAt: submission.createdAt.toLocaleString(),
               status: "Escalated — Pending Your Review",
               approvalLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
@@ -483,7 +480,7 @@ export async function POST(req: NextRequest) {
           requestorName: requestor.fullname,
           requestorStaffId: requestor.staffid,
           submittedAt: submission.createdAt.toLocaleString(),
-          department: findDepartment.name,
+          department: requestorDepartmentName,
           rejectedBy: approval.approver.fullname,
           requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
         },

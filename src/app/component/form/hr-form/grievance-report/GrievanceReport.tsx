@@ -172,11 +172,12 @@ export default function GrievanceReport({
   const validateStep = (): boolean => {
     switch (step) {
       case 1:
+        // department and section are optional: they come from the user profile
+        // (read-only here) and are null for staff such as heads of division
+        // who sit directly under a division.
         return (
           !!data.fullname &&
           !!data.division &&
-          !!data.department &&
-          !!data.section &&
           !!data.contactNo &&
           !!data.staffId &&
           !!data.designation

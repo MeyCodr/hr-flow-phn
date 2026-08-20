@@ -5,10 +5,11 @@ import path from "path";
 import { transporter } from "../../../../../lib/emailService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
-import { Prisma, User } from "@/generated/client";
+import { User } from "@/generated/client";
 import { getGrievanceStepDeadline } from "../../../../../lib/grievance-deadline";
 import {
   applyFallbackRole,
+  buildRoleWhere,
   resolveFormFieldApprover,
 } from "../../../../../lib/approverResolution";
 
@@ -55,16 +56,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const findDepartment = await prisma.department.findUnique({
-      where: { id: Number(findUser.departmentId) },
-    });
-
-    if (!findDepartment) {
-      return NextResponse.json(
-        { error: "Department not found" },
-        { status: 400 },
-      );
-    }
+    // Department is optional (e.g. heads of division sit directly under a
+    // division). It is only used to label the notification emails below.
+    const findDepartment = findUser.departmentId
+      ? await prisma.department.findUnique({
+          where: { id: findUser.departmentId },
+        })
+      : null;
 
     const formType = await prisma.formType.findUnique({
       where: { id: formId },
@@ -120,31 +118,15 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        // Resolve by step.role, scoped to the step's explicit org unit or the submitter's hierarchy
-        const baseWhere: Prisma.UserWhereInput = {
-          role: step.role,
-          id: { notIn: seenApproverIds },
-        };
+        // The submitter is excluded inside the query rather than filtered out
+        // afterwards: that way a pool consisting only of the submitter comes
+        // back empty, so the fallbacks below can take over instead of the step
+        // resolving to its own author.
+        const excludedIds = [...seenApproverIds, findUser.id];
 
-        if (step.divisionId !== null) {
-          baseWhere.divisionId = step.divisionId;
-        } else if (step.role === "HEAD_OF_DIVISION" && findUser.divisionId) {
-          baseWhere.divisionId = findUser.divisionId;
-        }
-
-        if (step.departmentId !== null) {
-          baseWhere.departmentId = step.departmentId;
-        } else if (step.role === "HEAD_OF_DEPARTMENT" && findUser.departmentId) {
-          baseWhere.departmentId = findUser.departmentId;
-        }
-
-        if (step.sectionId !== null) {
-          baseWhere.sectionId = step.sectionId;
-        } else if (step.role === "HEAD_OF_SECTION" && findUser.sectionId) {
-          baseWhere.sectionId = findUser.sectionId;
-        }
-
-        approvers = await prisma.user.findMany({ where: baseWhere });
+        approvers = await prisma.user.findMany({
+          where: buildRoleWhere(step.role, step, findUser, excludedIds),
+        });
 
         // Fallback: if no HEAD_OF_SECTION found, use HEAD_OF_DEPARTMENT from submitter's department
         if (approvers.length === 0 && step.role === "HEAD_OF_SECTION") {
@@ -153,7 +135,7 @@ export async function POST(req: NextRequest) {
               where: {
                 role: "HEAD_OF_DEPARTMENT",
                 departmentId: findUser.departmentId,
-                id: { notIn: seenApproverIds },
+                id: { notIn: excludedIds },
               },
             });
             if (approvers.length > 0) {
@@ -163,27 +145,51 @@ export async function POST(req: NextRequest) {
           }
         }
 
+        // A head of department has no department head above them, so the first
+        // step escalates to the head of their division instead.
+        if (
+          approvers.length === 0 &&
+          step.order === 1 &&
+          step.role === "HEAD_OF_DEPARTMENT"
+        ) {
+          approvers = await prisma.user.findMany({
+            where: {
+              role: "HEAD_OF_DIVISION",
+              divisionId: findUser.divisionId,
+              id: { notIn: excludedIds },
+            },
+          });
+        }
+
         // Admin-configured fallback/combine role (generic, opt-in via the builder)
-        approvers = await applyFallbackRole(approvers, step, findUser, seenApproverIds);
+        approvers = await applyFallbackRole(approvers, step, findUser, excludedIds);
       }
 
-      // Deduplicate across steps
-      approvers = approvers.filter((a) => !seenApproverIds.includes(a.id));
+      // Deduplicate across steps, and never route a grievance to its own author
+      // (covers the MANUAL and FORM_FIELD paths, which skip the query above).
+      approvers = approvers.filter(
+        (a) => a.id !== findUser.id && !seenApproverIds.includes(a.id),
+      );
 
+      // A step nobody can fill is skipped rather than fatal: a head of division
+      // has no department head above them, so step 1 simply does not apply and
+      // the grievance starts at the next step that does.
       if (approvers.length === 0) {
-        const roleLabel = step.role.replace(/_/g, " ").toLowerCase();
-        const missingSection = !findUser.sectionId ? " (user has no section assigned)" : "";
-        const missingDept = !findUser.departmentId ? " (user has no department assigned)" : "";
-        return NextResponse.json(
-          {
-            error: `No approver found for step ${step.order} (${roleLabel})${missingSection || missingDept}. Please ensure the approver is assigned and has the correct role.`,
-          },
-          { status: 400 },
-        );
+        continue;
       }
 
       seenApproverIds.push(...approvers.map((a) => a.id));
       resolvedSteps.push({ step, approvers });
+    }
+
+    if (resolvedSteps.length === 0) {
+      return NextResponse.json(
+        {
+          error:
+            "No approver could be resolved for any step of this form. Please check the approval flow configuration.",
+        },
+        { status: 400 },
+      );
     }
 
     // ✅ All approvers resolved — safe to create the submission
@@ -240,7 +246,7 @@ export async function POST(req: NextRequest) {
 
     // ✅ Fetch the first-step approvers for email notification
     const firstStepApprovers = await prisma.approval.findMany({
-      where: { submissionId: formSubmission.id, stepOrder: 1 },
+      where: { submissionId: formSubmission.id, stepOrder: firstStepOrder },
       include: { approver: true },
     });
 
