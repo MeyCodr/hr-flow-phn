@@ -21,6 +21,8 @@ type AdminTableItem =
   | { type: "form"; data: SelfFormData }
   | { type: "shr"; data: AdminSHRItem };
 
+const SHR_LABEL = "Sexual Harassment Report";
+
 const fmt = (date: string | Date) =>
   new Intl.DateTimeFormat("en-GB", {
     day: "2-digit", month: "2-digit", year: "numeric",
@@ -129,8 +131,22 @@ export default function FormSubmission({
                   pageSize={20}
                   emptyMessage="No submissions found."
                   columns={[
-                    { label: "Form Type" },
-                    { label: "Created By" },
+                    {
+                      label: "Form Type",
+                      // Harassment reports have no FormType row of their own,
+                      // so sort them under the label their cell renders.
+                      sortAccessor: (item) =>
+                        item.type === "form"
+                          ? item.data.formType.name
+                          : SHR_LABEL,
+                    },
+                    {
+                      label: "Created By",
+                      sortAccessor: (item) =>
+                        item.type === "form"
+                          ? item.data.createdBy.fullname
+                          : item.data.reporterName,
+                    },
                     {
                       label: "Created At",
                       sortAccessor: (item) => item.data.createdAt,
@@ -183,7 +199,7 @@ export default function FormSubmission({
                         <td className="px-4 py-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap">
                           <span className="inline-flex items-center gap-1.5">
                             <FiShield className="text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
-                            Sexual Harassment Report
+                            {SHR_LABEL}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-xs font-medium text-indigo-700 dark:text-indigo-400 whitespace-nowrap">

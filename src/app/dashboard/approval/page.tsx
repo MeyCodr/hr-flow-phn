@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "../../../../lib/prisma";
 import ApprovalComponent from "@/app/component/approval/ApprovalComponent";
 import { redirect } from "next/navigation";
-import { isComplianceOfficer } from "@/lib/compliance-officers";
+import { canAccessHarassmentReports } from "@/lib/compliance-officers";
 
 export default async function Approval() {
   const session = await getServerSession(authOptions);
@@ -107,7 +107,7 @@ export default async function Approval() {
         : form.formData,
   }));
 
-  const officer = await isComplianceOfficer(staffid);
+  const officer = await canAccessHarassmentReports(staffid, session.user.role);
   const [sexualHarassmentReports, sexualHarassmentReportsHistory] = officer
     ? await Promise.all([
         prisma.sexualHarassmentReport.findMany({

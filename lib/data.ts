@@ -23,7 +23,7 @@ export const roles = [
   { id: "HEAD_OF_DIVISION", name: "Head of Division" },
   { id: "TOP_MANAGEMENT", name: "Top Management" },
   { id: "ADMIN", name: "Admin" },
-  { id: "COMPLIANCE_ADMIN", name: "Compliance Admin" },
+  { id: "FORM_ADMIN", name: "Form Admin (scoped)" },
 ];
 
 export const complaintOptions = [

@@ -5,7 +5,6 @@ export const ANALYTICS_ROLES: Role[] = [
   Role.HEAD_OF_DIVISION,
   Role.TOP_MANAGEMENT,
   Role.ADMIN,
-  Role.COMPLIANCE_ADMIN,
 ];
 
 export function canViewAnalytics(role: string | null | undefined): boolean {

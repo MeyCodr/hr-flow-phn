@@ -35,6 +35,22 @@ model User {
   PasswordResetToken    PasswordResetToken[]
   approvalFlowSteps     ApprovalFlowStep[]
   approvalStepApprovers ApprovalStepApprover[]
+  formTypeScopes        FormTypeAdmin[]
+}
+
+// Which form types a FORM_ADMIN is allowed to administer. A scoped admin may
+// hold several rows; a full ADMIN holds none and is never filtered.
+model FormTypeAdmin {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  formTypeId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  formType FormType @relation(fields: [formTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, formTypeId])
+  @@index([formTypeId])
 }
 
 model Division {
@@ -85,6 +101,7 @@ model FormType {
   // Relations
   submissions FormSubmission[]
   flowSteps   ApprovalFlowStep[]
+  admins      FormTypeAdmin[]
 }
 
 model FormSubmission {
@@ -259,7 +276,7 @@ enum Role {
   HEAD_OF_DIVISION
   TOP_MANAGEMENT
   ADMIN
-  COMPLIANCE_ADMIN
+  FORM_ADMIN
 }
 
 enum FormStatus {

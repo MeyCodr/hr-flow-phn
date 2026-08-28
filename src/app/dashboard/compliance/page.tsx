@@ -2,14 +2,14 @@ import React from "react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/src/lib/auth-options";
-import { isComplianceOfficer } from "@/lib/compliance-officers";
+import { canAccessHarassmentReports } from "@/lib/compliance-officers";
 import { prisma } from "@/lib/prisma";
 import ComplianceDashboard from "@/app/component/compliance/ComplianceDashboard";
 
 export default async function CompliancePage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !(await isComplianceOfficer(session.user.staffid))) {
+  if (!session || !(await canAccessHarassmentReports(session.user.staffid, session.user.role))) {
     redirect("/");
   }
 

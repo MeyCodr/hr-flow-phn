@@ -309,6 +309,7 @@ export type UserWhereInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenListRelationFilter
   approvalFlowSteps?: Prisma.ApprovalFlowStepListRelationFilter
   approvalStepApprovers?: Prisma.ApprovalStepApproverListRelationFilter
+  formTypeScopes?: Prisma.FormTypeAdminListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -335,6 +336,7 @@ export type UserOrderByWithRelationInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepOrderByRelationAggregateInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverOrderByRelationAggregateInput
+  formTypeScopes?: Prisma.FormTypeAdminOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -365,6 +367,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   PasswordResetToken?: Prisma.PasswordResetTokenListRelationFilter
   approvalFlowSteps?: Prisma.ApprovalFlowStepListRelationFilter
   approvalStepApprovers?: Prisma.ApprovalStepApproverListRelationFilter
+  formTypeScopes?: Prisma.FormTypeAdminListRelationFilter
 }, "id" | "staffid" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -429,6 +432,7 @@ export type UserCreateInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -452,6 +456,7 @@ export type UserUncheckedCreateInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -474,6 +479,7 @@ export type UserUpdateInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -497,6 +503,7 @@ export type UserUncheckedUpdateInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -617,6 +624,11 @@ export type UserSumOrderByAggregateInput = {
   sectionId?: Prisma.SortOrder
 }
 
+export type UserScalarRelationFilter = {
+  is?: Prisma.UserWhereInput
+  isNot?: Prisma.UserWhereInput
+}
+
 export type UserListRelationFilter = {
   every?: Prisma.UserWhereInput
   some?: Prisma.UserWhereInput
@@ -625,11 +637,6 @@ export type UserListRelationFilter = {
 
 export type UserOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type UserScalarRelationFilter = {
-  is?: Prisma.UserWhereInput
-  isNot?: Prisma.UserWhereInput
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -667,6 +674,20 @@ export type NullableIntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type UserCreateNestedOneWithoutFormTypeScopesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutFormTypeScopesInput, Prisma.UserUncheckedCreateWithoutFormTypeScopesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFormTypeScopesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutFormTypeScopesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutFormTypeScopesInput, Prisma.UserUncheckedCreateWithoutFormTypeScopesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFormTypeScopesInput
+  upsert?: Prisma.UserUpsertWithoutFormTypeScopesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFormTypeScopesInput, Prisma.UserUpdateWithoutFormTypeScopesInput>, Prisma.UserUncheckedUpdateWithoutFormTypeScopesInput>
 }
 
 export type UserCreateNestedManyWithoutDivisionInput = {
@@ -881,6 +902,112 @@ export type UserUpdateOneRequiredWithoutApprovalStepApproversNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutApprovalStepApproversInput, Prisma.UserUpdateWithoutApprovalStepApproversInput>, Prisma.UserUncheckedUpdateWithoutApprovalStepApproversInput>
 }
 
+export type UserCreateWithoutFormTypeScopesInput = {
+  fullname: string
+  staffid: string
+  email: string
+  designation?: string | null
+  workLocation?: string | null
+  role?: $Enums.Role
+  password: string
+  attachment?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  division?: Prisma.DivisionCreateNestedOneWithoutUsersInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutUsersInput
+  section?: Prisma.SectionCreateNestedOneWithoutUsersInput
+  approvals?: Prisma.ApprovalCreateNestedManyWithoutApproverInput
+  forms?: Prisma.FormSubmissionCreateNestedManyWithoutCreatedByInput
+  manpowerUploads?: Prisma.ManpowerUploadCreateNestedManyWithoutUploadedByInput
+  PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
+  approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutFormTypeScopesInput = {
+  id?: number
+  fullname: string
+  staffid: string
+  email: string
+  divisionId?: number | null
+  departmentId?: number | null
+  sectionId?: number | null
+  designation?: string | null
+  workLocation?: string | null
+  role?: $Enums.Role
+  password: string
+  attachment?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  approvals?: Prisma.ApprovalUncheckedCreateNestedManyWithoutApproverInput
+  forms?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutCreatedByInput
+  manpowerUploads?: Prisma.ManpowerUploadUncheckedCreateNestedManyWithoutUploadedByInput
+  PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
+  approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutFormTypeScopesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutFormTypeScopesInput, Prisma.UserUncheckedCreateWithoutFormTypeScopesInput>
+}
+
+export type UserUpsertWithoutFormTypeScopesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutFormTypeScopesInput, Prisma.UserUncheckedUpdateWithoutFormTypeScopesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutFormTypeScopesInput, Prisma.UserUncheckedCreateWithoutFormTypeScopesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutFormTypeScopesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutFormTypeScopesInput, Prisma.UserUncheckedUpdateWithoutFormTypeScopesInput>
+}
+
+export type UserUpdateWithoutFormTypeScopesInput = {
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  staffid?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  attachment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  division?: Prisma.DivisionUpdateOneWithoutUsersNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutUsersNestedInput
+  section?: Prisma.SectionUpdateOneWithoutUsersNestedInput
+  approvals?: Prisma.ApprovalUpdateManyWithoutApproverNestedInput
+  forms?: Prisma.FormSubmissionUpdateManyWithoutCreatedByNestedInput
+  manpowerUploads?: Prisma.ManpowerUploadUpdateManyWithoutUploadedByNestedInput
+  PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
+  approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutFormTypeScopesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  staffid?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  divisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  attachment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvals?: Prisma.ApprovalUncheckedUpdateManyWithoutApproverNestedInput
+  forms?: Prisma.FormSubmissionUncheckedUpdateManyWithoutCreatedByNestedInput
+  manpowerUploads?: Prisma.ManpowerUploadUncheckedUpdateManyWithoutUploadedByNestedInput
+  PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
+  approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutDivisionInput = {
   fullname: string
   staffid: string
@@ -900,6 +1027,7 @@ export type UserCreateWithoutDivisionInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDivisionInput = {
@@ -922,6 +1050,7 @@ export type UserUncheckedCreateWithoutDivisionInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDivisionInput = {
@@ -989,6 +1118,7 @@ export type UserCreateWithoutDepartmentInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentInput = {
@@ -1011,6 +1141,7 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentInput = {
@@ -1058,6 +1189,7 @@ export type UserCreateWithoutSectionInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSectionInput = {
@@ -1080,6 +1212,7 @@ export type UserUncheckedCreateWithoutSectionInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSectionInput = {
@@ -1127,6 +1260,7 @@ export type UserCreateWithoutFormsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFormsInput = {
@@ -1149,6 +1283,7 @@ export type UserUncheckedCreateWithoutFormsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFormsInput = {
@@ -1186,6 +1321,7 @@ export type UserUpdateWithoutFormsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFormsInput = {
@@ -1208,6 +1344,7 @@ export type UserUncheckedUpdateWithoutFormsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutManpowerUploadsInput = {
@@ -1229,6 +1366,7 @@ export type UserCreateWithoutManpowerUploadsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutManpowerUploadsInput = {
@@ -1251,6 +1389,7 @@ export type UserUncheckedCreateWithoutManpowerUploadsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutManpowerUploadsInput = {
@@ -1288,6 +1427,7 @@ export type UserUpdateWithoutManpowerUploadsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutManpowerUploadsInput = {
@@ -1310,6 +1450,7 @@ export type UserUncheckedUpdateWithoutManpowerUploadsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutApprovalFlowStepsInput = {
@@ -1331,6 +1472,7 @@ export type UserCreateWithoutApprovalFlowStepsInput = {
   manpowerUploads?: Prisma.ManpowerUploadCreateNestedManyWithoutUploadedByInput
   PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutApprovalFlowStepsInput = {
@@ -1353,6 +1495,7 @@ export type UserUncheckedCreateWithoutApprovalFlowStepsInput = {
   manpowerUploads?: Prisma.ManpowerUploadUncheckedCreateNestedManyWithoutUploadedByInput
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutApprovalFlowStepsInput = {
@@ -1390,6 +1533,7 @@ export type UserUpdateWithoutApprovalFlowStepsInput = {
   manpowerUploads?: Prisma.ManpowerUploadUpdateManyWithoutUploadedByNestedInput
   PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApprovalFlowStepsInput = {
@@ -1412,6 +1556,7 @@ export type UserUncheckedUpdateWithoutApprovalFlowStepsInput = {
   manpowerUploads?: Prisma.ManpowerUploadUncheckedUpdateManyWithoutUploadedByNestedInput
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutApprovalsInput = {
@@ -1433,6 +1578,7 @@ export type UserCreateWithoutApprovalsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutApprovalsInput = {
@@ -1455,6 +1601,7 @@ export type UserUncheckedCreateWithoutApprovalsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutApprovalsInput = {
@@ -1492,6 +1639,7 @@ export type UserUpdateWithoutApprovalsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApprovalsInput = {
@@ -1514,6 +1662,7 @@ export type UserUncheckedUpdateWithoutApprovalsInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPasswordResetTokenInput = {
@@ -1535,6 +1684,7 @@ export type UserCreateWithoutPasswordResetTokenInput = {
   manpowerUploads?: Prisma.ManpowerUploadCreateNestedManyWithoutUploadedByInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordResetTokenInput = {
@@ -1557,6 +1707,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokenInput = {
   manpowerUploads?: Prisma.ManpowerUploadUncheckedCreateNestedManyWithoutUploadedByInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordResetTokenInput = {
@@ -1594,6 +1745,7 @@ export type UserUpdateWithoutPasswordResetTokenInput = {
   manpowerUploads?: Prisma.ManpowerUploadUpdateManyWithoutUploadedByNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordResetTokenInput = {
@@ -1616,6 +1768,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokenInput = {
   manpowerUploads?: Prisma.ManpowerUploadUncheckedUpdateManyWithoutUploadedByNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutApprovalStepApproversInput = {
@@ -1637,6 +1790,7 @@ export type UserCreateWithoutApprovalStepApproversInput = {
   manpowerUploads?: Prisma.ManpowerUploadCreateNestedManyWithoutUploadedByInput
   PasswordResetToken?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutApprovalStepApproversInput = {
@@ -1659,6 +1813,7 @@ export type UserUncheckedCreateWithoutApprovalStepApproversInput = {
   manpowerUploads?: Prisma.ManpowerUploadUncheckedCreateNestedManyWithoutUploadedByInput
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutUserInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutApprovalStepApproversInput = {
@@ -1696,6 +1851,7 @@ export type UserUpdateWithoutApprovalStepApproversInput = {
   manpowerUploads?: Prisma.ManpowerUploadUpdateManyWithoutUploadedByNestedInput
   PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApprovalStepApproversInput = {
@@ -1718,6 +1874,7 @@ export type UserUncheckedUpdateWithoutApprovalStepApproversInput = {
   manpowerUploads?: Prisma.ManpowerUploadUncheckedUpdateManyWithoutUploadedByNestedInput
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyDivisionInput = {
@@ -1755,6 +1912,7 @@ export type UserUpdateWithoutDivisionInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDivisionInput = {
@@ -1777,6 +1935,7 @@ export type UserUncheckedUpdateWithoutDivisionInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutDivisionInput = {
@@ -1830,6 +1989,7 @@ export type UserUpdateWithoutDepartmentInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentInput = {
@@ -1852,6 +2012,7 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutDepartmentInput = {
@@ -1905,6 +2066,7 @@ export type UserUpdateWithoutSectionInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSectionInput = {
@@ -1927,6 +2089,7 @@ export type UserUncheckedUpdateWithoutSectionInput = {
   PasswordResetToken?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   approvalFlowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutUserNestedInput
   approvalStepApprovers?: Prisma.ApprovalStepApproverUncheckedUpdateManyWithoutUserNestedInput
+  formTypeScopes?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutSectionInput = {
@@ -1957,6 +2120,7 @@ export type UserCountOutputType = {
   PasswordResetToken: number
   approvalFlowSteps: number
   approvalStepApprovers: number
+  formTypeScopes: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1966,6 +2130,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   PasswordResetToken?: boolean | UserCountOutputTypeCountPasswordResetTokenArgs
   approvalFlowSteps?: boolean | UserCountOutputTypeCountApprovalFlowStepsArgs
   approvalStepApprovers?: boolean | UserCountOutputTypeCountApprovalStepApproversArgs
+  formTypeScopes?: boolean | UserCountOutputTypeCountFormTypeScopesArgs
 }
 
 /**
@@ -2020,6 +2185,13 @@ export type UserCountOutputTypeCountApprovalStepApproversArgs<ExtArgs extends ru
   where?: Prisma.ApprovalStepApproverWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountFormTypeScopesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FormTypeAdminWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2045,6 +2217,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   PasswordResetToken?: boolean | Prisma.User$PasswordResetTokenArgs<ExtArgs>
   approvalFlowSteps?: boolean | Prisma.User$approvalFlowStepsArgs<ExtArgs>
   approvalStepApprovers?: boolean | Prisma.User$approvalStepApproversArgs<ExtArgs>
+  formTypeScopes?: boolean | Prisma.User$formTypeScopesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2078,6 +2251,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   PasswordResetToken?: boolean | Prisma.User$PasswordResetTokenArgs<ExtArgs>
   approvalFlowSteps?: boolean | Prisma.User$approvalFlowStepsArgs<ExtArgs>
   approvalStepApprovers?: boolean | Prisma.User$approvalStepApproversArgs<ExtArgs>
+  formTypeScopes?: boolean | Prisma.User$formTypeScopesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2093,6 +2267,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     PasswordResetToken: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
     approvalFlowSteps: Prisma.$ApprovalFlowStepPayload<ExtArgs>[]
     approvalStepApprovers: Prisma.$ApprovalStepApproverPayload<ExtArgs>[]
+    formTypeScopes: Prisma.$FormTypeAdminPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2458,6 +2633,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   PasswordResetToken<T extends Prisma.User$PasswordResetTokenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$PasswordResetTokenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   approvalFlowSteps<T extends Prisma.User$approvalFlowStepsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$approvalFlowStepsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalFlowStepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   approvalStepApprovers<T extends Prisma.User$approvalStepApproversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$approvalStepApproversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalStepApproverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  formTypeScopes<T extends Prisma.User$formTypeScopesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$formTypeScopesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormTypeAdminPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3042,6 +3218,30 @@ export type User$approvalStepApproversArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.ApprovalStepApproverScalarFieldEnum | Prisma.ApprovalStepApproverScalarFieldEnum[]
+}
+
+/**
+ * User.formTypeScopes
+ */
+export type User$formTypeScopesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FormTypeAdmin
+   */
+  select?: Prisma.FormTypeAdminSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FormTypeAdmin
+   */
+  omit?: Prisma.FormTypeAdminOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FormTypeAdminInclude<ExtArgs> | null
+  where?: Prisma.FormTypeAdminWhereInput
+  orderBy?: Prisma.FormTypeAdminOrderByWithRelationInput | Prisma.FormTypeAdminOrderByWithRelationInput[]
+  cursor?: Prisma.FormTypeAdminWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FormTypeAdminScalarFieldEnum | Prisma.FormTypeAdminScalarFieldEnum[]
 }
 
 /**

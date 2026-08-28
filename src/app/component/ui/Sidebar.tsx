@@ -19,6 +19,7 @@ import { GrUserWorker } from "react-icons/gr";
 import axios from "axios";
 import { withBasePath } from "@/lib/base-path";
 import { canViewAnalytics } from "@/lib/analytics-access";
+import { isAdminRole } from "@/src/lib/admin-roles";
 import { getFirstName } from "../../../../lib/utils";
 
 interface SidebarProps {
@@ -206,8 +207,8 @@ export default function Sidebar({
                   return false;
                 }
 
-                // Only show Admin tab if the user role is ADMIN or COMPLIANCE_ADMIN
-                if (item.name === "Admin" && user?.role !== "ADMIN" && user?.role !== "COMPLIANCE_ADMIN") {
+                // Only show Admin tab to the roles the admin page admits
+                if (item.name === "Admin" && !isAdminRole(user?.role)) {
                   return false;
                 }
 

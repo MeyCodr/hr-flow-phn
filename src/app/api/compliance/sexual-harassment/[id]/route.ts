@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession, type Session } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
-import { isComplianceOfficer } from "@/lib/compliance-officers";
+import { canAccessHarassmentReports } from "@/lib/compliance-officers";
 import { prisma } from "@/lib/prisma";
 import { transporter } from "@/lib/emailService";
 import { SexualHarassmentReportStatus } from "@/generated/client";
@@ -11,7 +11,7 @@ const emailFrom = process.env.EMAIL;
 const VALID_STATUSES = Object.values(SexualHarassmentReportStatus);
 
 function hasAdminAccess(session: Session | null) {
-  return session?.user?.role === "ADMIN" || session?.user?.role === "COMPLIANCE_ADMIN";
+  return session?.user?.role === "ADMIN";
 }
 
 export async function GET(
@@ -20,7 +20,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (!hasAdminAccess(session) && !(await isComplianceOfficer(session.user.staffid)))) {
+    if (!session || (!hasAdminAccess(session) && !(await canAccessHarassmentReports(session.user.staffid, session.user.role)))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -52,7 +52,7 @@ export async function PATCH(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (!hasAdminAccess(session) && !(await isComplianceOfficer(session.user.staffid)))) {
+    if (!session || (!hasAdminAccess(session) && !(await canAccessHarassmentReports(session.user.staffid, session.user.role)))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

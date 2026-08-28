@@ -1,7 +1,10 @@
+import { requireFullAdmin } from "@/src/lib/admin-access";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 export async function POST(req: NextRequest) {
   try {
+    const denied = await requireFullAdmin();
+    if (denied) return denied;
     const { steps } = await req.json();
 
     for (const step of steps) {

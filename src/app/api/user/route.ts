@@ -1,8 +1,7 @@
+import { requireAdmin } from "@/src/lib/admin-access";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { hash } from "bcrypt";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth-options";
 
 export async function POST(req: NextRequest) {
   try {
@@ -88,17 +87,15 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const denied = await requireAdmin();
+    if (denied) return denied;
 
     const users = await prisma.user.findMany({
       include: {
         division: true,
         department: true,
         section: true,
+        formTypeScopes: { select: { formTypeId: true } },
       },
     });
     return NextResponse.json(users);

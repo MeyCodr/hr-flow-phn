@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  FormTypeAdmin: 'FormTypeAdmin',
   Division: 'Division',
   Department: 'Department',
   Section: 'Section',
@@ -101,6 +102,16 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const FormTypeAdminScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  formTypeId: 'formTypeId',
+  createdAt: 'createdAt'
+} as const
+
+export type FormTypeAdminScalarFieldEnum = (typeof FormTypeAdminScalarFieldEnum)[keyof typeof FormTypeAdminScalarFieldEnum]
 
 
 export const DivisionScalarFieldEnum = {

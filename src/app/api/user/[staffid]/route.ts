@@ -70,6 +70,7 @@ export async function PUT(
       section,
       role,
       password,
+      formTypeScopes,
     } = body;
 
     const loggedInStaffId = session.user?.staffid;
@@ -134,6 +135,39 @@ export async function PUT(
       where: { staffid },
       data: updateData,
     });
+
+    // 🔐 Form-type scope is admin-only, and only meaningful for FORM_ADMIN.
+    // Any other role has its assignment cleared, so demoting a scoped admin
+    // cannot leave stale rows that would come back if they were re-promoted.
+    if (isAdmin && Array.isArray(formTypeScopes)) {
+      const scopeIds =
+        updatedUser.role === "FORM_ADMIN"
+          ? [
+              ...new Set(
+                formTypeScopes
+                  .map((id: unknown) => Number(id))
+                  .filter((id: number) => Number.isInteger(id) && id > 0),
+              ),
+            ]
+          : [];
+
+      await prisma.$transaction([
+        prisma.formTypeAdmin.deleteMany({
+          where: { userId: updatedUser.id },
+        }),
+        ...(scopeIds.length
+          ? [
+              prisma.formTypeAdmin.createMany({
+                data: scopeIds.map((formTypeId) => ({
+                  userId: updatedUser.id,
+                  formTypeId,
+                })),
+                skipDuplicates: true,
+              }),
+            ]
+          : []),
+      ]);
+    }
 
     return NextResponse.json(
       { message: "Successfully updated", data: updatedUser },

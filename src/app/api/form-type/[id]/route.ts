@@ -1,18 +1,14 @@
-import { getServerSession } from "next-auth";
+import { requireFullAdmin } from "@/src/lib/admin-access";
 import { prisma } from "../../../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "@/src/lib/auth-options";
 
 export async function PUT(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const denied = await requireFullAdmin();
+    if (denied) return denied;
     const { id } = await context.params;
 
     const body = await request.json();
@@ -36,10 +32,8 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const denied = await requireFullAdmin();
+    if (denied) return denied;
     const { id } = await context.params;
     if (!id) {
       return NextResponse.json(

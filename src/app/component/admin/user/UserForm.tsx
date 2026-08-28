@@ -1,4 +1,11 @@
-import { Department, Division, Section, UserType } from "@/app/types/types";
+import {
+  Department,
+  Division,
+  FormType,
+  Section,
+  UserType,
+} from "@/app/types/types";
+import MultiComboBox from "../../ui/MultiComboBox";
 import Label from "../../ui/Label";
 import { Input } from "../../ui/Input";
 import { useState } from "react";
@@ -12,12 +19,17 @@ import { Role } from "@/generated/client";
 import { withBasePath } from "@/lib/base-path";
 
 
+// Assigning these grants more than a filtered submission list.
+const SENSITIVE_FORM_TYPES = ["Sexual Harassment Report"];
+
 interface UserFormProps {
   user: UserType;
   onBack: () => void;
   divisions: Division[];
   departments: Department[];
   sections: Section[];
+  formTypes: FormType[];
+  readOnly?: boolean;
   setSelectedDivision: (id: string) => void;
   setSelectedDepartment: (id: string) => void;
   onUpdate: () => void;
@@ -29,11 +41,16 @@ function UserForm({
   divisions,
   departments,
   sections,
+  formTypes,
+  readOnly = false,
   setSelectedDivision,
   setSelectedDepartment,
   onUpdate,
 }: UserFormProps) {
   const [data, setData] = useState<UserType>(user);
+  const [formTypeScopes, setFormTypeScopes] = useState<string[]>(
+    (user.formTypeScopes ?? []).map((s) => s.formTypeId.toString()),
+  );
   const [selectedDivision, setDivision] = useState<string>(
     user.division?.name || ""
   );
@@ -53,6 +70,8 @@ function UserForm({
     }));
   };
 
+  const isFormAdmin = data.role === "FORM_ADMIN";
+
   const addDashOption = (menu: { id: number; name: string }[]) => {
     if (!menu.some((item) => item.name === "-")) {
       return [{ id: 0, name: "-" }, ...menu];
@@ -62,11 +81,17 @@ function UserForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Belt and braces: the API rejects these callers anyway, but a disabled
+    // form should never fire a request in the first place.
+    if (readOnly) return;
     const formattedData = {
       ...data,
       division: data.divisionId?.toString() || "",
       department: data.departmentId?.toString() || "",
       section: data.sectionId?.toString() || "",
+      // Sent only for the scoped role; the API clears the assignment for
+      // anyone else, so demoting a form admin cannot leave orphaned scope.
+      formTypeScopes: isFormAdmin ? formTypeScopes.map(Number) : [],
     };
     try {
       await axios.put(withBasePath(`/api/user/${data.staffid}`), formattedData);
@@ -91,7 +116,8 @@ function UserForm({
       />
 
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-        Edit User: {data.fullname ?? ""} ({data.staffid ?? ""})
+        {readOnly ? "User" : "Edit User"}: {data.fullname ?? ""} (
+        {data.staffid ?? ""})
       </h2>
 
       <form className="space-y-4 flex flex-col gap-2" onSubmit={handleSubmit}>
@@ -102,6 +128,7 @@ function UserForm({
             className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
+            disabled={readOnly}
             id="fullname"
             name="fullname"
             type="text"
@@ -120,6 +147,7 @@ function UserForm({
             className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
+            disabled={readOnly}
             id="email"
             name="email"
             type="text"
@@ -138,6 +166,7 @@ function UserForm({
             className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
+            disabled={readOnly}
             id="staffid"
             name="staffid"
             type="text"
@@ -155,6 +184,7 @@ function UserForm({
             className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <ComboBox
+            disabled={readOnly}
             menu={addDashOption(divisions)}
             selectedValue={selectedDivision}
             onSelect={(item) => {
@@ -187,6 +217,7 @@ function UserForm({
             className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <ComboBox
+            disabled={readOnly}
             menu={addDashOption(departments)}
             selectedValue={selectedDepartment}
             onSelect={(item) => {
@@ -216,6 +247,7 @@ function UserForm({
             className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <ComboBox
+            disabled={readOnly}
             menu={addDashOption(sections)}
             selectedValue={selectedSection}
             onSelect={(item) => {
@@ -242,6 +274,7 @@ function UserForm({
             className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <Input
+            disabled={readOnly}
             id="designation"
             name="designation"
             type="text"
@@ -259,6 +292,7 @@ function UserForm({
             className="block text-sm font-medium text-gray-900 dark:text-gray-100"
           />
           <ComboBox
+            disabled={readOnly}
             menu={roles}
             selectedValue={data.role}
             onSelect={(item) => {
@@ -269,13 +303,60 @@ function UserForm({
             }}
           />
         </div>
-        <div className="flex justify-end">
-          <PrimaryButton
-            name="Save Changes"
-            type="submit"
-            className="bg-indigo-800 max-w-3xs flex text-xs cursor-pointer text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-          />
-        </div>
+
+        {isFormAdmin && (
+          <div className={styleLink}>
+            <Label
+              name="Forms this admin can manage"
+              htmlFor="formTypeScopes"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-100"
+            />
+            <MultiComboBox
+              disabled={readOnly}
+              menu={formTypes.map((f) => ({
+                id: f.id,
+                // Flagged inline: this one grants access to confidential
+                // harassment reports, not just a list of submissions.
+                name: SENSITIVE_FORM_TYPES.includes(f.name)
+                  ? `${f.name} — confidential`
+                  : f.name,
+              }))}
+              selectedValues={formTypeScopes}
+              onSelect={(items) =>
+                setFormTypeScopes(items.map((i) => i.id.toString()))
+              }
+            />
+            {formTypeScopes.length === 0 && (
+              <p className="text-xs text-amber-700 dark:text-amber-400">
+                No forms selected — this admin will see nothing.
+              </p>
+            )}
+            {formTypes.some(
+              (f) =>
+                SENSITIVE_FORM_TYPES.includes(f.name) &&
+                formTypeScopes.includes(f.id.toString()),
+            ) && (
+              <p className="text-xs text-amber-700 dark:text-amber-400">
+                Grants access to confidential harassment reports, including
+                reporter identities.
+              </p>
+            )}
+          </div>
+        )}
+
+        {readOnly ? (
+          <p className="text-xs text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2">
+            View only. Changing user details or roles requires a full admin.
+          </p>
+        ) : (
+          <div className="flex justify-end">
+            <PrimaryButton
+              name="Save Changes"
+              type="submit"
+              className="bg-indigo-800 max-w-3xs flex text-xs cursor-pointer text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+            />
+          </div>
+        )}
       </form>
     </div>
   );

@@ -1,3 +1,7 @@
+import {
+  requireAdminScope,
+  scopedSubmissionWhere,
+} from "@/src/lib/admin-access";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import fs from "fs/promises";
@@ -25,7 +29,6 @@ type FormData = {
 
 const MANPOWER_REQUISITION_FORM_NAME = "Man Power Requisition";
 const HUMAN_CAPITAL_DIVISION_NAME = "HUMAN CAPITAL AND ESG";
-const HUMAN_CAPITAL_APPROVAL_CHAIN = ["M0541", "M0168", "M0069", "M0778"];
 
 export async function POST(req: NextRequest) {
   try {
@@ -167,57 +170,26 @@ export async function POST(req: NextRequest) {
       requesterDivision?.name?.trim().toUpperCase() ===
         HUMAN_CAPITAL_DIVISION_NAME;
 
-    if (isHumanCapitalManpowerFlow) {
-      const hcApprovers: User[] = [];
-
-      for (const approverStaffId of HUMAN_CAPITAL_APPROVAL_CHAIN) {
-        const approver = await prisma.user.findFirst({
-          where: {
-            staffid: approverStaffId,
-          },
-        });
-
-        if (!approver) {
-          return NextResponse.json(
-            {
-              error: `Configured Human Capital approver '${approverStaffId}' was not found.`,
-            },
-            { status: 400 },
-          );
-        }
-
-        if (approver.id === findUser.id || assignedApprovers.includes(approver.id)) {
-          continue;
-        }
-
-        hcApprovers.push(approver);
-        assignedApprovers.push(approver.id);
-      }
-
-      if (hcApprovers.length === 0) {
-        return NextResponse.json(
-          { error: "No valid Human Capital approvers found for this submission." },
-          { status: 400 },
-        );
-      }
-
-      await prisma.approval.createMany({
-        data: hcApprovers.map((approver, index) => ({
-          submissionId: formSubmission.id,
-          approverId: approver.id,
-          stepOrder: index + 1,
-          status: index === 0 ? "PENDING" : "WAITING",
-        })),
-      });
-
-      firstActiveStepOrder = 1;
-    } else {
     const shouldSkipFirstDepartmentApprovalForManpower =
       formType.name === "Man Power Requisition" &&
       findUser.role === "HEAD_OF_DEPARTMENT";
     let hasSkippedInitialDepartmentStep = false;
 
     for (const step of approvalFlowSteps) {
+      // Human Capital requisitions follow the escalation chain configured for
+      // that division (the explicitly scoped steps). The generic unscoped
+      // steps are skipped: they resolve to the requester's own department and
+      // division heads, who already appear further down the configured chain,
+      // and would otherwise be pulled to the front out of hierarchy order.
+      if (
+        isHumanCapitalManpowerFlow &&
+        step.divisionId === null &&
+        step.departmentId === null &&
+        step.sectionId === null
+      ) {
+        continue;
+      }
+
       if (
         shouldSkipFirstDepartmentApprovalForManpower &&
         !hasSkippedInitialDepartmentStep &&
@@ -302,12 +274,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
-      if (firstActiveStepOrder === null) {
-        return NextResponse.json(
-          { error: "No valid approvers found for this form submission." },
-          { status: 400 },
-        );
-      }
+    if (firstActiveStepOrder === null) {
+      return NextResponse.json(
+        { error: "No valid approvers found for this form submission." },
+        { status: 400 },
+      );
     }
 
     // ✅ Fetch the first active approvers
@@ -393,14 +364,12 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const scope = await requireAdminScope();
+    if (scope.denied) return scope.denied;
 
     // Fetch form submissions with createdBy and approvals
     const submissions = await prisma.formSubmission.findMany({
+      where: scopedSubmissionWhere(scope.formTypeIds),
       include: {
         attachments: true,
         createdBy: true,

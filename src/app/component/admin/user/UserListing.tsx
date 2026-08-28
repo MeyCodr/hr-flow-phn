@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Department, Division, Section, UserType } from "@/app/types/types";
+import {
+  Department,
+  Division,
+  FormType,
+  Section,
+  UserType,
+} from "@/app/types/types";
 import { UserForm } from "./UserForm";
 import axios from "axios";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -14,6 +20,8 @@ interface UserListingProps {
   divisions: Division[];
   departments: Department[];
   sections: Section[];
+  formTypes: FormType[];
+  readOnly?: boolean;
   setSelectedDivision: (id: string) => void;
   setSelectedDepartment: (id: string) => void;
 }
@@ -23,6 +31,8 @@ export default function UserListing({
   divisions,
   departments,
   sections,
+  formTypes,
+  readOnly = false,
   setSelectedDivision,
   setSelectedDepartment,
 }: UserListingProps) {
@@ -206,6 +216,8 @@ export default function UserListing({
               divisions={divisions}
               departments={departments}
               sections={sections}
+              formTypes={formTypes}
+              readOnly={readOnly}
               setSelectedDivision={setSelectedDivision}
               setSelectedDepartment={setSelectedDepartment}
             />

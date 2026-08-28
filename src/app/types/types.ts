@@ -264,6 +264,8 @@ export interface UserType {
   workLocation?: string | null;
   role: string;
   attachment?: string | null;
+  // Form types a FORM_ADMIN may administer; empty/absent for other roles.
+  formTypeScopes?: { formTypeId: number }[];
 }
 
 export interface FormData {

@@ -33,8 +33,7 @@ interface AdminComponentProps {
   formType: FormType[];
   approvalStep: ApprovalFlowStep[];
   formSubmission: SelfFormData[];
-  sexualHarassmentReports?: AdminSHRItem[];
-  role?: string;
+  isFullAdmin?: boolean;
 }
 
 export default function AdminComponent({
@@ -42,8 +41,7 @@ export default function AdminComponent({
   formType,
   approvalStep,
   formSubmission,
-  sexualHarassmentReports = [],
-  role,
+  isFullAdmin = false,
 }: AdminComponentProps) {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -91,9 +89,10 @@ export default function AdminComponent({
     },
   };
 
-  const isComplianceAdmin = role === "COMPLIANCE_ADMIN";
-
-  const categories: TabItem[] = [
+  // Form Create and Approval Flow reconfigure the whole organisation, so only
+  // a full admin gets them. Every other admin role lands on the User Listing
+  // and Form Submission tabs, both read-only.
+  const orgWideTabs = !isFullAdmin ? [] : ([
     {
       name: "Form Create",
       content: (
@@ -118,6 +117,10 @@ export default function AdminComponent({
         </motion.div>
       ),
     },
+  ] as TabItem[]);
+
+  const categories: TabItem[] = [
+    ...orgWideTabs,
     {
       name: "User Listing",
       content: (
@@ -127,6 +130,8 @@ export default function AdminComponent({
             divisions={divisions}
             departments={departments}
             sections={sections}
+            formTypes={formType}
+            readOnly={!isFullAdmin}
             setSelectedDivision={setSelectedDivision}
             setSelectedDepartment={setSelectedDepartment}
           />
@@ -137,10 +142,7 @@ export default function AdminComponent({
       name: "Form Submission",
       content: (
         <motion.div key="form-submission" initial="hidden" animate="visible" variants={tabContentVariants}>
-          <FormSubmission
-            formSubmission={formSubmission}
-            sexualHarassmentReports={isComplianceAdmin ? sexualHarassmentReports : []}
-          />
+          <FormSubmission formSubmission={formSubmission} />
         </motion.div>
       ),
     },

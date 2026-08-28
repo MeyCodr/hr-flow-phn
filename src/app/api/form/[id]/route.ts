@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { authOptions } from "@/src/lib/auth-options";
+import {
+  getScopedFormTypeIds,
+  isScopedAdminRole,
+} from "@/src/lib/admin-access";
 import { getServerSession } from "next-auth";
 
 type FormDataType = Record<string, unknown> & {
@@ -82,6 +86,33 @@ export async function GET(
 
     if (!formDetails) {
       return NextResponse.json({ error: "Form not found" }, { status: 404 });
+    }
+
+    // A form-scoped admin may only open submissions of the form types assigned
+    // to them — except their own submissions and ones they are an approver on,
+    // which they hold in their ordinary capacity as a staff member.
+    if (isScopedAdminRole(session.user?.role)) {
+      const scopedIds = await getScopedFormTypeIds(
+        session.user?.role,
+        session.user?.staffid,
+      );
+      const isOwn = formDetails.createdBy.staffid === session.user?.staffid;
+      const viewer = isOwn
+        ? null
+        : await prisma.user.findUnique({
+            where: { staffid: session.user.staffid },
+            select: { id: true },
+          });
+      const isApprover =
+        !!viewer && formDetails.approvals.some((a) => a.approverId === viewer.id);
+
+      if (
+        !isOwn &&
+        !isApprover &&
+        !(scopedIds ?? []).includes(formDetails.formTypeId)
+      ) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
 
     // Cast to your expected type

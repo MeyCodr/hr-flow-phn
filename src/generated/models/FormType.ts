@@ -210,6 +210,7 @@ export type FormTypeWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FormType"> | Date | string
   submissions?: Prisma.FormSubmissionListRelationFilter
   flowSteps?: Prisma.ApprovalFlowStepListRelationFilter
+  admins?: Prisma.FormTypeAdminListRelationFilter
 }
 
 export type FormTypeOrderByWithRelationInput = {
@@ -219,6 +220,7 @@ export type FormTypeOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   submissions?: Prisma.FormSubmissionOrderByRelationAggregateInput
   flowSteps?: Prisma.ApprovalFlowStepOrderByRelationAggregateInput
+  admins?: Prisma.FormTypeAdminOrderByRelationAggregateInput
   _relevance?: Prisma.FormTypeOrderByRelevanceInput
 }
 
@@ -232,6 +234,7 @@ export type FormTypeWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FormType"> | Date | string
   submissions?: Prisma.FormSubmissionListRelationFilter
   flowSteps?: Prisma.ApprovalFlowStepListRelationFilter
+  admins?: Prisma.FormTypeAdminListRelationFilter
 }, "id" | "name">
 
 export type FormTypeOrderByWithAggregationInput = {
@@ -262,6 +265,7 @@ export type FormTypeCreateInput = {
   createdAt?: Date | string
   submissions?: Prisma.FormSubmissionCreateNestedManyWithoutFormTypeInput
   flowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutFormTypeInput
+  admins?: Prisma.FormTypeAdminCreateNestedManyWithoutFormTypeInput
 }
 
 export type FormTypeUncheckedCreateInput = {
@@ -271,6 +275,7 @@ export type FormTypeUncheckedCreateInput = {
   createdAt?: Date | string
   submissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutFormTypeInput
   flowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutFormTypeInput
+  admins?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutFormTypeInput
 }
 
 export type FormTypeUpdateInput = {
@@ -279,6 +284,7 @@ export type FormTypeUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissions?: Prisma.FormSubmissionUpdateManyWithoutFormTypeNestedInput
   flowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutFormTypeNestedInput
+  admins?: Prisma.FormTypeAdminUpdateManyWithoutFormTypeNestedInput
 }
 
 export type FormTypeUncheckedUpdateInput = {
@@ -288,6 +294,7 @@ export type FormTypeUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutFormTypeNestedInput
   flowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutFormTypeNestedInput
+  admins?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutFormTypeNestedInput
 }
 
 export type FormTypeCreateManyInput = {
@@ -308,6 +315,11 @@ export type FormTypeUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FormTypeScalarRelationFilter = {
+  is?: Prisma.FormTypeWhereInput
+  isNot?: Prisma.FormTypeWhereInput
 }
 
 export type FormTypeOrderByRelevanceInput = {
@@ -345,9 +357,18 @@ export type FormTypeSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
 }
 
-export type FormTypeScalarRelationFilter = {
-  is?: Prisma.FormTypeWhereInput
-  isNot?: Prisma.FormTypeWhereInput
+export type FormTypeCreateNestedOneWithoutAdminsInput = {
+  create?: Prisma.XOR<Prisma.FormTypeCreateWithoutAdminsInput, Prisma.FormTypeUncheckedCreateWithoutAdminsInput>
+  connectOrCreate?: Prisma.FormTypeCreateOrConnectWithoutAdminsInput
+  connect?: Prisma.FormTypeWhereUniqueInput
+}
+
+export type FormTypeUpdateOneRequiredWithoutAdminsNestedInput = {
+  create?: Prisma.XOR<Prisma.FormTypeCreateWithoutAdminsInput, Prisma.FormTypeUncheckedCreateWithoutAdminsInput>
+  connectOrCreate?: Prisma.FormTypeCreateOrConnectWithoutAdminsInput
+  upsert?: Prisma.FormTypeUpsertWithoutAdminsInput
+  connect?: Prisma.FormTypeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FormTypeUpdateToOneWithWhereWithoutAdminsInput, Prisma.FormTypeUpdateWithoutAdminsInput>, Prisma.FormTypeUncheckedUpdateWithoutAdminsInput>
 }
 
 export type FormTypeCreateNestedOneWithoutSubmissionsInput = {
@@ -378,11 +399,62 @@ export type FormTypeUpdateOneRequiredWithoutFlowStepsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FormTypeUpdateToOneWithWhereWithoutFlowStepsInput, Prisma.FormTypeUpdateWithoutFlowStepsInput>, Prisma.FormTypeUncheckedUpdateWithoutFlowStepsInput>
 }
 
+export type FormTypeCreateWithoutAdminsInput = {
+  name: string
+  description?: string | null
+  createdAt?: Date | string
+  submissions?: Prisma.FormSubmissionCreateNestedManyWithoutFormTypeInput
+  flowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutFormTypeInput
+}
+
+export type FormTypeUncheckedCreateWithoutAdminsInput = {
+  id?: number
+  name: string
+  description?: string | null
+  createdAt?: Date | string
+  submissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutFormTypeInput
+  flowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutFormTypeInput
+}
+
+export type FormTypeCreateOrConnectWithoutAdminsInput = {
+  where: Prisma.FormTypeWhereUniqueInput
+  create: Prisma.XOR<Prisma.FormTypeCreateWithoutAdminsInput, Prisma.FormTypeUncheckedCreateWithoutAdminsInput>
+}
+
+export type FormTypeUpsertWithoutAdminsInput = {
+  update: Prisma.XOR<Prisma.FormTypeUpdateWithoutAdminsInput, Prisma.FormTypeUncheckedUpdateWithoutAdminsInput>
+  create: Prisma.XOR<Prisma.FormTypeCreateWithoutAdminsInput, Prisma.FormTypeUncheckedCreateWithoutAdminsInput>
+  where?: Prisma.FormTypeWhereInput
+}
+
+export type FormTypeUpdateToOneWithWhereWithoutAdminsInput = {
+  where?: Prisma.FormTypeWhereInput
+  data: Prisma.XOR<Prisma.FormTypeUpdateWithoutAdminsInput, Prisma.FormTypeUncheckedUpdateWithoutAdminsInput>
+}
+
+export type FormTypeUpdateWithoutAdminsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissions?: Prisma.FormSubmissionUpdateManyWithoutFormTypeNestedInput
+  flowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutFormTypeNestedInput
+}
+
+export type FormTypeUncheckedUpdateWithoutAdminsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutFormTypeNestedInput
+  flowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutFormTypeNestedInput
+}
+
 export type FormTypeCreateWithoutSubmissionsInput = {
   name: string
   description?: string | null
   createdAt?: Date | string
   flowSteps?: Prisma.ApprovalFlowStepCreateNestedManyWithoutFormTypeInput
+  admins?: Prisma.FormTypeAdminCreateNestedManyWithoutFormTypeInput
 }
 
 export type FormTypeUncheckedCreateWithoutSubmissionsInput = {
@@ -391,6 +463,7 @@ export type FormTypeUncheckedCreateWithoutSubmissionsInput = {
   description?: string | null
   createdAt?: Date | string
   flowSteps?: Prisma.ApprovalFlowStepUncheckedCreateNestedManyWithoutFormTypeInput
+  admins?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutFormTypeInput
 }
 
 export type FormTypeCreateOrConnectWithoutSubmissionsInput = {
@@ -414,6 +487,7 @@ export type FormTypeUpdateWithoutSubmissionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   flowSteps?: Prisma.ApprovalFlowStepUpdateManyWithoutFormTypeNestedInput
+  admins?: Prisma.FormTypeAdminUpdateManyWithoutFormTypeNestedInput
 }
 
 export type FormTypeUncheckedUpdateWithoutSubmissionsInput = {
@@ -422,6 +496,7 @@ export type FormTypeUncheckedUpdateWithoutSubmissionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   flowSteps?: Prisma.ApprovalFlowStepUncheckedUpdateManyWithoutFormTypeNestedInput
+  admins?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutFormTypeNestedInput
 }
 
 export type FormTypeCreateWithoutFlowStepsInput = {
@@ -429,6 +504,7 @@ export type FormTypeCreateWithoutFlowStepsInput = {
   description?: string | null
   createdAt?: Date | string
   submissions?: Prisma.FormSubmissionCreateNestedManyWithoutFormTypeInput
+  admins?: Prisma.FormTypeAdminCreateNestedManyWithoutFormTypeInput
 }
 
 export type FormTypeUncheckedCreateWithoutFlowStepsInput = {
@@ -437,6 +513,7 @@ export type FormTypeUncheckedCreateWithoutFlowStepsInput = {
   description?: string | null
   createdAt?: Date | string
   submissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutFormTypeInput
+  admins?: Prisma.FormTypeAdminUncheckedCreateNestedManyWithoutFormTypeInput
 }
 
 export type FormTypeCreateOrConnectWithoutFlowStepsInput = {
@@ -460,6 +537,7 @@ export type FormTypeUpdateWithoutFlowStepsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissions?: Prisma.FormSubmissionUpdateManyWithoutFormTypeNestedInput
+  admins?: Prisma.FormTypeAdminUpdateManyWithoutFormTypeNestedInput
 }
 
 export type FormTypeUncheckedUpdateWithoutFlowStepsInput = {
@@ -468,6 +546,7 @@ export type FormTypeUncheckedUpdateWithoutFlowStepsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutFormTypeNestedInput
+  admins?: Prisma.FormTypeAdminUncheckedUpdateManyWithoutFormTypeNestedInput
 }
 
 
@@ -478,11 +557,13 @@ export type FormTypeUncheckedUpdateWithoutFlowStepsInput = {
 export type FormTypeCountOutputType = {
   submissions: number
   flowSteps: number
+  admins: number
 }
 
 export type FormTypeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   submissions?: boolean | FormTypeCountOutputTypeCountSubmissionsArgs
   flowSteps?: boolean | FormTypeCountOutputTypeCountFlowStepsArgs
+  admins?: boolean | FormTypeCountOutputTypeCountAdminsArgs
 }
 
 /**
@@ -509,6 +590,13 @@ export type FormTypeCountOutputTypeCountFlowStepsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.ApprovalFlowStepWhereInput
 }
 
+/**
+ * FormTypeCountOutputType without action
+ */
+export type FormTypeCountOutputTypeCountAdminsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FormTypeAdminWhereInput
+}
+
 
 export type FormTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -517,6 +605,7 @@ export type FormTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   createdAt?: boolean
   submissions?: boolean | Prisma.FormType$submissionsArgs<ExtArgs>
   flowSteps?: boolean | Prisma.FormType$flowStepsArgs<ExtArgs>
+  admins?: boolean | Prisma.FormType$adminsArgs<ExtArgs>
   _count?: boolean | Prisma.FormTypeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["formType"]>
 
@@ -533,6 +622,7 @@ export type FormTypeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type FormTypeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   submissions?: boolean | Prisma.FormType$submissionsArgs<ExtArgs>
   flowSteps?: boolean | Prisma.FormType$flowStepsArgs<ExtArgs>
+  admins?: boolean | Prisma.FormType$adminsArgs<ExtArgs>
   _count?: boolean | Prisma.FormTypeCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -541,6 +631,7 @@ export type $FormTypePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     submissions: Prisma.$FormSubmissionPayload<ExtArgs>[]
     flowSteps: Prisma.$ApprovalFlowStepPayload<ExtArgs>[]
+    admins: Prisma.$FormTypeAdminPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -889,6 +980,7 @@ export interface Prisma__FormTypeClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   submissions<T extends Prisma.FormType$submissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FormType$submissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   flowSteps<T extends Prisma.FormType$flowStepsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FormType$flowStepsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalFlowStepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  admins<T extends Prisma.FormType$adminsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FormType$adminsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormTypeAdminPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1310,6 +1402,30 @@ export type FormType$flowStepsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.ApprovalFlowStepScalarFieldEnum | Prisma.ApprovalFlowStepScalarFieldEnum[]
+}
+
+/**
+ * FormType.admins
+ */
+export type FormType$adminsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FormTypeAdmin
+   */
+  select?: Prisma.FormTypeAdminSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FormTypeAdmin
+   */
+  omit?: Prisma.FormTypeAdminOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FormTypeAdminInclude<ExtArgs> | null
+  where?: Prisma.FormTypeAdminWhereInput
+  orderBy?: Prisma.FormTypeAdminOrderByWithRelationInput | Prisma.FormTypeAdminOrderByWithRelationInput[]
+  cursor?: Prisma.FormTypeAdminWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FormTypeAdminScalarFieldEnum | Prisma.FormTypeAdminScalarFieldEnum[]
 }
 
 /**

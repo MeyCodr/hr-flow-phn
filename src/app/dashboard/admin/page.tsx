@@ -6,6 +6,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
 import { redirect } from "next/navigation";
 import {
+  getScopedFormTypeIds,
+  isAdminRole,
+  scopedSubmissionWhere,
+} from "@/src/lib/admin-access";
+import {
   Approval,
   FileAttachment,
   FormSubmission,
@@ -25,21 +30,46 @@ export default async function Admin() {
     redirect("/"); //protected page
   }
 
+  // The sidebar only offers this page to admins, but the route itself was
+  // reachable by anyone who typed the URL — and it renders every submission,
+  // every user and the approval-flow builder.
+  if (!isAdminRole(session.user?.role)) {
+    redirect("/dashboard");
+  }
+
+  // null for a full admin; a list of form type ids for a scoped FORM_ADMIN.
+  const scopedFormTypeIds = await getScopedFormTypeIds(
+    session.user?.role,
+    session.user?.staffid,
+  );
+
+  // Only a full ADMIN gets the complete tab set and any edit rights. Every
+  // other admin role browses read-only; the user API enforces the same rule
+  // independently of this flag.
+  const isFullAdmin = session.user?.role === "ADMIN";
+
   const userListing = await prisma.user.findMany({
     include: {
       division: true,
       department: true,
       section: true,
+      formTypeScopes: { select: { formTypeId: true } },
     },
   });
 
-  const formType = await prisma.formType.findMany({
-    include: {
-      flowSteps: true,
-    },
-  });
+  // flowSteps only matters to the Form Create tab, which none but a full admin
+  // sees — everyone else gets the bare form types the user form needs.
+  const formType = isFullAdmin
+    ? await prisma.formType.findMany({
+        include: {
+          flowSteps: true,
+        },
+      })
+    : await prisma.formType.findMany();
 
-  const approvalFlow = (
+  const approvalFlow = !isFullAdmin
+    ? []
+    : (
     await prisma.approvalFlowStep.findMany({
       include: {
         formType: true,
@@ -61,6 +91,7 @@ export default async function Admin() {
   }));
 
   const formSubmission = await prisma.formSubmission.findMany({
+    where: scopedSubmissionWhere(scopedFormTypeIds),
     include: {
       attachments: true,
       createdBy: true,
@@ -77,10 +108,8 @@ export default async function Admin() {
   const departments = await prisma.department.findMany();
   const sections = await prisma.section.findMany();
 
-  const sexualHarassmentReports = await prisma.sexualHarassmentReport.findMany({
-    orderBy: { createdAt: "desc" },
-    select: { id: true, reporterName: true, status: true, createdAt: true },
-  });
+  // Harassment reports are not surfaced here. They live behind
+  // /dashboard/compliance, which admits designated compliance officers only.
 
 
   const enrichedSubmissions: SelfFormData[] = formSubmission.map(
@@ -143,11 +172,7 @@ export default async function Admin() {
         userListing={userListing}
         formType={formType}
         approvalStep={approvalFlow}
-        sexualHarassmentReports={sexualHarassmentReports.map((r) => ({
-          ...r,
-          createdAt: r.createdAt.toISOString(),
-        }))}
-        role={session.user.role}
+        isFullAdmin={isFullAdmin}
       />
     </div>
   );

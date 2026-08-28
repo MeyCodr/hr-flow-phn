@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  FormTypeAdmin: 'FormTypeAdmin',
   Division: 'Division',
   Department: 'Department',
   Section: 'Section',
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "division" | "department" | "section" | "formType" | "formSubmission" | "fileAttachment" | "manpowerUpload" | "approvalFlowStep" | "approval" | "passwordResetToken" | "approvalStepApprover" | "sexualHarassmentReport" | "sexualHarassmentAttachment"
+    modelProps: "user" | "formTypeAdmin" | "division" | "department" | "section" | "formType" | "formSubmission" | "fileAttachment" | "manpowerUpload" | "approvalFlowStep" | "approval" | "passwordResetToken" | "approvalStepApprover" | "sexualHarassmentReport" | "sexualHarassmentAttachment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -480,6 +481,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    FormTypeAdmin: {
+      payload: Prisma.$FormTypeAdminPayload<ExtArgs>
+      fields: Prisma.FormTypeAdminFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FormTypeAdminFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormTypeAdminPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FormTypeAdminFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormTypeAdminPayload>
+        }
+        findFirst: {
+          args: Prisma.FormTypeAdminFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormTypeAdminPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FormTypeAdminFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormTypeAdminPayload>
+        }
+        findMany: {
+          args: Prisma.FormTypeAdminFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormTypeAdminPayload>[]
+        }
+        create: {
+          args: Prisma.FormTypeAdminCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormTypeAdminPayload>
+        }
+        createMany: {
+          args: Prisma.FormTypeAdminCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FormTypeAdminDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormTypeAdminPayload>
+        }
+        update: {
+          args: Prisma.FormTypeAdminUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormTypeAdminPayload>
+        }
+        deleteMany: {
+          args: Prisma.FormTypeAdminDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FormTypeAdminUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FormTypeAdminUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormTypeAdminPayload>
+        }
+        aggregate: {
+          args: Prisma.FormTypeAdminAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFormTypeAdmin>
+        }
+        groupBy: {
+          args: Prisma.FormTypeAdminGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FormTypeAdminGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FormTypeAdminCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FormTypeAdminCountAggregateOutputType> | number
         }
       }
     }
@@ -1400,6 +1467,16 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const FormTypeAdminScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  formTypeId: 'formTypeId',
+  createdAt: 'createdAt'
+} as const
+
+export type FormTypeAdminScalarFieldEnum = (typeof FormTypeAdminScalarFieldEnum)[keyof typeof FormTypeAdminScalarFieldEnum]
+
+
 export const DivisionScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1925,6 +2002,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  formTypeAdmin?: Prisma.FormTypeAdminOmit
   division?: Prisma.DivisionOmit
   department?: Prisma.DepartmentOmit
   section?: Prisma.SectionOmit

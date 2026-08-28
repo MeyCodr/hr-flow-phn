@@ -1,18 +1,14 @@
+import { requireFullAdmin } from "@/src/lib/admin-access";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth-options";
 
 export async function PUT(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const denied = await requireFullAdmin();
+    if (denied) return denied;
     const body = await req.json();
     const { id } = await context.params;
 

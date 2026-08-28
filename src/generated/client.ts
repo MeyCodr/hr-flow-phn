@@ -45,6 +45,11 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
+ * Model FormTypeAdmin
+ * 
+ */
+export type FormTypeAdmin = Prisma.FormTypeAdminModel
+/**
  * Model Division
  * 
  */

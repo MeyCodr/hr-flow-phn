@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth-options";
-import { isComplianceOfficer } from "@/lib/compliance-officers";
+import { canAccessHarassmentReports } from "@/lib/compliance-officers";
 import { prisma } from "@/lib/prisma";
 
 const contentTypeMap: Record<string, string> = {
@@ -20,7 +20,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !(await isComplianceOfficer(session.user.staffid))) {
+    if (!session || !(await canAccessHarassmentReports(session.user.staffid, session.user.role))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
