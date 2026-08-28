@@ -22,6 +22,9 @@ export default async function FormAnalyticsPage() {
     );
   }
 
+  // Insights are organisation-wide for everyone who can reach this page,
+  // including form-scoped admins: the form-type scope limits which
+  // submissions they administer, not which statistics they can read.
   const [submissions, pendingApprovals] = await Promise.all([
     prisma.formSubmission.findMany({
       select: {
