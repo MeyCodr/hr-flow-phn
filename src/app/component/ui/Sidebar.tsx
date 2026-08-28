@@ -228,7 +228,7 @@ export default function Sidebar({
                         onClick={() => setIsAnalyticsOpen((prev) => !prev)}
                         onMouseEnter={showTooltip(item.name)}
                         onMouseLeave={hideTooltip}
-                        className="group relative flex w-full items-center rounded-xl p-2 text-sm transition-colors hover:bg-white/5"
+                        className="group relative flex w-full items-center gap-2 rounded-xl p-2 text-sm transition-colors hover:bg-white/5"
                       >
                         {active && (
                           <motion.div
