@@ -9,7 +9,6 @@ import {
   Cell,
   ComposedChart,
   Line,
-  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -19,10 +18,22 @@ import {
 } from "recharts";
 import * as XLSX from "xlsx";
 
-function ChartContainer({ className, children }: { className: string; children: React.ReactNode }) {
+function ChartContainer({
+  className,
+  style,
+  children,
+}: {
+  className: string;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+}) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  return <div className={className}>{mounted ? children : null}</div>;
+  return (
+    <div className={className} style={style}>
+      {mounted ? children : null}
+    </div>
+  );
 }
 
 type EmployeeRecord = {
@@ -49,13 +60,6 @@ type TrendPoint = {
   highlight?: boolean;
   year?: number;
   month?: number;
-};
-
-type TurnoverTrendPoint = {
-  label: string;
-  fullLabel: string;
-  resignations: number;
-  turnoverRate: number;
 };
 
 type SavedManpowerUpload = {
@@ -91,7 +95,8 @@ const monthNames = [
 const categoryOptions = [
   "All Categories",
   "Direct Labour",
-  "Indirect Labour",
+  "Mfg Overhead",
+  "General Admin",
   "Executive",
   "Non Executive",
   "Permanent",
@@ -113,6 +118,94 @@ const preferredPlantOrder = [
   "TANJUNG MALIM 2",
   "ALAM IMPIAN PLANT",
 ];
+
+const plantAbbreviations: Record<string, string> = {
+  "SHAH ALAM 1 PLANT": "SA1",
+  "SHAH ALAM 2 PLANT": "SA2",
+  "PEGOH PLANT": "PGH",
+  "RASA PLANT": "RASA",
+  "BUKIT BERUNTUNG PLANT": "BB",
+  "FIF TANJUNG MALIM": "FIFTGM",
+  "PEKAN PLANT": "PKN",
+  "TANJUNG MALIM 2": "TGM2",
+  "ALAM IMPIAN PLANT": "AI",
+};
+
+function abbreviatePlant(plant: string) {
+  return plantAbbreviations[plant] ?? plant;
+}
+
+const divisionAbbreviations: Record<string, string> = {
+  "BUSINESS DEVELOPMENT & STRATEGY": "BD",
+  "DHMSB OPERATIONS": "DHMSB",
+  "ENGINEERING AND RD": "ENGINEERING",
+  "FINANCE PROCUREMENT AND IT": "FPIT",
+  "HUMAN CAPITAL AND ESG": "HC",
+  "OPERATION MANAGEMENT": "OPERATIONS",
+  "QUALITY MANAGEMENT": "QUALITY",
+  "CEO OFFICE": "CEO",
+  "BUSINESS COORDINATOR": "BC",
+};
+
+function abbreviateDivision(division: string) {
+  const normalized = division.trim().toUpperCase();
+  return divisionAbbreviations[normalized] ?? division;
+}
+
+const departmentAbbreviations: Record<string, string> = {
+  "MANUFACTURING AND SCM - TM 1": "MFG SCM TM1",
+  "QUALITY ASSURANCE & CONTROL SA 1": "QAQC SA1",
+  "MANUFACTURING AND SCM - PEKAN": "MFG SCM PEKAN",
+  "MANUFACTURING AND SCM - PEGOH": "MFG SCM PEGOH",
+  FINANCE: "FINANCE",
+  "HICOM INTELLIGENT MOBILITY": "HICOM MOBILITY",
+  "REWARDS AND ADMIN": "REWARDS ADMIN",
+  "MANUFACTURING AND SCM - SA1": "MFG SCM SA1",
+  "PROGRAM MANAGEMENT II": "PROGRAM MGMT II",
+  "INVENTORY MGMT AND PLANNING": "INV & PLAN",
+  "MANUFACTURING AND SCM - BB/RASA": "MFG SCM BB/RASA",
+  "QUALITY ASSURANCE & CONTROL SA 2": "QAQC SA2",
+  "FACILITY AND ENERGY MANAGEMENT": "FACILITY & ENERGY",
+  "QUALITY ASSURANCE & CONTROL - BB, RASA, TM 1 AND TM 2": "QAQC BB/RASA",
+  "CULTURE AND TALENT MANAGEMENT": "CULTURE & TALENT",
+  "PROCESS ENGINEERING": "PROCESS ENG",
+  "IT AND DIGITALISATION": "IT & DIGITAL",
+  "QUALITY ASSURANCE & CONTROL-DEV - MLK PKN": "QAQC DEV MLK",
+  "PROGRAM MANAGEMENT III": "PROGRAM MGMT III",
+  "MANUFACTURING AND SCM - SA 2": "MFG SCM SA2",
+  "EQUIPMENT MAINT I - SA 1, SA 2, DHMSB, PEGOH": "EQUIP MAINT I",
+  "MFG & SCM - DHMSB": "MFG SCM DHMSB",
+  "MANUFACTURING AND SCM - TM 2": "MFG SCM TM2",
+  "PROGRAM MANAGEMENT I": "PROGRAM MGMT I",
+  "EQUIPMENT MAINT II - BB, RASA, TM1, TM2": "EQUIP MAINT II",
+  "RESEARCH AND DEVELOPMENT": "R&D",
+  "TOOLING DESIGN AND DEVELOPMENT": "TOOLING DEV",
+  "PROCUREMENT & VENDOR DEV": "PROC & VENDOR",
+  "CEO OFFICE": "CEO OFFICE",
+  "ESG HEALTH AND SAFETY": "ESG H&S",
+  "COSTING AND COMMERCIAL": "COST & COMM",
+  "QMS & SQ": "QMS & SQ",
+  "QUALITY DEVELOPMENT": "QUALITY DEV",
+  "BUSINESS DEVELOPMENT": "BUSINESS DEV",
+  OPERATIONS: "OPERATIONS",
+  "ENERGY SOLUTION": "ENERGY SOL",
+  "ENGINEERING MANAGEMENT I": "ENGINEERING I",
+  "OPERATION III": "OPERATION III",
+  "PROGRAM MANAGEMENT": "PROGRAM MGMT",
+  "-": "-",
+  "ENGINEERING MANAGEMENT II": "ENGINEERING II",
+  "OPERATION II": "OPERATION II",
+  "OPERATION I AND IMP": "OP I & IMP",
+  "OPERATION IV": "OPERATION IV",
+  "QUALITY MANAGEMENT": "QUALITY MGMT",
+  "QUALITY OPERATIONS": "QUALITY OPS",
+  "ENERGY MGMT AUTHORITY LIASON": "ENERGY MGMT",
+};
+
+function abbreviateDepartment(department: string) {
+  const normalized = department.trim().toUpperCase();
+  return departmentAbbreviations[normalized] ?? department;
+}
 
 const monthNumberByName: Record<string, number> = {
   jan: 1,
@@ -148,6 +241,20 @@ function normalizeText(value: unknown) {
 function normalizeNullableText(value: unknown) {
   const normalized = normalizeText(value);
   return normalized ? normalized : null;
+}
+
+function normalizeGender(value: unknown) {
+  const normalized = normalizeText(value).toUpperCase();
+
+  if (normalized === "M" || normalized === "MALE") {
+    return "M";
+  }
+
+  if (normalized === "F" || normalized === "FEMALE") {
+    return "F";
+  }
+
+  return normalized;
 }
 
 function formatCount(value: number) {
@@ -189,8 +296,7 @@ function parseSheetPeriod(sheetName: string) {
   const snapshotMonth = monthNumberByName[matchedMonth] ?? null;
   const rawYear = yearMatch[0];
   const numericYear = Number(rawYear);
-  const snapshotYear =
-    rawYear.length === 2 ? 2000 + numericYear : numericYear;
+  const snapshotYear = rawYear.length === 2 ? 2000 + numericYear : numericYear;
 
   return {
     snapshotMonth,
@@ -211,7 +317,7 @@ function mapWorksheetRowsToEmployees(
       department: normalizeText(row.Department),
       section: normalizeText(row.Section_Occ),
       plant: normalizeText(row.Team),
-      gender: normalizeText(row.Sex).toUpperCase(),
+      gender: normalizeGender(row.Sex),
       labourCategory: normalizeText(row.Level_Occ).toUpperCase(),
       employeeType: normalizeText(row.Employee_Type).toUpperCase(),
       employeeStatus: normalizeText(row.Employee_Status).toUpperCase(),
@@ -265,7 +371,9 @@ function isActiveWithinPeriod(
 
   if (!joinDate) return false;
 
-  return joinDate <= endDate && (!resignationDate || resignationDate >= startDate);
+  return (
+    joinDate <= endDate && (!resignationDate || resignationDate >= startDate)
+  );
 }
 
 function matchesCategory(employee: EmployeeRecord, category: string) {
@@ -301,8 +409,12 @@ function HeadcountBarChart({
     <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-sm font-poppins min-w-0">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {title}
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {description}
+          </p>
         </div>
         {/* <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
           {badgeLabel}
@@ -330,10 +442,15 @@ function HeadcountBarChart({
               height={52}
               tick={{ fill: "#6b7280", fontSize: 11 }}
             />
-            <YAxis allowDecimals={false} tick={{ fill: "#6b7280", fontSize: 11 }} />
+            <YAxis
+              allowDecimals={false}
+              tick={{ fill: "#6b7280", fontSize: 11 }}
+            />
             <Tooltip
               labelFormatter={(_, payload) =>
-                payload?.[0]?.payload?.fullLabel ?? payload?.[0]?.payload?.label ?? ""
+                payload?.[0]?.payload?.fullLabel ??
+                payload?.[0]?.payload?.label ??
+                ""
               }
               formatter={(value) => [`${value ?? 0}`, "Count"]}
               contentStyle={{
@@ -343,7 +460,11 @@ function HeadcountBarChart({
                 fontSize: "12px",
               }}
               itemStyle={{ fontSize: "12px" }}
-              labelStyle={{ fontSize: "12px", fontWeight: 600, color: "#111827" }}
+              labelStyle={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "#111827",
+              }}
               wrapperStyle={{ outline: "none" }}
             />
             <Bar dataKey="value" radius={[6, 6, 0, 0]}>
@@ -367,204 +488,6 @@ function HeadcountBarChart({
   );
 }
 
-function MonthlyHeadcountTrendChart({
-  data,
-  selectedMonth,
-  selectedMonthIndex,
-  selectedYear,
-}: {
-  data: TrendPoint[];
-  selectedMonth: string;
-  selectedMonthIndex: number;
-  selectedYear: string;
-}) {
-  const selectedPoint =
-    selectedMonth === "All Months"
-      ? null
-      : data.find(
-          (entry) =>
-            entry.month === selectedMonthIndex &&
-            entry.year === Number(selectedYear),
-        );
-
-  return (
-    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Monthly Headcount Trend
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Rolling 12-month headcount trend based on Date Join and Date Resignation.
-          </p>
-        </div>
-      </div>
-
-      <ChartContainer className="h-72 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 12, right: 12, left: 0, bottom: 6 }}>
-            <CartesianGrid stroke="#e0e7ff" strokeDasharray="3 3" />
-            <XAxis dataKey="label" tick={{ fill: "#6b7280", fontSize: 11 }} />
-            <YAxis
-              allowDecimals={false}
-              tick={{ fill: "#6b7280", fontSize: 11 }}
-              tickFormatter={(value: number) => formatCount(value)}
-            />
-            <Tooltip
-              labelFormatter={(_, payload) =>
-                payload?.[0]?.payload?.fullLabel ?? payload?.[0]?.payload?.label ?? ""
-              }
-              formatter={(value) => [formatCount(Number(value ?? 0)), "Headcount"]}
-              contentStyle={{
-                borderRadius: "8px",
-                border: "1px solid #e5e7eb",
-                padding: "8px 10px",
-                fontSize: "12px",
-              }}
-              itemStyle={{ fontSize: "12px" }}
-              labelStyle={{ fontSize: "12px", fontWeight: 600, color: "#111827" }}
-              wrapperStyle={{ outline: "none" }}
-            />
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke="#4f46e5"
-              strokeWidth={3}
-              label={({ x, y, value, index }) => {
-                if (
-                  typeof x !== "number" ||
-                  typeof y !== "number" ||
-                  typeof value !== "number"
-                ) {
-                  return null;
-                }
-
-                const point = data[index ?? 0];
-
-                return (
-                  <text
-                    x={x}
-                    y={y - 12}
-                    textAnchor="middle"
-                    fontSize={11}
-                    fontWeight={point?.highlight ? 700 : 600}
-                    fill={point?.highlight ? "#312e81" : "#475569"}
-                  >
-                    {formatCount(value)}
-                  </text>
-                );
-              }}
-              dot={{ r: 4, fill: "#4f46e5", stroke: "#ffffff", strokeWidth: 2 }}
-              activeDot={{ r: 6, fill: "#312e81", stroke: "#ffffff", strokeWidth: 2 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </ChartContainer>
-
-      {/* <div className="mt-4 flex flex-wrap gap-2">
-        {data.map((entry) => (
-          <div
-            key={entry.fullLabel ?? entry.label}
-            className={`rounded-lg border px-3 py-2 text-sm ${
-              entry.highlight
-                ? "border-indigo-200 bg-indigo-50 text-indigo-900"
-                : "border-gray-200 bg-gray-50 text-gray-700"
-            }`}
-          >
-            <span className="font-medium">{entry.fullLabel ?? entry.label}</span>:{" "}
-            <span className="font-semibold">{formatCount(entry.value)}</span>
-          </div>
-        ))}
-      </div> */}
-
-      {selectedPoint && (
-        <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-          {selectedPoint.fullLabel} headcount:{" "}
-          <span className="font-semibold text-gray-900 dark:text-gray-100">
-            {formatCount(selectedPoint.value)}
-          </span>
-        </p>
-      )}
-    </article>
-  );
-}
-
-function TurnoverTrendChart({
-  data,
-}: {
-  data: TurnoverTrendPoint[];
-}) {
-  return (
-    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Turnover Trend</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Monthly resignations and turnover rate for the same rolling 12-month period.
-        </p>
-      </div>
-
-      <ChartContainer className="h-72 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={data}
-            margin={{ top: 12, right: 12, left: 0, bottom: 6 }}
-          >
-            <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-            <XAxis dataKey="label" tick={{ fill: "#6b7280", fontSize: 11 }} />
-            <YAxis
-              yAxisId="count"
-              allowDecimals={false}
-              tick={{ fill: "#6b7280", fontSize: 11 }}
-            />
-            <YAxis
-              yAxisId="rate"
-              orientation="right"
-              tick={{ fill: "#6b7280", fontSize: 11 }}
-              tickFormatter={(value: number) => `${value.toFixed(1)}%`}
-            />
-            <Tooltip
-              labelFormatter={(_, payload) =>
-                payload?.[0]?.payload?.fullLabel ?? payload?.[0]?.payload?.label ?? ""
-              }
-              formatter={(value, name) => {
-                if (name === "turnoverRate") {
-                  return [`${Number(value ?? 0).toFixed(2)}%`, "Turnover Rate"];
-                }
-
-                return [formatCount(Number(value ?? 0)), "Resignations"];
-              }}
-              contentStyle={{
-                borderRadius: "8px",
-                border: "1px solid #e5e7eb",
-                padding: "8px 10px",
-                fontSize: "12px",
-              }}
-              itemStyle={{ fontSize: "12px" }}
-              labelStyle={{ fontSize: "12px", fontWeight: 600, color: "#111827" }}
-              wrapperStyle={{ outline: "none" }}
-            />
-            <Bar
-              yAxisId="count"
-              dataKey="resignations"
-              fill="#f97316"
-              radius={[6, 6, 0, 0]}
-            />
-            <Line
-              yAxisId="rate"
-              type="monotone"
-              dataKey="turnoverRate"
-              stroke="#0f766e"
-              strokeWidth={3}
-              dot={{ r: 4, fill: "#0f766e", stroke: "#ffffff", strokeWidth: 2 }}
-              activeDot={{ r: 6, fill: "#115e59", stroke: "#ffffff", strokeWidth: 2 }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </ChartContainer>
-    </article>
-  );
-}
-
 function EmploymentTypeDonutChart({
   permanentCount,
   contractCount,
@@ -579,13 +502,15 @@ function EmploymentTypeDonutChart({
       : `${((value / totalEmploymentCount) * 100).toFixed(1)}%`;
 
   const data = [
-    { name: "Permanent", value: permanentCount, color: "#4338ca" },
-    { name: "Contract", value: contractCount, color: "#f59e0b" },
+    { name: "Permanent", value: permanentCount, color: "#0d9488" },
+    { name: "Contract", value: contractCount, color: "#c026d3" },
   ];
 
   return (
-    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
-      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Employment Type</p>
+    <article className="h-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        Employment Type
+      </p>
       <ChartContainer className="mt-4 h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -595,8 +520,7 @@ function EmploymentTypeDonutChart({
               nameKey="name"
               cx="50%"
               cy="50%"
-              innerRadius={45}
-              // outerRadius={70}
+              outerRadius={70}
               paddingAngle={0}
             >
               {data.map((entry) => (
@@ -618,7 +542,11 @@ function EmploymentTypeDonutChart({
                 fontSize: "12px",
               }}
               itemStyle={{ fontSize: "12px" }}
-              labelStyle={{ fontSize: "12px", fontWeight: 600, color: "#111827" }}
+              labelStyle={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "#111827",
+              }}
               wrapperStyle={{ outline: "none" }}
             />
           </PieChart>
@@ -626,17 +554,308 @@ function EmploymentTypeDonutChart({
       </ChartContainer>
       <div className="mt-4 flex items-center justify-center gap-6 text-sm">
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-          <span className="h-3 w-3 rounded-full bg-indigo-700" />
+          <span className="h-3 w-3 rounded-full bg-teal-600" />
           <span>
-            Permanent: {formatCount(permanentCount)} ({formatPercentage(permanentCount)})
+            Permanent: {formatCount(permanentCount)} (
+            {formatPercentage(permanentCount)})
           </span>
         </div>
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-          <span className="h-3 w-3 rounded-full bg-amber-500" />
+          <span className="h-3 w-3 rounded-full bg-fuchsia-600" />
           <span>
-            Contract: {formatCount(contractCount)} ({formatPercentage(contractCount)})
+            Contract: {formatCount(contractCount)} (
+            {formatPercentage(contractCount)})
           </span>
         </div>
+      </div>
+    </article>
+  );
+}
+
+function PermanentContractByPlantChart({
+  data,
+}: {
+  data: {
+    plant: string;
+    permanent: number;
+    contract: number;
+    male: number;
+    female: number;
+  }[];
+}) {
+  return (
+    <article className="h-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        Permanent vs Contract by Plant
+      </p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">
+        Bars: Permanent vs Contract · Lines: Male vs Female
+      </p>
+
+      <ChartContainer className="mt-4 h-64 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart
+            data={data}
+            margin={{ top: 8, right: 8, left: 0, bottom: 18 }}
+          >
+            <CartesianGrid
+              stroke="#e5e7eb"
+              strokeDasharray="3 3"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="plant"
+              angle={-20}
+              interval={0}
+              textAnchor="end"
+              height={52}
+              tickFormatter={(value: string) => abbreviatePlant(value)}
+              tick={{ fill: "#6b7280", fontSize: 11 }}
+            />
+            <YAxis
+              allowDecimals={false}
+              tickFormatter={(value: number) => formatCount(value)}
+              tick={{ fill: "#6b7280", fontSize: 11 }}
+            />
+            <Tooltip
+              labelFormatter={(label) => label}
+              formatter={(value, name) => [
+                formatCount(Number(value ?? 0)),
+                name,
+              ]}
+              contentStyle={{
+                borderRadius: "8px",
+                border: "1px solid #e5e7eb",
+                padding: "8px 10px",
+                fontSize: "12px",
+              }}
+              itemStyle={{ fontSize: "12px" }}
+              labelStyle={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "#111827",
+              }}
+              wrapperStyle={{ outline: "none" }}
+            />
+            <Bar
+              dataKey="permanent"
+              name="Permanent"
+              stackId="status"
+              fill="#4338ca"
+            />
+            <Bar
+              dataKey="contract"
+              name="Contract"
+              stackId="status"
+              fill="#f59e0b"
+              radius={[4, 4, 0, 0]}
+            />
+            <Line
+              type="monotone"
+              dataKey="male"
+              name="Male"
+              stroke="#0ea5e9"
+              strokeWidth={2}
+              dot={{ r: 3, fill: "#0ea5e9", stroke: "#ffffff", strokeWidth: 1 }}
+              activeDot={{ r: 5 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="female"
+              name="Female"
+              stroke="#ec4899"
+              strokeWidth={2}
+              dot={{ r: 3, fill: "#ec4899", stroke: "#ffffff", strokeWidth: 1 }}
+              activeDot={{ r: 5 }}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+          <span className="h-3 w-3 rounded-full bg-indigo-700" />
+          <span>Permanent</span>
+        </div>
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+          <span className="h-3 w-3 rounded-full bg-amber-500" />
+          <span>Contract</span>
+        </div>
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+          <span className="h-3 w-3 rounded-full bg-sky-500" />
+          <span>Male</span>
+        </div>
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+          <span className="h-3 w-3 rounded-full bg-pink-500" />
+          <span>Female</span>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+const divisionChartColors = [
+  "#4338ca",
+  "#0f766e",
+  "#b45309",
+  "#be185d",
+  "#0ea5e9",
+  "#7c3aed",
+  "#16a34a",
+  "#dc2626",
+  "#ca8a04",
+  "#0891b2",
+];
+
+function ManpowerByDivisionChart({
+  data,
+}: {
+  data: { division: string; label: string; value: number }[];
+}) {
+  return (
+    <article className="h-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        Manpower by Division
+      </p>
+      <ChartContainer className="mt-4 h-80 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={data}
+            margin={{ top: 8, right: 8, left: 0, bottom: 8 }}
+          >
+            <CartesianGrid
+              stroke="#e5e7eb"
+              strokeDasharray="3 3"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="label"
+              interval={0}
+              height={30}
+              tick={{ fill: "#6b7280", fontSize: 11 }}
+            />
+            <YAxis
+              allowDecimals={false}
+              tickFormatter={(value: number) => formatCount(value)}
+              tick={{ fill: "#6b7280", fontSize: 11 }}
+            />
+            <Tooltip
+              labelFormatter={(_, payload) =>
+                payload?.[0]?.payload?.division ?? ""
+              }
+              formatter={(value) => [formatCount(Number(value ?? 0)), "Count"]}
+              contentStyle={{
+                borderRadius: "8px",
+                border: "1px solid #e5e7eb",
+                padding: "8px 10px",
+                fontSize: "12px",
+              }}
+              itemStyle={{ fontSize: "12px" }}
+              labelStyle={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "#111827",
+              }}
+              wrapperStyle={{ outline: "none" }}
+            />
+            <Bar
+              dataKey="value"
+              name="Count"
+              background={{ fill: "#f3f4f6" }}
+              radius={[6, 6, 0, 0]}
+            >
+              {data.map((entry, index) => (
+                <Cell
+                  key={entry.division}
+                  fill={divisionChartColors[index % divisionChartColors.length]}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+    </article>
+  );
+}
+
+function ManpowerByDepartmentChart({
+  data,
+}: {
+  data: { department: string; label: string; value: number }[];
+}) {
+  const chartHeight = Math.max(data.length * 28, 160);
+
+  return (
+    <article className="h-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        Manpower by Department
+      </p>
+      <div className="mt-4 h-[500px] w-full overflow-y-auto">
+        <ChartContainer className="w-full" style={{ height: chartHeight }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              layout="vertical"
+              barCategoryGap="30%"
+              barSize={12}
+              margin={{ top: 8, right: 16, left: 8, bottom: 8 }}
+            >
+              <CartesianGrid
+                stroke="#e5e7eb"
+                strokeDasharray="3 3"
+                horizontal={false}
+              />
+              <XAxis
+                type="number"
+                allowDecimals={false}
+                tickFormatter={(value: number) => formatCount(value)}
+                tick={{ fill: "#6b7280", fontSize: 11 }}
+              />
+              <YAxis
+                type="category"
+                dataKey="label"
+                width={180}
+                tick={{ fill: "#6b7280", fontSize: 11 }}
+              />
+              <Tooltip
+                labelFormatter={(_, payload) =>
+                  payload?.[0]?.payload?.department ?? ""
+                }
+                formatter={(value) => [
+                  formatCount(Number(value ?? 0)),
+                  "Count",
+                ]}
+                contentStyle={{
+                  borderRadius: "8px",
+                  border: "1px solid #e5e7eb",
+                  padding: "8px 10px",
+                  fontSize: "12px",
+                }}
+                itemStyle={{ fontSize: "12px" }}
+                labelStyle={{
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "#111827",
+                }}
+                wrapperStyle={{ outline: "none" }}
+              />
+              <Bar
+                dataKey="value"
+                name="Count"
+                background={{ fill: "#f3f4f6" }}
+                radius={[0, 6, 6, 0]}
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={entry.department}
+                    fill={
+                      divisionChartColors[index % divisionChartColors.length]
+                    }
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
       </div>
     </article>
   );
@@ -649,9 +868,16 @@ function LocalForeignChart({
   localCount: number;
   foreignCount: number;
 }) {
+  const total = localCount + foreignCount;
+  const getPercentage = (value: number) =>
+    total === 0 ? 0 : (value / total) * 100;
+  const formatPercentage = (value: number) => `${getPercentage(value).toFixed(1)}%`;
+
   return (
     <div className="">
-      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Local vs Foreign</p>
+      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+        Local vs Foreign
+      </p>
 
       <div className="mt-3 grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-emerald-100 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-3">
@@ -664,6 +890,15 @@ function LocalForeignChart({
           <p className="mt-3 text-2xl font-semibold text-emerald-900 dark:text-emerald-300">
             {localCount}
           </p>
+          <p className="mt-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+            {formatPercentage(localCount)}
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-emerald-100 dark:bg-emerald-900/60">
+            <div
+              className="h-full rounded-full bg-emerald-600"
+              style={{ width: `${getPercentage(localCount)}%` }}
+            />
+          </div>
         </div>
 
         <div className="rounded-xl border border-orange-100 dark:border-orange-900 bg-orange-50 dark:bg-orange-950/40 px-4 py-3">
@@ -676,60 +911,269 @@ function LocalForeignChart({
           <p className="mt-3 text-2xl font-semibold text-orange-900 dark:text-orange-300">
             {foreignCount}
           </p>
+          <p className="mt-1 text-xs font-medium text-orange-700 dark:text-orange-400">
+            {formatPercentage(foreignCount)}
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-orange-100 dark:bg-orange-900/60">
+            <div
+              className="h-full rounded-full bg-orange-600"
+              style={{ width: `${getPercentage(foreignCount)}%` }}
+            />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function LabourTypeSummaryCard({
-  directCount,
-  indirectCount,
+function ExecutiveMixCard({
   executiveCount,
   nonExecutiveCount,
 }: {
-  directCount: number;
-  indirectCount: number;
   executiveCount: number;
   nonExecutiveCount: number;
 }) {
+  const total = executiveCount + nonExecutiveCount;
+  const getPercentage = (value: number) =>
+    total === 0 ? 0 : (value / total) * 100;
+  const formatPercentage = (value: number) => `${getPercentage(value).toFixed(1)}%`;
+
   return (
-    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
-      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Workforce Mix</p>
-      <div className="mt-4 grid gap-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/40 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400">
-              Total Direct
-            </p>
-            <p className="mt-2 text-xl font-semibold text-emerald-900 dark:text-emerald-300">
-              {directCount}
-            </p>
-          </div>
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">
-              Total Indirect
-            </p>
-            <p className="mt-2 text-xl font-semibold text-amber-900 dark:text-amber-300">
-              {indirectCount}
-            </p>
-          </div>
-        </div>
+    <article className="h-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        Executive vs Non Executive
+      </p>
+      <div className="mt-4 grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-sky-50 dark:bg-sky-950/40 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-400">
             Executive
           </p>
           <p className="mt-2 text-xl font-semibold text-sky-900 dark:text-sky-300">
-            {executiveCount}
+            {formatCount(executiveCount)}
           </p>
+          <p className="mt-1 text-xs font-medium text-sky-700 dark:text-sky-400">
+            {formatPercentage(executiveCount)}
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-sky-100 dark:bg-sky-900/60">
+            <div
+              className="h-full rounded-full bg-sky-600"
+              style={{ width: `${getPercentage(executiveCount)}%` }}
+            />
+          </div>
         </div>
         <div className="rounded-xl bg-violet-50 dark:bg-violet-950/40 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-700 dark:text-violet-400">
             Non Executive
           </p>
           <p className="mt-2 text-xl font-semibold text-violet-900 dark:text-violet-300">
-            {nonExecutiveCount}
+            {formatCount(nonExecutiveCount)}
           </p>
+          <p className="mt-1 text-xs font-medium text-violet-700 dark:text-violet-400">
+            {formatPercentage(nonExecutiveCount)}
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-violet-100 dark:bg-violet-900/60">
+            <div
+              className="h-full rounded-full bg-violet-600"
+              style={{ width: `${getPercentage(nonExecutiveCount)}%` }}
+            />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function LabourMixCard({
+  directCount,
+  indirectCount,
+  adminCount,
+}: {
+  directCount: number;
+  indirectCount: number;
+  adminCount: number;
+}) {
+  const total = directCount + indirectCount + adminCount;
+  const getPercentage = (value: number) =>
+    total === 0 ? 0 : (value / total) * 100;
+  const formatPercentage = (value: number) =>
+    `${getPercentage(value).toFixed(1)}%`;
+
+  const chartData = [
+    {
+      label: "Total Direct",
+      percentage: getPercentage(directCount),
+      color: "#059669",
+    },
+    {
+      label: "Total Indirect",
+      percentage: getPercentage(indirectCount),
+      color: "#d97706",
+    },
+    {
+      label: "General Admin",
+      percentage: getPercentage(adminCount),
+      color: "#e11d48",
+    },
+  ];
+
+  return (
+    <article className="h-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        Total Direct vs Total Indirect vs General Admin
+      </p>
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400">
+            Total Direct
+          </p>
+          <p className="mt-2 text-xl font-semibold text-emerald-900 dark:text-emerald-300">
+            {formatCount(directCount)}
+          </p>
+          <p className="mt-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+            {formatPercentage(directCount)}
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-emerald-100 dark:bg-emerald-900/60">
+            <div
+              className="h-full rounded-full bg-emerald-600"
+              style={{ width: `${getPercentage(directCount)}%` }}
+            />
+          </div>
+        </div>
+        <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">
+            Total Indirect
+          </p>
+          <p className="mt-2 text-xl font-semibold text-amber-900 dark:text-amber-300">
+            {formatCount(indirectCount)}
+          </p>
+          <p className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-400">
+            {formatPercentage(indirectCount)}
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-amber-100 dark:bg-amber-900/60">
+            <div
+              className="h-full rounded-full bg-amber-600"
+              style={{ width: `${getPercentage(indirectCount)}%` }}
+            />
+          </div>
+        </div>
+        <div className="rounded-xl bg-rose-50 dark:bg-rose-950/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-700 dark:text-rose-400">
+            General Admin
+          </p>
+          <p className="mt-2 text-xl font-semibold text-rose-900 dark:text-rose-300">
+            {formatCount(adminCount)}
+          </p>
+          <p className="mt-1 text-xs font-medium text-rose-700 dark:text-rose-400">
+            {formatPercentage(adminCount)}
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-rose-100 dark:bg-rose-900/60">
+            <div
+              className="h-full rounded-full bg-rose-600"
+              style={{ width: `${getPercentage(adminCount)}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <ChartContainer className="mt-4 h-48 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={chartData}
+            margin={{ top: 8, right: 8, left: 0, bottom: 4 }}
+          >
+            <CartesianGrid
+              stroke="#e5e7eb"
+              strokeDasharray="3 3"
+              vertical={false}
+            />
+            <XAxis dataKey="label" tick={{ fill: "#6b7280", fontSize: 11 }} />
+            <YAxis
+              allowDecimals={false}
+              tickFormatter={(value: number) => `${value}%`}
+              tick={{ fill: "#6b7280", fontSize: 11 }}
+            />
+            <Tooltip
+              formatter={(value) => [
+                `${Number(value ?? 0).toFixed(1)}%`,
+                "Share",
+              ]}
+              contentStyle={{
+                borderRadius: "8px",
+                border: "1px solid #e5e7eb",
+                padding: "8px 10px",
+                fontSize: "12px",
+              }}
+              itemStyle={{ fontSize: "12px" }}
+              labelStyle={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "#111827",
+              }}
+              wrapperStyle={{ outline: "none" }}
+            />
+            <Bar dataKey="percentage" radius={[6, 6, 0, 0]}>
+              {chartData.map((entry) => (
+                <Cell key={entry.label} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+    </article>
+  );
+}
+
+function GenderMixCard({
+  maleCount,
+  femaleCount,
+}: {
+  maleCount: number;
+  femaleCount: number;
+}) {
+  const total = maleCount + femaleCount;
+  const getPercentage = (value: number) =>
+    total === 0 ? 0 : (value / total) * 100;
+  const formatPercentage = (value: number) => `${getPercentage(value).toFixed(1)}%`;
+
+  return (
+    <article className="h-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        Male vs Female
+      </p>
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-700 dark:text-indigo-400">
+            Male
+          </p>
+          <p className="mt-2 text-xl font-semibold text-indigo-900 dark:text-indigo-300">
+            {formatCount(maleCount)}
+          </p>
+          <p className="mt-1 text-xs font-medium text-indigo-700 dark:text-indigo-400">
+            {formatPercentage(maleCount)}
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-indigo-100 dark:bg-indigo-900/60">
+            <div
+              className="h-full rounded-full bg-indigo-600"
+              style={{ width: `${getPercentage(maleCount)}%` }}
+            />
+          </div>
+        </div>
+        <div className="rounded-xl bg-pink-50 dark:bg-pink-950/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pink-700 dark:text-pink-400">
+            Female
+          </p>
+          <p className="mt-2 text-xl font-semibold text-pink-900 dark:text-pink-300">
+            {formatCount(femaleCount)}
+          </p>
+          <p className="mt-1 text-xs font-medium text-pink-700 dark:text-pink-400">
+            {formatPercentage(femaleCount)}
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-pink-100 dark:bg-pink-900/60">
+            <div
+              className="h-full rounded-full bg-pink-600"
+              style={{ width: `${getPercentage(femaleCount)}%` }}
+            />
+          </div>
         </div>
       </div>
     </article>
@@ -790,12 +1234,19 @@ export default function ManpowerAnalyticsComponent() {
 
   const departmentOptions = [
     "All Departments",
-    ...Array.from(new Set(employees.map((employee) => employee.department))).sort(),
+    ...Array.from(
+      new Set(employees.map((employee) => employee.department)),
+    ).sort(),
   ];
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    "All Months",
-  );
+  const divisionOptions = [
+    "All Divisions",
+    ...Array.from(
+      new Set(employees.map((employee) => employee.division)),
+    ).sort(),
+  ];
+
+  const [selectedMonth, setSelectedMonth] = useState("All Months");
   const [selectedYear, setSelectedYear] = useState(
     currentDate.getFullYear().toString(),
   );
@@ -803,12 +1254,12 @@ export default function ManpowerAnalyticsComponent() {
   const [selectedDepartment, setSelectedDepartment] = useState(
     departmentOptions[0],
   );
+  const [selectedDivision, setSelectedDivision] = useState(
+    divisionOptions[0],
+  );
   const [selectedCategory, setSelectedCategory] = useState(categoryOptions[0]);
 
-  const applyEmployees = (
-    nextEmployees: EmployeeRecord[],
-    message: string,
-  ) => {
+  const applyEmployees = (nextEmployees: EmployeeRecord[], message: string) => {
     setEmployees(nextEmployees);
 
     const uploadedYears = nextEmployees
@@ -822,6 +1273,7 @@ export default function ManpowerAnalyticsComponent() {
     setSelectedYear(defaultUploadYear.toString());
     setSelectedPlant("All Plants");
     setSelectedDepartment("All Departments");
+    setSelectedDivision("All Divisions");
     setSelectedCategory("All Categories");
     setUploadMessage(message);
   };
@@ -839,7 +1291,8 @@ export default function ManpowerAnalyticsComponent() {
           return;
         }
 
-        const payload: { data: SavedManpowerUpload | null } = await response.json();
+        const payload: { data: SavedManpowerUpload | null } =
+          await response.json();
 
         if (!payload.data || payload.data.employees.length === 0) {
           return;
@@ -903,6 +1356,13 @@ export default function ManpowerAnalyticsComponent() {
       return false;
     }
 
+    if (
+      selectedDivision !== "All Divisions" &&
+      employee.division !== selectedDivision
+    ) {
+      return false;
+    }
+
     return matchesCategory(employee, selectedCategory);
   });
 
@@ -917,8 +1377,8 @@ export default function ManpowerAnalyticsComponent() {
     hasSnapshotPeriods
       ? true
       : isWholeYearView
-      ? isActiveWithinPeriod(employee, periodStartDate, periodEndDate)
-      : isActiveAt(employee, periodEndDate),
+        ? isActiveWithinPeriod(employee, periodStartDate, periodEndDate)
+        : isActiveAt(employee, periodEndDate),
   );
 
   const totalManpower = filteredEmployees.length;
@@ -926,7 +1386,10 @@ export default function ManpowerAnalyticsComponent() {
     (employee) => employee.labourCategory === "DIRECT LABOUR",
   ).length;
   const totalIndirectCount = activeEmployees.filter(
-    (employee) => employee.labourCategory !== "DIRECT LABOUR",
+    (employee) => employee.labourCategory === "MFG OVERHEAD",
+  ).length;
+  const totalAdminCount = activeEmployees.filter(
+    (employee) => employee.labourCategory === "GENERAL ADMIN",
   ).length;
   const executiveCount = activeEmployees.filter(
     (employee) => employee.employeeType === "EXECUTIVE",
@@ -950,51 +1413,13 @@ export default function ManpowerAnalyticsComponent() {
     (employee) => employee.employeeStatus === "CONTRACT",
   ).length;
 
-  const divisionBreakdown = Array.from(
-    activeEmployees.reduce((map, employee) => {
-      const currentCount = map.get(employee.division) ?? 0;
-      map.set(employee.division, currentCount + 1);
-      return map;
-    }, new Map<string, number>()),
-  ).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const maleCount = activeEmployees.filter(
+    (employee) => employee.gender === "M",
+  ).length;
 
-  const departmentBreakdown = Array.from(
-    activeEmployees.reduce((map, employee) => {
-      const currentCount = map.get(employee.department) ?? 0;
-      map.set(employee.department, currentCount + 1);
-      return map;
-    }, new Map<string, number>()),
-  ).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-
-  const sectionBreakdown = Array.from(
-    activeEmployees.reduce((map, employee) => {
-      const currentCount = map.get(employee.section) ?? 0;
-      map.set(employee.section, currentCount + 1);
-      return map;
-    }, new Map<string, number>()),
-  ).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-
-  const plantBreakdown = Array.from(
-    activeEmployees.reduce((map, employee) => {
-      const currentCount = map.get(employee.plant) ?? 0;
-      map.set(employee.plant, currentCount + 1);
-      return map;
-    }, new Map<string, number>()),
-  ).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-
-  const genderBreakdown = Array.from(
-    activeEmployees.reduce((map, employee) => {
-      const genderLabel =
-        employee.gender === "M"
-          ? "Male"
-          : employee.gender === "F"
-          ? "Female"
-          : employee.gender || "Unspecified";
-      const currentCount = map.get(genderLabel) ?? 0;
-      map.set(genderLabel, currentCount + 1);
-      return map;
-    }, new Map<string, number>()),
-  ).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const femaleCount = activeEmployees.filter(
+    (employee) => employee.gender === "F",
+  ).length;
 
   const buildPlantDivisionData = (plantName: string) =>
     Array.from(
@@ -1013,13 +1438,18 @@ export default function ManpowerAnalyticsComponent() {
             ? true
             : employee.department === selectedDepartment,
         )
+        .filter((employee) =>
+          selectedDivision === "All Divisions"
+            ? true
+            : employee.division === selectedDivision,
+        )
         .filter((employee) => matchesCategory(employee, selectedCategory))
         .filter((employee) =>
           hasSnapshotPeriods
             ? true
             : isWholeYearView
-            ? isActiveWithinPeriod(employee, periodStartDate, periodEndDate)
-            : isActiveAt(employee, periodEndDate),
+              ? isActiveWithinPeriod(employee, periodStartDate, periodEndDate)
+              : isActiveAt(employee, periodEndDate),
         )
         .reduce((map, employee) => {
           const currentCount = map.get(employee.division) ?? 0;
@@ -1031,12 +1461,10 @@ export default function ManpowerAnalyticsComponent() {
         division,
         value,
       }))
-      .sort(
-        (a, b) => b.value - a.value || a.division.localeCompare(b.division),
-      )
+      .sort((a, b) => b.value - a.value || a.division.localeCompare(b.division))
       .slice(0, 4)
       .map(({ division, value }) => ({
-        label: division.length > 12 ? `${division.slice(0, 12)}...` : division,
+        label: abbreviateDivision(division),
         fullLabel: division,
         value,
       }))
@@ -1053,88 +1481,62 @@ export default function ManpowerAnalyticsComponent() {
   );
 
   const chartPlants = [
-    ...preferredPlantOrder.filter((plant) => availableChartPlants.includes(plant)),
+    ...preferredPlantOrder.filter((plant) =>
+      availableChartPlants.includes(plant),
+    ),
     ...availableChartPlants
       .filter((plant) => !preferredPlantOrder.includes(plant))
       .sort(),
   ];
 
-  const trendBaseEmployees = employees
-    .filter((employee) =>
-      selectedPlant === "All Plants" ? true : employee.plant === selectedPlant,
-    )
-    .filter((employee) =>
-      selectedDepartment === "All Departments"
-        ? true
-        : employee.department === selectedDepartment,
-    )
-    .filter((employee) => matchesCategory(employee, selectedCategory));
-
-  const rollingWindow = Array.from({ length: 12 }, (_, index) => {
-    const monthDate = new Date(
-      Number(selectedYear) - 1,
-      currentDate.getMonth() + index,
-      1,
+  const permanentContractByPlant = chartPlants.map((plant) => {
+    const plantEmployees = activeEmployees.filter(
+      (employee) => employee.plant === plant,
     );
 
     return {
-      year: monthDate.getFullYear(),
-      month: monthDate.getMonth() + 1,
-      label: monthNames[monthDate.getMonth() + 1].slice(0, 3),
-      fullLabel: `${monthNames[monthDate.getMonth() + 1]} ${monthDate.getFullYear()}`,
+      plant,
+      permanent: plantEmployees.filter(
+        (employee) => employee.employeeStatus === "PERMANENT",
+      ).length,
+      contract: plantEmployees.filter(
+        (employee) => employee.employeeStatus === "CONTRACT",
+      ).length,
+      male: plantEmployees.filter((employee) => employee.gender === "M").length,
+      female: plantEmployees.filter((employee) => employee.gender === "F")
+        .length,
     };
   });
 
-  const monthlyHeadcountTrend = rollingWindow.map((period) => {
-    const value = trendBaseEmployees.filter((employee) =>
-      isActiveAt(employee, new Date(period.year, period.month, 0, 23, 59, 59)),
-    ).length;
-
-    return {
-      label: period.label,
-      fullLabel: period.fullLabel,
+  const manpowerByDivision = Array.from(
+    activeEmployees.reduce((map, employee) => {
+      const currentCount = map.get(employee.division) ?? 0;
+      map.set(employee.division, currentCount + 1);
+      return map;
+    }, new Map<string, number>()),
+  )
+    .map(([division, value]) => ({
+      division,
+      label: abbreviateDivision(division),
       value,
-      year: period.year,
-      month: period.month,
-      highlight:
-        selectedMonth !== "All Months" &&
-        monthNames[period.month] === selectedMonth &&
-        period.year === Number(selectedYear),
-    };
-  });
+    }))
+    .sort((a, b) => b.value - a.value || a.division.localeCompare(b.division));
 
-  const turnoverTrend = rollingWindow.map((period) => {
-    const periodStartDate = new Date(period.year, period.month - 1, 1, 0, 0, 0);
-    const periodEndDate = new Date(period.year, period.month, 0, 23, 59, 59);
-    const previousMonthEndDate = new Date(period.year, period.month - 1, 0, 23, 59, 59);
-
-    const resignations = trendBaseEmployees.filter((employee) => {
-      const resignationDate = parseDate(employee.resignationDate);
-
-      return (
-        resignationDate !== null &&
-        resignationDate >= periodStartDate &&
-        resignationDate <= periodEndDate
-      );
-    }).length;
-
-    const openingHeadcount = trendBaseEmployees.filter((employee) =>
-      isActiveAt(employee, previousMonthEndDate),
-    ).length;
-    const closingHeadcount = trendBaseEmployees.filter((employee) =>
-      isActiveAt(employee, periodEndDate),
-    ).length;
-    const averageHeadcount = (openingHeadcount + closingHeadcount) / 2;
-    const turnoverRate =
-      averageHeadcount > 0 ? (resignations / averageHeadcount) * 100 : 0;
-
-    return {
-      label: period.label,
-      fullLabel: period.fullLabel,
-      resignations,
-      turnoverRate,
-    };
-  });
+  const manpowerByDepartment = Array.from(
+    activeEmployees.reduce((map, employee) => {
+      const currentCount = map.get(employee.department) ?? 0;
+      map.set(employee.department, currentCount + 1);
+      return map;
+    }, new Map<string, number>()),
+  )
+    .map(([department, value]) => ({
+      department,
+      label: abbreviateDepartment(department),
+      value,
+    }))
+    .sort(
+      (a, b) => b.value - a.value || a.department.localeCompare(b.department),
+    );
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1152,16 +1554,21 @@ export default function ManpowerAnalyticsComponent() {
       const firstSheetName = workbook.SheetNames[0];
 
       if (!firstSheetName) {
-        setUploadMessage("The uploaded workbook does not contain any worksheet.");
+        setUploadMessage(
+          "The uploaded workbook does not contain any worksheet.",
+        );
         return;
       }
 
       const parsedEmployees = workbook.SheetNames.flatMap((sheetName) => {
         const worksheet = workbook.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, {
-          defval: "",
-          raw: false,
-        });
+        const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(
+          worksheet,
+          {
+            defval: "",
+            raw: false,
+          },
+        );
 
         return mapWorksheetRowsToEmployees(rows, sheetName);
       });
@@ -1213,9 +1620,7 @@ export default function ManpowerAnalyticsComponent() {
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-indigo-100">
               Workforce Planning
             </p>
-            <h1 className="mt-2 text-3xl font-semibold">
-              Manpower Dashboard
-            </h1>
+            <h1 className="mt-2 text-3xl font-semibold">Manpower Dashboard</h1>
             <p className="mt-2 max-w-2xl text-sm text-indigo-100">
               Live summary based on the workbook data, with manpower counts and
               monthly trends by selected period.
@@ -1266,7 +1671,9 @@ export default function ManpowerAnalyticsComponent() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Data Source
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{uploadMessage}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {uploadMessage}
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -1286,8 +1693,8 @@ export default function ManpowerAnalyticsComponent() {
               {isUploading
                 ? "Saving..."
                 : isLoadingSavedData
-                ? "Loading..."
-                : "Upload Excel File"}
+                  ? "Loading..."
+                  : "Upload Excel File"}
             </button>
           </div>
         </div>
@@ -1304,13 +1711,16 @@ export default function ManpowerAnalyticsComponent() {
 
       <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Filters</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Filters
+          </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Refine the manpower dashboard by plant, department, and category.
+            Refine the manpower dashboard by plant, department, division, and
+            category.
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <label className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
               Plant
@@ -1347,6 +1757,23 @@ export default function ManpowerAnalyticsComponent() {
 
           <label className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
+              Division
+            </span>
+            <select
+              value={selectedDivision}
+              onChange={(e) => setSelectedDivision(e.target.value)}
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none transition focus:border-indigo-300"
+            >
+              {divisionOptions.map((division) => (
+                <option key={division} value={division}>
+                  {division}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
               Category
             </span>
             <select
@@ -1364,46 +1791,58 @@ export default function ManpowerAnalyticsComponent() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="grid gap-4">
-          <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Total Manpower
-            </p>
-            <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-gray-100">
-              {totalManpower}
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Total loaded manpower records for the applied filters.
-            </p>
-          </article>
-          <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0">
-            <LocalForeignChart
-              localCount={localCount}
-              foreignCount={foreignCount}
-            />
-          </article>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article className="h-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0 xl:col-start-1 xl:row-start-1">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            Total Manpower
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-gray-100">
+            {totalManpower}
+          </h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Total loaded manpower records for the applied filters.
+          </p>
+        </article>
+        <div className="h-full xl:col-start-1 xl:row-start-2">
+          <ExecutiveMixCard
+            executiveCount={executiveCount}
+            nonExecutiveCount={nonExecutiveCount}
+          />
         </div>
+        <div className="h-full sm:col-span-2 xl:col-start-2 xl:col-span-2 xl:row-start-1 xl:row-span-2">
+          <LabourMixCard
+            directCount={totalDirectCount}
+            indirectCount={totalIndirectCount}
+            adminCount={totalAdminCount}
+          />
+        </div>
+        <article className="h-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm min-w-0 xl:col-start-4 xl:row-start-1">
+          <LocalForeignChart
+            localCount={localCount}
+            foreignCount={foreignCount}
+          />
+        </article>
+        <div className="h-full xl:col-start-4 xl:row-start-2">
+          <GenderMixCard maleCount={maleCount} femaleCount={femaleCount} />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <EmploymentTypeDonutChart
           permanentCount={permanentCount}
           contractCount={contractCount}
         />
-        <LabourTypeSummaryCard
-          directCount={totalDirectCount}
-          indirectCount={totalIndirectCount}
-          executiveCount={executiveCount}
-          nonExecutiveCount={nonExecutiveCount}
-        />
+        <div className="sm:col-span-2 xl:col-span-3">
+          <PermanentContractByPlantChart data={permanentContractByPlant} />
+        </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <MonthlyHeadcountTrendChart
-          data={monthlyHeadcountTrend}
-          selectedMonth={selectedMonth}
-          selectedMonthIndex={selectedMonthIndex}
-          selectedYear={selectedYear}
-        />
-        <TurnoverTrendChart data={turnoverTrend} />
+      <div className="grid gap-4">
+        <ManpowerByDivisionChart data={manpowerByDivision} />
+      </div>
+
+      <div className="grid gap-4">
+        <ManpowerByDepartmentChart data={manpowerByDepartment} />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">
@@ -1425,217 +1864,6 @@ export default function ManpowerAnalyticsComponent() {
             />
           );
         })}
-
-        <div className="rounded-2xl border border-dashed border-indigo-200 dark:border-indigo-900 bg-white dark:bg-gray-900 p-6 shadow-sm xl:col-span-3">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Selected Snapshot
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {selectedMonth === "All Months"
-                  ? `Full year ${selectedYear} currently shows ${activeEmployees.length} employees for the applied filters.`
-                  : `${selectedMonth} ${selectedYear} currently shows ${activeEmployees.length} active employees for the applied filters.`}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <span className="inline-flex rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-4 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-400">
-                {selectedMonth} {selectedYear}
-              </span>
-              <span className="inline-flex rounded-full bg-sky-50 dark:bg-sky-950/40 px-4 py-2 text-sm font-medium text-sky-700 dark:text-sky-400">
-                {selectedPlant}
-              </span>
-              <span className="inline-flex rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                {selectedDepartment}
-              </span>
-              <span className="inline-flex rounded-full bg-amber-50 dark:bg-amber-950/40 px-4 py-2 text-sm font-medium text-amber-700 dark:text-amber-400">
-                {selectedCategory}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm col-span-3">
-          <p className="font-semibold text-lg text-gray-900 dark:text-gray-100">Breakdown Summary</p>
-        </div>
-
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm">
-          <div className="mb-4 flex items-center justify-between ">
-            <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-                Division
-              </h3>
-            </div>
-            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-              {divisionBreakdown.length} divisions
-            </span>
-          </div>
-
-          {divisionBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {divisionBreakdown.map(([division, count]) => (
-                  <div
-                    key={division}
-                    className="flex items-center justify-between gap-4 px-4 py-3"
-                  >
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{division}</p>
-                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
-                      {count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              No division data available for the selected filters.
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm ">
-          <div className="mb-4 flex items-center justify-between ">
-            <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-                Department
-              </h3>
-            </div>
-            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-              {departmentBreakdown.length} departments
-            </span>
-          </div>
-
-          {departmentBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {departmentBreakdown.map(([department, count]) => (
-                  <div
-                    key={department}
-                    className="flex items-center justify-between gap-4 px-4 py-3"
-                  >
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {department}
-                    </p>
-                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
-                      {count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              No department data available for the selected filters.
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm ">
-          <div className="mb-4 flex items-center justify-between ">
-            <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-                Section
-              </h3>
-            </div>
-            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-              {sectionBreakdown.length} sections
-            </span>
-          </div>
-
-          {sectionBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {sectionBreakdown.map(([section, count]) => (
-                  <div
-                    key={section}
-                    className="flex items-center justify-between gap-4 px-4 py-3"
-                  >
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{section}</p>
-                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
-                      {count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              No section data available for the selected filters.
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm ">
-          <div className="mb-4 flex items-center justify-between ">
-            <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-                Plant
-              </h3>
-            </div>
-            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-              {plantBreakdown.length} plants
-            </span>
-          </div>
-
-          {plantBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {plantBreakdown.map(([plant, count]) => (
-                  <div
-                    key={plant}
-                    className="flex items-center justify-between gap-4 px-4 py-3"
-                  >
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{plant}</p>
-                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
-                      {count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              No plant data available for the selected filters.
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm ">
-          <div className="mb-4 flex items-center justify-between ">
-            <div>
-              <h3 className="text-sm font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-                Gender
-              </h3>
-            </div>
-            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-semibold uppercase text-indigo-700 dark:text-indigo-400">
-              {genderBreakdown.length} groups
-            </span>
-          </div>
-
-          {genderBreakdown.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {genderBreakdown.map(([gender, count]) => (
-                  <div
-                    key={gender}
-                    className="flex items-center justify-between gap-4 px-4 py-3"
-                  >
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{gender}</p>
-                    <span className="rounded-full bg-white dark:bg-gray-900 px-3 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm">
-                      {count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              No gender data available for the selected filters.
-            </div>
-          )}
-        </div>
       </div>
 
       {employees.length === 0 && (
