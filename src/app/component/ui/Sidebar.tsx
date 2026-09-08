@@ -14,7 +14,12 @@ import { CiLock } from "react-icons/ci";
 import { FaChevronDown, FaUserCircle } from "react-icons/fa";
 import { UserType } from "@/app/types/types";
 import { useSession } from "next-auth/react";
-import { TbBrandGoogleAnalytics, TbReportAnalytics } from "react-icons/tb";
+import {
+  TbBrandGoogleAnalytics,
+  TbChartBar,
+  TbReportAnalytics,
+  TbTrendingUp,
+} from "react-icons/tb";
 import { GrUserWorker } from "react-icons/gr";
 import axios from "axios";
 import { withBasePath } from "@/lib/base-path";
@@ -43,6 +48,40 @@ function formatRole(role?: string) {
 // with the width spring, just settle quickly to its centered resting spot.
 const COLLAPSED_ICON_SHIFT = 8;
 
+interface MenuItem {
+  name: string;
+  path: string;
+  icon: React.ReactNode;
+  children?: MenuItem[];
+}
+
+function collectDescendantPaths(item: MenuItem): string[] {
+  if (!item.children?.length) {
+    return item.path ? [item.path] : [];
+  }
+
+  return item.children.flatMap(collectDescendantPaths);
+}
+
+function findGroupsToOpen(items: MenuItem[], targetPathname: string): string[] {
+  const namesToOpen: string[] = [];
+
+  for (const item of items) {
+    if (!item.children?.length) continue;
+
+    const isActive = collectDescendantPaths(item).some((path) =>
+      targetPathname.startsWith(path),
+    );
+
+    if (isActive) {
+      namesToOpen.push(item.name);
+      namesToOpen.push(...findGroupsToOpen(item.children, targetPathname));
+    }
+  }
+
+  return namesToOpen;
+}
+
 export default function Sidebar({
   isOpen,
   toggleSidebar,
@@ -51,23 +90,14 @@ export default function Sidebar({
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<UserType>();
-  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(
-    pathname.startsWith("/dashboard/manpower-analytics") ||
-      pathname.startsWith("/dashboard/form-insights"),
-  );
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [tooltip, setTooltip] = useState<{ label: string; top: number } | null>(null);
   const { data: session } = useSession();
 
   useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
-    if (
-      pathname.startsWith("/dashboard/manpower-analytics") ||
-      pathname.startsWith("/dashboard/form-insights")
-    ) {
-      setIsAnalyticsOpen(true);
-    }
-  }, [pathname]);
+  const toggleGroup = (name: string) =>
+    setOpenGroups((prev) => ({ ...prev, [name]: !prev[name] }));
 
   useEffect(() => {
     if (!session) return;
@@ -102,8 +132,20 @@ export default function Sidebar({
       children: [
         {
           name: "Manpower",
-          path: "/dashboard/manpower-analytics",
+          path: "",
           icon: <GrUserWorker className="h-4 w-4" />,
+          children: [
+            {
+              name: "Trend",
+              path: "/dashboard/manpower-analytics/trend",
+              icon: <TbTrendingUp className="h-4 w-4" />,
+            },
+            {
+              name: "Breakdown",
+              path: "/dashboard/manpower-analytics/breakdown",
+              icon: <TbChartBar className="h-4 w-4" />,
+            },
+          ],
         },
         {
           name: "Form Insights",
@@ -139,6 +181,27 @@ export default function Sidebar({
     },
   ];
 
+  useEffect(() => {
+    const namesToOpen = findGroupsToOpen(menuItems, pathname);
+
+    if (namesToOpen.length === 0) return;
+
+    setOpenGroups((prev) => {
+      const next = { ...prev };
+      let changed = false;
+
+      for (const name of namesToOpen) {
+        if (!next[name]) {
+          next[name] = true;
+          changed = true;
+        }
+      }
+
+      return changed ? next : prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
   if (!mounted) return null;
 
   const collapsedIcons = !isOpen && !isMobile;
@@ -149,6 +212,206 @@ export default function Sidebar({
     setTooltip({ label, top: rect.top + rect.height / 2 });
   };
   const hideTooltip = () => setTooltip(null);
+
+  const renderMenuItem = (item: MenuItem, depth: number): React.ReactNode => {
+    const hasChildren = Boolean(item.children?.length);
+    const isTopLevel = depth === 0;
+    const active = hasChildren
+      ? collectDescendantPaths(item).some((path) => pathname.startsWith(path))
+      : pathname === item.path;
+
+    if (hasChildren) {
+      const isGroupOpen = Boolean(openGroups[item.name]);
+
+      return (
+        <div key={item.name} className="flex flex-col">
+          <button
+            type="button"
+            onClick={() => toggleGroup(item.name)}
+            onMouseEnter={isTopLevel ? showTooltip(item.name) : undefined}
+            onMouseLeave={isTopLevel ? hideTooltip : undefined}
+            className={`group relative flex w-full items-center gap-2 text-sm transition-colors hover:bg-white/5 ${
+              isTopLevel ? "rounded-xl p-2" : "rounded-lg px-3 py-2"
+            }`}
+          >
+            {active && (
+              <motion.div
+                layoutId={
+                  isTopLevel ? "sidebar-active-top" : `sidebar-active-child-${depth}`
+                }
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                className={`absolute inset-0 border border-white/10 bg-white/10 ${
+                  isTopLevel ? "rounded-xl shadow-inner" : "rounded-lg"
+                }`}
+              />
+            )}
+
+            {isTopLevel ? (
+              <motion.div
+                animate={{ x: isOpen ? 0 : COLLAPSED_ICON_SHIFT }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                  active ? "text-amber-300" : "text-indigo-200 group-hover:text-white"
+                }`}
+              >
+                {item.icon}
+              </motion.div>
+            ) : (
+              <span
+                className={`relative z-10 flex-shrink-0 ${
+                  active ? "text-amber-300" : "text-indigo-300 group-hover:text-white"
+                }`}
+              >
+                {item.icon}
+              </span>
+            )}
+
+            {isTopLevel ? (
+              <div
+                className={`relative z-10 grid overflow-hidden transition-[grid-template-columns] duration-300 ease-in-out ${
+                  isOpen ? "flex-1" : ""
+                }`}
+                style={{ gridTemplateColumns: isOpen ? "1fr" : "0fr" }}
+              >
+                <motion.div
+                  animate={{ opacity: isOpen ? 1 : 0 }}
+                  transition={{ duration: isOpen ? 0.2 : 0.1, delay: isOpen ? 0.15 : 0 }}
+                  className="flex min-w-0 items-center justify-between whitespace-nowrap"
+                >
+                  <span className={active ? "font-semibold text-white" : "text-indigo-100"}>
+                    {item.name}
+                  </span>
+                  <FaChevronDown
+                    className={`h-3 w-3 shrink-0 transition-transform ${
+                      isGroupOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </motion.div>
+              </div>
+            ) : (
+              <>
+                <span
+                  className={`relative z-10 flex-1 truncate text-left ${
+                    active ? "font-semibold text-white" : "text-indigo-100"
+                  }`}
+                >
+                  {item.name}
+                </span>
+                <FaChevronDown
+                  className={`relative z-10 h-3 w-3 shrink-0 transition-transform ${
+                    isGroupOpen ? "rotate-180" : ""
+                  } ${active ? "text-amber-300" : "text-indigo-300"}`}
+                />
+              </>
+            )}
+          </button>
+
+          <AnimatePresence initial={false}>
+            {isOpen && isGroupOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.22, ease: "easeInOut" }}
+                className="ml-4 mt-1 overflow-hidden border-l border-white/10 pl-3"
+              >
+                <div className="flex flex-col gap-1 pb-1">
+                  {item.children?.map((child) => (
+                    <motion.div
+                      key={child.name}
+                      initial={{ y: -6, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -6, opacity: 0 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="relative"
+                    >
+                      {renderMenuItem(child, depth + 1)}
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      );
+    }
+
+    if (isTopLevel) {
+      return (
+        <Link
+          key={item.path}
+          href={item.path}
+          onClick={() => isMobile && toggleSidebar()}
+          onMouseEnter={showTooltip(item.name)}
+          onMouseLeave={hideTooltip}
+          className="group relative flex items-center gap-2 rounded-xl p-2 text-sm transition-colors hover:bg-white/5"
+        >
+          {active && (
+            <motion.div
+              layoutId="sidebar-active-top"
+              transition={{ type: "spring", stiffness: 380, damping: 32 }}
+              className="absolute inset-0 rounded-xl border border-white/10 bg-white/10 shadow-inner"
+            />
+          )}
+
+          <motion.div
+            animate={{ x: isOpen ? 0 : COLLAPSED_ICON_SHIFT }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+              active ? "text-amber-300" : "text-indigo-200 group-hover:text-white"
+            }`}
+          >
+            {item.icon}
+          </motion.div>
+          <div
+            className="relative z-10 grid overflow-hidden transition-[grid-template-columns] duration-300 ease-in-out"
+            style={{ gridTemplateColumns: isOpen ? "1fr" : "0fr" }}
+          >
+            <motion.div
+              animate={{ opacity: isOpen ? 1 : 0 }}
+              transition={{ duration: isOpen ? 0.2 : 0.1, delay: isOpen ? 0.15 : 0 }}
+              className={`min-w-0 whitespace-nowrap ${
+                active ? "font-semibold text-white" : "text-indigo-100"
+              }`}
+            >
+              {item.name}
+            </motion.div>
+          </div>
+        </Link>
+      );
+    }
+
+    return (
+      <Link
+        key={item.path}
+        href={item.path}
+        onClick={() => isMobile && toggleSidebar()}
+        className="group relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-white/5"
+      >
+        {active && (
+          <motion.div
+            layoutId={`sidebar-active-child-${depth}`}
+            transition={{ type: "spring", stiffness: 380, damping: 32 }}
+            className="absolute inset-0 rounded-lg bg-white/10"
+          />
+        )}
+        <span
+          className={`relative z-10 flex-shrink-0 ${
+            active ? "text-amber-300" : "text-indigo-300 group-hover:text-white"
+          }`}
+        >
+          {item.icon}
+        </span>
+        <span
+          className={`relative z-10 ${
+            active ? "font-semibold text-white" : "text-indigo-100"
+          }`}
+        >
+          {item.name}
+        </span>
+      </Link>
+    );
+  };
 
   return (
     <motion.aside
@@ -214,165 +477,7 @@ export default function Sidebar({
 
                 return true;
               })
-              .map((item) => {
-                const hasChildren = Boolean(item.children?.length);
-                const active = hasChildren
-                  ? item.children?.some((child) => pathname.startsWith(child.path))
-                  : pathname === item.path;
-
-                if (hasChildren) {
-                  return (
-                    <div key={item.path} className="flex flex-col">
-                      <button
-                        type="button"
-                        onClick={() => setIsAnalyticsOpen((prev) => !prev)}
-                        onMouseEnter={showTooltip(item.name)}
-                        onMouseLeave={hideTooltip}
-                        className="group relative flex w-full items-center gap-2 rounded-xl p-2 text-sm transition-colors hover:bg-white/5"
-                      >
-                        {active && (
-                          <motion.div
-                            layoutId="sidebar-active-top"
-                            transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                            className="absolute inset-0 rounded-xl border border-white/10 bg-white/10 shadow-inner"
-                          />
-                        )}
-
-                        <motion.div
-                          animate={{ x: isOpen ? 0 : COLLAPSED_ICON_SHIFT }}
-                          transition={{ duration: 0.25, ease: "easeInOut" }}
-                          className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                            active ? "text-amber-300" : "text-indigo-200 group-hover:text-white"
-                          }`}
-                        >
-                          {item.icon}
-                        </motion.div>
-                        <div
-                          className={`relative z-10 grid overflow-hidden transition-[grid-template-columns] duration-300 ease-in-out ${
-                            isOpen ? "flex-1" : ""
-                          }`}
-                          style={{ gridTemplateColumns: isOpen ? "1fr" : "0fr" }}
-                        >
-                          <motion.div
-                            animate={{ opacity: isOpen ? 1 : 0 }}
-                            transition={{ duration: isOpen ? 0.2 : 0.1, delay: isOpen ? 0.15 : 0 }}
-                            className="flex min-w-0 items-center justify-between whitespace-nowrap"
-                          >
-                            <span className={active ? "font-semibold text-white" : "text-indigo-100"}>
-                              {item.name}
-                            </span>
-                            <FaChevronDown
-                              className={`h-3 w-3 shrink-0 transition-transform ${
-                                isAnalyticsOpen ? "rotate-180" : ""
-                              }`}
-                            />
-                          </motion.div>
-                        </div>
-                      </button>
-
-                      <AnimatePresence initial={false}>
-                        {isOpen && isAnalyticsOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.22, ease: "easeInOut" }}
-                            className="ml-4 mt-1 overflow-hidden border-l border-white/10 pl-3"
-                          >
-                            <div className="flex flex-col gap-1 pb-1">
-                              {item.children?.map((child) => {
-                                const childActive = pathname === child.path;
-
-                                return (
-                                  <motion.div
-                                    key={child.path}
-                                    initial={{ y: -6, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    exit={{ y: -6, opacity: 0 }}
-                                    transition={{ duration: 0.18, ease: "easeOut" }}
-                                    className="relative"
-                                  >
-                                    <Link
-                                      href={child.path}
-                                      onClick={() => isMobile && toggleSidebar()}
-                                      className="group relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-white/5"
-                                    >
-                                      {childActive && (
-                                        <motion.div
-                                          layoutId="sidebar-active-child"
-                                          transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                                          className="absolute inset-0 rounded-lg bg-white/10"
-                                        />
-                                      )}
-                                      <span
-                                        className={`relative z-10 flex-shrink-0 ${
-                                          childActive ? "text-amber-300" : "text-indigo-300 group-hover:text-white"
-                                        }`}
-                                      >
-                                        {child.icon}
-                                      </span>
-                                      <span
-                                        className={`relative z-10 ${
-                                          childActive ? "font-semibold text-white" : "text-indigo-100"
-                                        }`}
-                                      >
-                                        {child.name}
-                                      </span>
-                                    </Link>
-                                  </motion.div>
-                                );
-                              })}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={item.path}
-                    href={item.path}
-                    onClick={() => isMobile && toggleSidebar()}
-                    onMouseEnter={showTooltip(item.name)}
-                    onMouseLeave={hideTooltip}
-                    className="group relative flex items-center gap-2 rounded-xl p-2 text-sm transition-colors hover:bg-white/5"
-                  >
-                    {active && (
-                      <motion.div
-                        layoutId="sidebar-active-top"
-                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                        className="absolute inset-0 rounded-xl border border-white/10 bg-white/10 shadow-inner"
-                      />
-                    )}
-
-                    <motion.div
-                      animate={{ x: isOpen ? 0 : COLLAPSED_ICON_SHIFT }}
-                      transition={{ duration: 0.25, ease: "easeInOut" }}
-                      className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                        active ? "text-amber-300" : "text-indigo-200 group-hover:text-white"
-                      }`}
-                    >
-                      {item.icon}
-                    </motion.div>
-                    <div
-                      className="relative z-10 grid overflow-hidden transition-[grid-template-columns] duration-300 ease-in-out"
-                      style={{ gridTemplateColumns: isOpen ? "1fr" : "0fr" }}
-                    >
-                      <motion.div
-                        animate={{ opacity: isOpen ? 1 : 0 }}
-                        transition={{ duration: isOpen ? 0.2 : 0.1, delay: isOpen ? 0.15 : 0 }}
-                        className={`min-w-0 whitespace-nowrap ${
-                          active ? "font-semibold text-white" : "text-indigo-100"
-                        }`}
-                      >
-                        {item.name}
-                      </motion.div>
-                    </div>
-                  </Link>
-                );
-              })}
+              .map((item) => renderMenuItem(item, 0))}
           </div>
         </nav>
 

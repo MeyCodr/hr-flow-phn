@@ -1552,6 +1552,8 @@ export const ManpowerUploadScalarFieldEnum = {
   fileContent: 'fileContent',
   employeeData: 'employeeData',
   recordCount: 'recordCount',
+  snapshotMonth: 'snapshotMonth',
+  snapshotYear: 'snapshotYear',
   uploadedById: 'uploadedById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

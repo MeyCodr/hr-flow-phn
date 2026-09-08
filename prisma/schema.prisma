@@ -135,18 +135,22 @@ model FileAttachment {
 }
 
 model ManpowerUpload {
-  id           Int      @id @default(autoincrement())
-  fileName     String
-  fileType     String?
-  fileSize     Int
-  fileContent  Bytes
-  employeeData Json
-  recordCount  Int
-  uploadedById Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  fileName      String
+  fileType      String?
+  fileSize      Int
+  fileContent   Bytes
+  employeeData  Json
+  recordCount   Int
+  snapshotMonth Int
+  snapshotYear  Int
+  uploadedById  Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   uploadedBy User @relation(fields: [uploadedById], references: [id])
+
+  @@unique([snapshotMonth, snapshotYear])
 }
 
 model ApprovalFlowStep {

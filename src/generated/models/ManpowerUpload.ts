@@ -30,6 +30,8 @@ export type ManpowerUploadAvgAggregateOutputType = {
   id: number | null
   fileSize: number | null
   recordCount: number | null
+  snapshotMonth: number | null
+  snapshotYear: number | null
   uploadedById: number | null
 }
 
@@ -37,6 +39,8 @@ export type ManpowerUploadSumAggregateOutputType = {
   id: number | null
   fileSize: number | null
   recordCount: number | null
+  snapshotMonth: number | null
+  snapshotYear: number | null
   uploadedById: number | null
 }
 
@@ -47,6 +51,8 @@ export type ManpowerUploadMinAggregateOutputType = {
   fileSize: number | null
   fileContent: runtime.Bytes | null
   recordCount: number | null
+  snapshotMonth: number | null
+  snapshotYear: number | null
   uploadedById: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,6 +65,8 @@ export type ManpowerUploadMaxAggregateOutputType = {
   fileSize: number | null
   fileContent: runtime.Bytes | null
   recordCount: number | null
+  snapshotMonth: number | null
+  snapshotYear: number | null
   uploadedById: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -72,6 +80,8 @@ export type ManpowerUploadCountAggregateOutputType = {
   fileContent: number
   employeeData: number
   recordCount: number
+  snapshotMonth: number
+  snapshotYear: number
   uploadedById: number
   createdAt: number
   updatedAt: number
@@ -83,6 +93,8 @@ export type ManpowerUploadAvgAggregateInputType = {
   id?: true
   fileSize?: true
   recordCount?: true
+  snapshotMonth?: true
+  snapshotYear?: true
   uploadedById?: true
 }
 
@@ -90,6 +102,8 @@ export type ManpowerUploadSumAggregateInputType = {
   id?: true
   fileSize?: true
   recordCount?: true
+  snapshotMonth?: true
+  snapshotYear?: true
   uploadedById?: true
 }
 
@@ -100,6 +114,8 @@ export type ManpowerUploadMinAggregateInputType = {
   fileSize?: true
   fileContent?: true
   recordCount?: true
+  snapshotMonth?: true
+  snapshotYear?: true
   uploadedById?: true
   createdAt?: true
   updatedAt?: true
@@ -112,6 +128,8 @@ export type ManpowerUploadMaxAggregateInputType = {
   fileSize?: true
   fileContent?: true
   recordCount?: true
+  snapshotMonth?: true
+  snapshotYear?: true
   uploadedById?: true
   createdAt?: true
   updatedAt?: true
@@ -125,6 +143,8 @@ export type ManpowerUploadCountAggregateInputType = {
   fileContent?: true
   employeeData?: true
   recordCount?: true
+  snapshotMonth?: true
+  snapshotYear?: true
   uploadedById?: true
   createdAt?: true
   updatedAt?: true
@@ -225,6 +245,8 @@ export type ManpowerUploadGroupByOutputType = {
   fileContent: runtime.Bytes
   employeeData: runtime.JsonValue
   recordCount: number
+  snapshotMonth: number
+  snapshotYear: number
   uploadedById: number
   createdAt: Date
   updatedAt: Date
@@ -261,6 +283,8 @@ export type ManpowerUploadWhereInput = {
   fileContent?: Prisma.BytesFilter<"ManpowerUpload"> | runtime.Bytes
   employeeData?: Prisma.JsonFilter<"ManpowerUpload">
   recordCount?: Prisma.IntFilter<"ManpowerUpload"> | number
+  snapshotMonth?: Prisma.IntFilter<"ManpowerUpload"> | number
+  snapshotYear?: Prisma.IntFilter<"ManpowerUpload"> | number
   uploadedById?: Prisma.IntFilter<"ManpowerUpload"> | number
   createdAt?: Prisma.DateTimeFilter<"ManpowerUpload"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ManpowerUpload"> | Date | string
@@ -275,6 +299,8 @@ export type ManpowerUploadOrderByWithRelationInput = {
   fileContent?: Prisma.SortOrder
   employeeData?: Prisma.SortOrder
   recordCount?: Prisma.SortOrder
+  snapshotMonth?: Prisma.SortOrder
+  snapshotYear?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -284,6 +310,7 @@ export type ManpowerUploadOrderByWithRelationInput = {
 
 export type ManpowerUploadWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  snapshotMonth_snapshotYear?: Prisma.ManpowerUploadSnapshotMonthSnapshotYearCompoundUniqueInput
   AND?: Prisma.ManpowerUploadWhereInput | Prisma.ManpowerUploadWhereInput[]
   OR?: Prisma.ManpowerUploadWhereInput[]
   NOT?: Prisma.ManpowerUploadWhereInput | Prisma.ManpowerUploadWhereInput[]
@@ -293,11 +320,13 @@ export type ManpowerUploadWhereUniqueInput = Prisma.AtLeast<{
   fileContent?: Prisma.BytesFilter<"ManpowerUpload"> | runtime.Bytes
   employeeData?: Prisma.JsonFilter<"ManpowerUpload">
   recordCount?: Prisma.IntFilter<"ManpowerUpload"> | number
+  snapshotMonth?: Prisma.IntFilter<"ManpowerUpload"> | number
+  snapshotYear?: Prisma.IntFilter<"ManpowerUpload"> | number
   uploadedById?: Prisma.IntFilter<"ManpowerUpload"> | number
   createdAt?: Prisma.DateTimeFilter<"ManpowerUpload"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ManpowerUpload"> | Date | string
   uploadedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id">
+}, "id" | "snapshotMonth_snapshotYear">
 
 export type ManpowerUploadOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -307,6 +336,8 @@ export type ManpowerUploadOrderByWithAggregationInput = {
   fileContent?: Prisma.SortOrder
   employeeData?: Prisma.SortOrder
   recordCount?: Prisma.SortOrder
+  snapshotMonth?: Prisma.SortOrder
+  snapshotYear?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -328,6 +359,8 @@ export type ManpowerUploadScalarWhereWithAggregatesInput = {
   fileContent?: Prisma.BytesWithAggregatesFilter<"ManpowerUpload"> | runtime.Bytes
   employeeData?: Prisma.JsonWithAggregatesFilter<"ManpowerUpload">
   recordCount?: Prisma.IntWithAggregatesFilter<"ManpowerUpload"> | number
+  snapshotMonth?: Prisma.IntWithAggregatesFilter<"ManpowerUpload"> | number
+  snapshotYear?: Prisma.IntWithAggregatesFilter<"ManpowerUpload"> | number
   uploadedById?: Prisma.IntWithAggregatesFilter<"ManpowerUpload"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ManpowerUpload"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ManpowerUpload"> | Date | string
@@ -340,6 +373,8 @@ export type ManpowerUploadCreateInput = {
   fileContent: runtime.Bytes
   employeeData: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount: number
+  snapshotMonth: number
+  snapshotYear: number
   createdAt?: Date | string
   updatedAt?: Date | string
   uploadedBy: Prisma.UserCreateNestedOneWithoutManpowerUploadsInput
@@ -353,6 +388,8 @@ export type ManpowerUploadUncheckedCreateInput = {
   fileContent: runtime.Bytes
   employeeData: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount: number
+  snapshotMonth: number
+  snapshotYear: number
   uploadedById: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -365,6 +402,8 @@ export type ManpowerUploadUpdateInput = {
   fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
   employeeData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotYear?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   uploadedBy?: Prisma.UserUpdateOneRequiredWithoutManpowerUploadsNestedInput
@@ -378,6 +417,8 @@ export type ManpowerUploadUncheckedUpdateInput = {
   fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
   employeeData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotYear?: Prisma.IntFieldUpdateOperationsInput | number
   uploadedById?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -391,6 +432,8 @@ export type ManpowerUploadCreateManyInput = {
   fileContent: runtime.Bytes
   employeeData: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount: number
+  snapshotMonth: number
+  snapshotYear: number
   uploadedById: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -403,6 +446,8 @@ export type ManpowerUploadUpdateManyMutationInput = {
   fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
   employeeData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotYear?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -415,6 +460,8 @@ export type ManpowerUploadUncheckedUpdateManyInput = {
   fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
   employeeData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotYear?: Prisma.IntFieldUpdateOperationsInput | number
   uploadedById?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -436,6 +483,11 @@ export type ManpowerUploadOrderByRelevanceInput = {
   search: string
 }
 
+export type ManpowerUploadSnapshotMonthSnapshotYearCompoundUniqueInput = {
+  snapshotMonth: number
+  snapshotYear: number
+}
+
 export type ManpowerUploadCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
@@ -444,6 +496,8 @@ export type ManpowerUploadCountOrderByAggregateInput = {
   fileContent?: Prisma.SortOrder
   employeeData?: Prisma.SortOrder
   recordCount?: Prisma.SortOrder
+  snapshotMonth?: Prisma.SortOrder
+  snapshotYear?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -453,6 +507,8 @@ export type ManpowerUploadAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
   recordCount?: Prisma.SortOrder
+  snapshotMonth?: Prisma.SortOrder
+  snapshotYear?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
 }
 
@@ -463,6 +519,8 @@ export type ManpowerUploadMaxOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   fileContent?: Prisma.SortOrder
   recordCount?: Prisma.SortOrder
+  snapshotMonth?: Prisma.SortOrder
+  snapshotYear?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -475,6 +533,8 @@ export type ManpowerUploadMinOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   fileContent?: Prisma.SortOrder
   recordCount?: Prisma.SortOrder
+  snapshotMonth?: Prisma.SortOrder
+  snapshotYear?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -484,6 +544,8 @@ export type ManpowerUploadSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
   recordCount?: Prisma.SortOrder
+  snapshotMonth?: Prisma.SortOrder
+  snapshotYear?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
 }
 
@@ -540,6 +602,8 @@ export type ManpowerUploadCreateWithoutUploadedByInput = {
   fileContent: runtime.Bytes
   employeeData: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount: number
+  snapshotMonth: number
+  snapshotYear: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -552,6 +616,8 @@ export type ManpowerUploadUncheckedCreateWithoutUploadedByInput = {
   fileContent: runtime.Bytes
   employeeData: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount: number
+  snapshotMonth: number
+  snapshotYear: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -593,6 +659,8 @@ export type ManpowerUploadScalarWhereInput = {
   fileContent?: Prisma.BytesFilter<"ManpowerUpload"> | runtime.Bytes
   employeeData?: Prisma.JsonFilter<"ManpowerUpload">
   recordCount?: Prisma.IntFilter<"ManpowerUpload"> | number
+  snapshotMonth?: Prisma.IntFilter<"ManpowerUpload"> | number
+  snapshotYear?: Prisma.IntFilter<"ManpowerUpload"> | number
   uploadedById?: Prisma.IntFilter<"ManpowerUpload"> | number
   createdAt?: Prisma.DateTimeFilter<"ManpowerUpload"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ManpowerUpload"> | Date | string
@@ -606,6 +674,8 @@ export type ManpowerUploadCreateManyUploadedByInput = {
   fileContent: runtime.Bytes
   employeeData: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount: number
+  snapshotMonth: number
+  snapshotYear: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -617,6 +687,8 @@ export type ManpowerUploadUpdateWithoutUploadedByInput = {
   fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
   employeeData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotYear?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -629,6 +701,8 @@ export type ManpowerUploadUncheckedUpdateWithoutUploadedByInput = {
   fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
   employeeData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotYear?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -641,6 +715,8 @@ export type ManpowerUploadUncheckedUpdateManyWithoutUploadedByInput = {
   fileContent?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
   employeeData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   recordCount?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotYear?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -655,6 +731,8 @@ export type ManpowerUploadSelect<ExtArgs extends runtime.Types.Extensions.Intern
   fileContent?: boolean
   employeeData?: boolean
   recordCount?: boolean
+  snapshotMonth?: boolean
+  snapshotYear?: boolean
   uploadedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -671,12 +749,14 @@ export type ManpowerUploadSelectScalar = {
   fileContent?: boolean
   employeeData?: boolean
   recordCount?: boolean
+  snapshotMonth?: boolean
+  snapshotYear?: boolean
   uploadedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ManpowerUploadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fileName" | "fileType" | "fileSize" | "fileContent" | "employeeData" | "recordCount" | "uploadedById" | "createdAt" | "updatedAt", ExtArgs["result"]["manpowerUpload"]>
+export type ManpowerUploadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fileName" | "fileType" | "fileSize" | "fileContent" | "employeeData" | "recordCount" | "snapshotMonth" | "snapshotYear" | "uploadedById" | "createdAt" | "updatedAt", ExtArgs["result"]["manpowerUpload"]>
 export type ManpowerUploadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   uploadedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -694,6 +774,8 @@ export type $ManpowerUploadPayload<ExtArgs extends runtime.Types.Extensions.Inte
     fileContent: runtime.Bytes
     employeeData: runtime.JsonValue
     recordCount: number
+    snapshotMonth: number
+    snapshotYear: number
     uploadedById: number
     createdAt: Date
     updatedAt: Date
@@ -1074,6 +1156,8 @@ export interface ManpowerUploadFieldRefs {
   readonly fileContent: Prisma.FieldRef<"ManpowerUpload", 'Bytes'>
   readonly employeeData: Prisma.FieldRef<"ManpowerUpload", 'Json'>
   readonly recordCount: Prisma.FieldRef<"ManpowerUpload", 'Int'>
+  readonly snapshotMonth: Prisma.FieldRef<"ManpowerUpload", 'Int'>
+  readonly snapshotYear: Prisma.FieldRef<"ManpowerUpload", 'Int'>
   readonly uploadedById: Prisma.FieldRef<"ManpowerUpload", 'Int'>
   readonly createdAt: Prisma.FieldRef<"ManpowerUpload", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ManpowerUpload", 'DateTime'>

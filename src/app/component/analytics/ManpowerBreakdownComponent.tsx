@@ -1,13 +1,13 @@
 "use client";
 
-import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { withBasePath } from "@/lib/base-path";
+import { useState } from "react";
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
   ComposedChart,
+  LabelList,
   Line,
   Pie,
   PieChart,
@@ -16,381 +16,22 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import * as XLSX from "xlsx";
-
-function ChartContainer({
-  className,
-  style,
-  children,
-}: {
-  className: string;
-  style?: React.CSSProperties;
-  children: React.ReactNode;
-}) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return (
-    <div className={className} style={style}>
-      {mounted ? children : null}
-    </div>
-  );
-}
-
-type EmployeeRecord = {
-  empNo: string;
-  division: string;
-  department: string;
-  section: string;
-  plant: string;
-  gender: string;
-  labourCategory: string;
-  employeeType: string;
-  employeeStatus: string;
-  citizenship: string;
-  joinDate: string;
-  resignationDate: string | null;
-  snapshotMonth?: number | null;
-  snapshotYear?: number | null;
-};
-
-type TrendPoint = {
-  label: string;
-  fullLabel?: string;
-  value: number;
-  highlight?: boolean;
-  year?: number;
-  month?: number;
-};
-
-type SavedManpowerUpload = {
-  id: number;
-  fileName: string;
-  fileType: string | null;
-  fileSize: number;
-  recordCount: number;
-  createdAt: string;
-  uploadedBy?: {
-    fullname: string;
-    staffid: string;
-  };
-  employees: EmployeeRecord[];
-};
-
-const monthNames = [
-  "All Months",
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const categoryOptions = [
-  "All Categories",
-  "Direct Labour",
-  "Mfg Overhead",
-  "General Admin",
-  "Executive",
-  "Non Executive",
-  "Permanent",
-  "Contract",
-  "Local",
-  "Foreign",
-];
-
-const currentDate = new Date();
-const chartBarColors = ["#0f766e", "#4338ca", "#b45309", "#7c3aed"];
-const preferredPlantOrder = [
-  "SHAH ALAM 1 PLANT",
-  "SHAH ALAM 2 PLANT",
-  "PEGOH PLANT",
-  "RASA PLANT",
-  "BUKIT BERUNTUNG PLANT",
-  "FIF TANJUNG MALIM",
-  "PEKAN PLANT",
-  "TANJUNG MALIM 2",
-  "ALAM IMPIAN PLANT",
-];
-
-const plantAbbreviations: Record<string, string> = {
-  "SHAH ALAM 1 PLANT": "SA1",
-  "SHAH ALAM 2 PLANT": "SA2",
-  "PEGOH PLANT": "PGH",
-  "RASA PLANT": "RASA",
-  "BUKIT BERUNTUNG PLANT": "BB",
-  "FIF TANJUNG MALIM": "FIFTGM",
-  "PEKAN PLANT": "PKN",
-  "TANJUNG MALIM 2": "TGM2",
-  "ALAM IMPIAN PLANT": "AI",
-};
-
-function abbreviatePlant(plant: string) {
-  return plantAbbreviations[plant] ?? plant;
-}
-
-const divisionAbbreviations: Record<string, string> = {
-  "BUSINESS DEVELOPMENT & STRATEGY": "BD",
-  "DHMSB OPERATIONS": "DHMSB",
-  "ENGINEERING AND RD": "ENGINEERING",
-  "FINANCE PROCUREMENT AND IT": "FPIT",
-  "HUMAN CAPITAL AND ESG": "HC",
-  "OPERATION MANAGEMENT": "OPERATIONS",
-  "QUALITY MANAGEMENT": "QUALITY",
-  "CEO OFFICE": "CEO",
-  "BUSINESS COORDINATOR": "BC",
-};
-
-function abbreviateDivision(division: string) {
-  const normalized = division.trim().toUpperCase();
-  return divisionAbbreviations[normalized] ?? division;
-}
-
-const departmentAbbreviations: Record<string, string> = {
-  "MANUFACTURING AND SCM - TM 1": "MFG SCM TM1",
-  "QUALITY ASSURANCE & CONTROL SA 1": "QAQC SA1",
-  "MANUFACTURING AND SCM - PEKAN": "MFG SCM PEKAN",
-  "MANUFACTURING AND SCM - PEGOH": "MFG SCM PEGOH",
-  FINANCE: "FINANCE",
-  "HICOM INTELLIGENT MOBILITY": "HICOM MOBILITY",
-  "REWARDS AND ADMIN": "REWARDS ADMIN",
-  "MANUFACTURING AND SCM - SA1": "MFG SCM SA1",
-  "PROGRAM MANAGEMENT II": "PROGRAM MGMT II",
-  "INVENTORY MGMT AND PLANNING": "INV & PLAN",
-  "MANUFACTURING AND SCM - BB/RASA": "MFG SCM BB/RASA",
-  "QUALITY ASSURANCE & CONTROL SA 2": "QAQC SA2",
-  "FACILITY AND ENERGY MANAGEMENT": "FACILITY & ENERGY",
-  "QUALITY ASSURANCE & CONTROL - BB, RASA, TM 1 AND TM 2": "QAQC BB/RASA",
-  "CULTURE AND TALENT MANAGEMENT": "CULTURE & TALENT",
-  "PROCESS ENGINEERING": "PROCESS ENG",
-  "IT AND DIGITALISATION": "IT & DIGITAL",
-  "QUALITY ASSURANCE & CONTROL-DEV - MLK PKN": "QAQC DEV MLK",
-  "PROGRAM MANAGEMENT III": "PROGRAM MGMT III",
-  "MANUFACTURING AND SCM - SA 2": "MFG SCM SA2",
-  "EQUIPMENT MAINT I - SA 1, SA 2, DHMSB, PEGOH": "EQUIP MAINT I",
-  "MFG & SCM - DHMSB": "MFG SCM DHMSB",
-  "MANUFACTURING AND SCM - TM 2": "MFG SCM TM2",
-  "PROGRAM MANAGEMENT I": "PROGRAM MGMT I",
-  "EQUIPMENT MAINT II - BB, RASA, TM1, TM2": "EQUIP MAINT II",
-  "RESEARCH AND DEVELOPMENT": "R&D",
-  "TOOLING DESIGN AND DEVELOPMENT": "TOOLING DEV",
-  "PROCUREMENT & VENDOR DEV": "PROC & VENDOR",
-  "CEO OFFICE": "CEO OFFICE",
-  "ESG HEALTH AND SAFETY": "ESG H&S",
-  "COSTING AND COMMERCIAL": "COST & COMM",
-  "QMS & SQ": "QMS & SQ",
-  "QUALITY DEVELOPMENT": "QUALITY DEV",
-  "BUSINESS DEVELOPMENT": "BUSINESS DEV",
-  OPERATIONS: "OPERATIONS",
-  "ENERGY SOLUTION": "ENERGY SOL",
-  "ENGINEERING MANAGEMENT I": "ENGINEERING I",
-  "OPERATION III": "OPERATION III",
-  "PROGRAM MANAGEMENT": "PROGRAM MGMT",
-  "-": "-",
-  "ENGINEERING MANAGEMENT II": "ENGINEERING II",
-  "OPERATION II": "OPERATION II",
-  "OPERATION I AND IMP": "OP I & IMP",
-  "OPERATION IV": "OPERATION IV",
-  "QUALITY MANAGEMENT": "QUALITY MGMT",
-  "QUALITY OPERATIONS": "QUALITY OPS",
-  "ENERGY MGMT AUTHORITY LIASON": "ENERGY MGMT",
-};
-
-function abbreviateDepartment(department: string) {
-  const normalized = department.trim().toUpperCase();
-  return departmentAbbreviations[normalized] ?? department;
-}
-
-const monthNumberByName: Record<string, number> = {
-  jan: 1,
-  january: 1,
-  feb: 2,
-  february: 2,
-  mar: 3,
-  march: 3,
-  apr: 4,
-  april: 4,
-  may: 5,
-  jun: 6,
-  june: 6,
-  jul: 7,
-  july: 7,
-  aug: 8,
-  august: 8,
-  sep: 9,
-  sept: 9,
-  september: 9,
-  oct: 10,
-  october: 10,
-  nov: 11,
-  november: 11,
-  dec: 12,
-  december: 12,
-};
-
-function normalizeText(value: unknown) {
-  return String(value ?? "").trim();
-}
-
-function normalizeNullableText(value: unknown) {
-  const normalized = normalizeText(value);
-  return normalized ? normalized : null;
-}
-
-function normalizeGender(value: unknown) {
-  const normalized = normalizeText(value).toUpperCase();
-
-  if (normalized === "M" || normalized === "MALE") {
-    return "M";
-  }
-
-  if (normalized === "F" || normalized === "FEMALE") {
-    return "F";
-  }
-
-  return normalized;
-}
-
-function formatCount(value: number) {
-  return value.toLocaleString();
-}
-
-function normalizeExcelDate(value: unknown) {
-  if (value === null || value === undefined || value === "") {
-    return "";
-  }
-
-  if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return `${value.getMonth() + 1}/${value.getDate()}/${value.getFullYear()}`;
-  }
-
-  if (typeof value === "number") {
-    const parsedDate = XLSX.SSF.parse_date_code(value);
-
-    if (parsedDate) {
-      return `${parsedDate.m}/${parsedDate.d}/${parsedDate.y}`;
-    }
-  }
-
-  return normalizeText(value);
-}
-
-function parseSheetPeriod(sheetName: string) {
-  const normalizedSheetName = sheetName.trim().toLowerCase();
-  const monthMatch = normalizedSheetName.match(
-    /(?:^|[^a-z])(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:[^a-z]|$)/i,
-  );
-  const yearMatch = normalizedSheetName.match(/(?:19|20)?\d{2,4}/);
-
-  if (!monthMatch || !yearMatch) {
-    return { snapshotMonth: null, snapshotYear: null };
-  }
-
-  const matchedMonth = monthMatch[1].toLowerCase();
-  const snapshotMonth = monthNumberByName[matchedMonth] ?? null;
-  const rawYear = yearMatch[0];
-  const numericYear = Number(rawYear);
-  const snapshotYear = rawYear.length === 2 ? 2000 + numericYear : numericYear;
-
-  return {
-    snapshotMonth,
-    snapshotYear,
-  };
-}
-
-function mapWorksheetRowsToEmployees(
-  rows: Record<string, unknown>[],
-  sheetName?: string,
-) {
-  const { snapshotMonth, snapshotYear } = parseSheetPeriod(sheetName ?? "");
-
-  return rows
-    .map((row) => ({
-      empNo: normalizeText(row.EmpNo),
-      division: normalizeText(row.Division),
-      department: normalizeText(row.Department),
-      section: normalizeText(row.Section_Occ),
-      plant: normalizeText(row.Team),
-      gender: normalizeGender(row.Sex),
-      labourCategory: normalizeText(row.Level_Occ).toUpperCase(),
-      employeeType: normalizeText(row.Employee_Type).toUpperCase(),
-      employeeStatus: normalizeText(row.Employee_Status).toUpperCase(),
-      citizenship: normalizeText(row.Citizenship).toUpperCase(),
-      joinDate: normalizeExcelDate(row.Date_Join),
-      resignationDate: normalizeNullableText(
-        normalizeExcelDate(row.Date_Resignation),
-      ),
-      snapshotMonth,
-      snapshotYear,
-    }))
-    .filter(
-      (employee) =>
-        employee.empNo &&
-        employee.division &&
-        employee.department &&
-        employee.section &&
-        employee.plant &&
-        employee.joinDate,
-    );
-}
-
-function parseDate(value: string | null) {
-  if (!value) return null;
-
-  const [month, day, year] = value.split("/").map(Number);
-  if (!month || !day || !year) return null;
-
-  const normalizedYear =
-    year < 100 ? (year >= 70 ? 1900 + year : 2000 + year) : year;
-
-  return new Date(normalizedYear, month - 1, day);
-}
-
-function isActiveAt(employee: EmployeeRecord, date: Date) {
-  const joinDate = parseDate(employee.joinDate);
-  const resignationDate = parseDate(employee.resignationDate);
-
-  if (!joinDate) return false;
-
-  return joinDate <= date && (!resignationDate || resignationDate > date);
-}
-
-function isActiveWithinPeriod(
-  employee: EmployeeRecord,
-  startDate: Date,
-  endDate: Date,
-) {
-  const joinDate = parseDate(employee.joinDate);
-  const resignationDate = parseDate(employee.resignationDate);
-
-  if (!joinDate) return false;
-
-  return (
-    joinDate <= endDate && (!resignationDate || resignationDate >= startDate)
-  );
-}
-
-function matchesCategory(employee: EmployeeRecord, category: string) {
-  if (category === "All Categories") return true;
-
-  const normalizedCategory = category.toUpperCase();
-
-  return (
-    employee.labourCategory === normalizedCategory ||
-    employee.employeeType === normalizedCategory ||
-    employee.employeeStatus === normalizedCategory ||
-    (normalizedCategory === "LOCAL" && employee.citizenship === "MALAYSIAN") ||
-    (normalizedCategory === "FOREIGN" &&
-      employee.citizenship !== "" &&
-      employee.citizenship !== "MALAYSIAN")
-  );
-}
+import {
+  ChartContainer,
+  DataSourceCard,
+  TrendPoint,
+  abbreviateDepartment,
+  abbreviateDivision,
+  abbreviatePlant,
+  categoryOptions,
+  chartBarColors,
+  currentDate,
+  formatCount,
+  matchesCategory,
+  monthNames,
+  preferredPlantOrder,
+  useManpowerEmployees,
+} from "./manpowerShared";
 
 function HeadcountBarChart({
   data,
@@ -416,9 +57,6 @@ function HeadcountBarChart({
             {description}
           </p>
         </div>
-        {/* <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
-          {badgeLabel}
-        </span> */}
       </div>
 
       <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
@@ -467,13 +105,19 @@ function HeadcountBarChart({
               }}
               wrapperStyle={{ outline: "none" }}
             />
-            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="value" radius={[6, 6, 0, 0]} isAnimationActive={false}>
               {data.map((entry, index) => (
                 <Cell
                   key={`${entry.label}-${index}`}
                   fill={chartBarColors[index % chartBarColors.length]}
                 />
               ))}
+              <LabelList
+                dataKey="value"
+                position="top"
+                formatter={(value) => formatCount(Number(value ?? 0))}
+                style={{ fontSize: 11, fill: "#374151" }}
+              />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -642,14 +286,30 @@ function PermanentContractByPlantChart({
               name="Permanent"
               stackId="status"
               fill="#4338ca"
-            />
+              isAnimationActive={false}
+            >
+              <LabelList
+                dataKey="permanent"
+                position="center"
+                formatter={(value) => (Number(value ?? 0) ? formatCount(Number(value)) : "")}
+                style={{ fontSize: 10, fontWeight: 600, fill: "#ffffff" }}
+              />
+            </Bar>
             <Bar
               dataKey="contract"
               name="Contract"
               stackId="status"
               fill="#f59e0b"
               radius={[4, 4, 0, 0]}
-            />
+              isAnimationActive={false}
+            >
+              <LabelList
+                dataKey="contract"
+                position="center"
+                formatter={(value) => (Number(value ?? 0) ? formatCount(Number(value)) : "")}
+                style={{ fontSize: 10, fontWeight: 600, fill: "#ffffff" }}
+              />
+            </Bar>
             <Line
               type="monotone"
               dataKey="male"
@@ -762,6 +422,7 @@ function ManpowerByDivisionChart({
               name="Count"
               background={{ fill: "#f3f4f6" }}
               radius={[6, 6, 0, 0]}
+              isAnimationActive={false}
             >
               {data.map((entry, index) => (
                 <Cell
@@ -769,6 +430,12 @@ function ManpowerByDivisionChart({
                   fill={divisionChartColors[index % divisionChartColors.length]}
                 />
               ))}
+              <LabelList
+                dataKey="value"
+                position="top"
+                formatter={(value) => formatCount(Number(value ?? 0))}
+                style={{ fontSize: 11, fill: "#374151" }}
+              />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -843,6 +510,7 @@ function ManpowerByDepartmentChart({
                 name="Count"
                 background={{ fill: "#f3f4f6" }}
                 radius={[0, 6, 6, 0]}
+                isAnimationActive={false}
               >
                 {data.map((entry, index) => (
                   <Cell
@@ -852,6 +520,12 @@ function ManpowerByDepartmentChart({
                     }
                   />
                 ))}
+                <LabelList
+                  dataKey="value"
+                  position="right"
+                  formatter={(value) => formatCount(Number(value ?? 0))}
+                  style={{ fontSize: 11, fill: "#374151" }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -1111,10 +785,16 @@ function LabourMixCard({
               }}
               wrapperStyle={{ outline: "none" }}
             />
-            <Bar dataKey="percentage" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="percentage" radius={[6, 6, 0, 0]} isAnimationActive={false}>
               {chartData.map((entry) => (
                 <Cell key={entry.label} fill={entry.color} />
               ))}
+              <LabelList
+                dataKey="percentage"
+                position="top"
+                formatter={(value) => `${Number(value ?? 0).toFixed(1)}%`}
+                style={{ fontSize: 11, fill: "#374151" }}
+              />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -1180,52 +860,31 @@ function GenderMixCard({
   );
 }
 
-export default function ManpowerAnalyticsComponent() {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [employees, setEmployees] = useState<EmployeeRecord[]>([]);
-  const [uploadMessage, setUploadMessage] = useState(
-    "Upload an Excel workbook to load manpower dashboard data.",
+export default function ManpowerBreakdownComponent() {
+  const [selectedMonth, setSelectedMonth] = useState(
+    currentDate.getMonth() + 1,
   );
-  const [isUploading, setIsUploading] = useState(false);
-  const [isLoadingSavedData, setIsLoadingSavedData] = useState(true);
-  const latestYear =
-    employees.length > 0
-      ? Math.max(
-          ...employees.flatMap((employee) => {
-            const years = [
-              employee.snapshotYear ??
-                parseDate(employee.joinDate)?.getFullYear() ??
-                currentDate.getFullYear(),
-            ];
-            const resignationYear = parseDate(
-              employee.resignationDate,
-            )?.getFullYear();
-
-            if (resignationYear) {
-              years.push(resignationYear);
-            }
-
-            return years;
-          }),
-        )
-      : currentDate.getFullYear();
-
-  const earliestYear =
-    employees.length > 0
-      ? Math.min(
-          ...employees.map(
-            (employee) =>
-              employee.snapshotYear ??
-              parseDate(employee.joinDate)?.getFullYear() ??
-              latestYear,
-          ),
-        )
-      : currentDate.getFullYear();
-
-  const years = Array.from(
-    { length: latestYear - earliestYear + 1 },
-    (_, index) => latestYear - index,
+  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
+  const [selectedPlant, setSelectedPlant] = useState("All Plants");
+  const [selectedDepartment, setSelectedDepartment] = useState(
+    "All Departments",
   );
+  const [selectedDivision, setSelectedDivision] = useState("All Divisions");
+  const [selectedCategory, setSelectedCategory] = useState(categoryOptions[0]);
+
+  const {
+    fileInputRef,
+    employees,
+    uploadMessage,
+    isUploading,
+    isLoadingSavedData,
+    handleFileUpload,
+  } = useManpowerEmployees(() => {
+    setSelectedPlant("All Plants");
+    setSelectedDepartment("All Departments");
+    setSelectedDivision("All Divisions");
+    setSelectedCategory("All Categories");
+  });
 
   const plantOptions = [
     "All Plants",
@@ -1246,103 +905,20 @@ export default function ManpowerAnalyticsComponent() {
     ).sort(),
   ];
 
-  const [selectedMonth, setSelectedMonth] = useState("All Months");
-  const [selectedYear, setSelectedYear] = useState(
-    currentDate.getFullYear().toString(),
+  const yearOptions = Array.from(
+    new Set([
+      currentDate.getFullYear(),
+      ...employees
+        .map((employee) => employee.snapshotYear)
+        .filter((year): year is number => typeof year === "number"),
+    ]),
+  ).sort((a, b) => b - a);
+
+  const periodMatchedEmployees = employees.filter(
+    (employee) =>
+      employee.snapshotYear === selectedYear &&
+      employee.snapshotMonth === selectedMonth,
   );
-  const [selectedPlant, setSelectedPlant] = useState(plantOptions[0]);
-  const [selectedDepartment, setSelectedDepartment] = useState(
-    departmentOptions[0],
-  );
-  const [selectedDivision, setSelectedDivision] = useState(
-    divisionOptions[0],
-  );
-  const [selectedCategory, setSelectedCategory] = useState(categoryOptions[0]);
-
-  const applyEmployees = (nextEmployees: EmployeeRecord[], message: string) => {
-    setEmployees(nextEmployees);
-
-    const uploadedYears = nextEmployees
-      .map((employee) => employee.snapshotYear)
-      .filter((year): year is number => typeof year === "number");
-    const defaultUploadYear =
-      uploadedYears.length > 0
-        ? Math.max(...uploadedYears)
-        : currentDate.getFullYear();
-
-    setSelectedYear(defaultUploadYear.toString());
-    setSelectedPlant("All Plants");
-    setSelectedDepartment("All Departments");
-    setSelectedDivision("All Divisions");
-    setSelectedCategory("All Categories");
-    setUploadMessage(message);
-  };
-
-  useEffect(() => {
-    const loadSavedData = async () => {
-      try {
-        const response = await fetch(withBasePath("/api/manpower-dashboard"));
-
-        if (!response.ok) {
-          if (response.status !== 404) {
-            throw new Error("Failed to fetch saved manpower data.");
-          }
-
-          return;
-        }
-
-        const payload: { data: SavedManpowerUpload | null } =
-          await response.json();
-
-        if (!payload.data || payload.data.employees.length === 0) {
-          return;
-        }
-
-        const uploadedAt = new Date(payload.data.createdAt).toLocaleString();
-        const uploadedBy = payload.data.uploadedBy?.fullname
-          ? ` by ${payload.data.uploadedBy.fullname}`
-          : "";
-
-        applyEmployees(
-          payload.data.employees,
-          `Loaded ${payload.data.recordCount} employee records from saved workbook ${payload.data.fileName}${uploadedBy} on ${uploadedAt}.`,
-        );
-      } catch (error) {
-        console.error(error);
-        setUploadMessage(
-          "Unable to load the latest saved manpower workbook. You can upload a new Excel file.",
-        );
-      } finally {
-        setIsLoadingSavedData(false);
-      }
-    };
-
-    loadSavedData();
-  }, []);
-
-  const hasSnapshotPeriods = employees.some(
-    (employee) => employee.snapshotMonth && employee.snapshotYear,
-  );
-  const selectedMonthIndex = monthNames.indexOf(selectedMonth);
-  const isWholeYearView = selectedMonth === "All Months";
-
-  const periodMatchedEmployees = hasSnapshotPeriods
-    ? employees.filter((employee) => {
-        if (!employee.snapshotYear) {
-          return false;
-        }
-
-        if (employee.snapshotYear !== Number(selectedYear)) {
-          return false;
-        }
-
-        if (isWholeYearView) {
-          return true;
-        }
-
-        return employee.snapshotMonth === selectedMonthIndex;
-      })
-    : employees;
 
   const filteredEmployees = periodMatchedEmployees.filter((employee) => {
     if (selectedPlant !== "All Plants" && employee.plant !== selectedPlant) {
@@ -1366,20 +942,9 @@ export default function ManpowerAnalyticsComponent() {
     return matchesCategory(employee, selectedCategory);
   });
 
-  const periodStartDate = isWholeYearView
-    ? new Date(Number(selectedYear), 0, 1, 0, 0, 0)
-    : new Date(Number(selectedYear), selectedMonthIndex - 1, 1, 0, 0, 0);
-  const periodEndDate = isWholeYearView
-    ? new Date(Number(selectedYear), 11, 31, 23, 59, 59)
-    : new Date(Number(selectedYear), selectedMonthIndex, 0, 23, 59, 59);
-
-  const activeEmployees = filteredEmployees.filter((employee) =>
-    hasSnapshotPeriods
-      ? true
-      : isWholeYearView
-        ? isActiveWithinPeriod(employee, periodStartDate, periodEndDate)
-        : isActiveAt(employee, periodEndDate),
-  );
+  // Legacy records without a snapshot period have no reference date to test
+  // "active" against anymore, so they're simply treated as active as-is.
+  const activeEmployees = filteredEmployees;
 
   const totalManpower = filteredEmployees.length;
   const totalDirectCount = activeEmployees.filter(
@@ -1425,13 +990,10 @@ export default function ManpowerAnalyticsComponent() {
     Array.from(
       employees
         .filter((employee) => employee.plant === plantName)
-        .filter((employee) =>
-          hasSnapshotPeriods
-            ? isWholeYearView
-              ? employee.snapshotYear === Number(selectedYear)
-              : employee.snapshotYear === Number(selectedYear) &&
-                employee.snapshotMonth === selectedMonthIndex
-            : true,
+        .filter(
+          (employee) =>
+            employee.snapshotYear === selectedYear &&
+            employee.snapshotMonth === selectedMonth,
         )
         .filter((employee) =>
           selectedDepartment === "All Departments"
@@ -1444,13 +1006,6 @@ export default function ManpowerAnalyticsComponent() {
             : employee.division === selectedDivision,
         )
         .filter((employee) => matchesCategory(employee, selectedCategory))
-        .filter((employee) =>
-          hasSnapshotPeriods
-            ? true
-            : isWholeYearView
-              ? isActiveWithinPeriod(employee, periodStartDate, periodEndDate)
-              : isActiveAt(employee, periodEndDate),
-        )
         .reduce((map, employee) => {
           const currentCount = map.get(employee.division) ?? 0;
           map.set(employee.division, currentCount + 1);
@@ -1538,80 +1093,6 @@ export default function ManpowerAnalyticsComponent() {
       (a, b) => b.value - a.value || a.department.localeCompare(b.department),
     );
 
-  const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      setUploadMessage(`Reading ${file.name} and saving it to the database...`);
-
-      const buffer = await file.arrayBuffer();
-      const workbook = XLSX.read(buffer, { type: "array" });
-      const firstSheetName = workbook.SheetNames[0];
-
-      if (!firstSheetName) {
-        setUploadMessage(
-          "The uploaded workbook does not contain any worksheet.",
-        );
-        return;
-      }
-
-      const parsedEmployees = workbook.SheetNames.flatMap((sheetName) => {
-        const worksheet = workbook.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(
-          worksheet,
-          {
-            defval: "",
-            raw: false,
-          },
-        );
-
-        return mapWorksheetRowsToEmployees(rows, sheetName);
-      });
-
-      if (parsedEmployees.length === 0) {
-        setUploadMessage(
-          "No valid manpower rows were found. Expected columns include EmpNo, Department, Team, Level_Occ, Employee_Type, Employee_Status, Education_Category, Date_Join, and Date_Resignation.",
-        );
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("employees", JSON.stringify(parsedEmployees));
-
-      const response = await fetch(withBasePath("/api/manpower-dashboard"), {
-        method: "POST",
-        body: formData,
-      });
-
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.error || "Failed to save manpower workbook.");
-      }
-
-      applyEmployees(
-        parsedEmployees,
-        `Saved and loaded ${parsedEmployees.length} employee records from ${file.name}.`,
-      );
-    } catch (error) {
-      console.error("Failed to read workbook:", error);
-      setUploadMessage(
-        error instanceof Error
-          ? error.message
-          : "The Excel file could not be read. Please upload a valid .xlsx file.",
-      );
-    } finally {
-      setIsUploading(false);
-      event.target.value = "";
-    }
-  };
-
   return (
     <section className="space-y-6 font-poppins">
       <div className="rounded-2xl bg-gradient-to-r from-indigo-800 via-indigo-700 to-sky-700 p-6 text-white shadow-lg">
@@ -1620,10 +1101,12 @@ export default function ManpowerAnalyticsComponent() {
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-indigo-100">
               Workforce Planning
             </p>
-            <h1 className="mt-2 text-3xl font-semibold">Manpower Dashboard</h1>
+            <h1 className="mt-2 text-3xl font-semibold">
+              Manpower Breakdown
+            </h1>
             <p className="mt-2 max-w-2xl text-sm text-indigo-100">
-              Live summary based on the workbook data, with manpower counts and
-              monthly trends by selected period.
+              Composition of the workforce for the selected period, broken
+              down by plant, department, division, and category.
             </p>
           </div>
 
@@ -1634,11 +1117,11 @@ export default function ManpowerAnalyticsComponent() {
               </span>
               <select
                 value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
                 className="w-full rounded-lg border border-white/20 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none transition focus:border-indigo-300"
               >
-                {monthNames.map((month) => (
-                  <option key={month} value={month}>
+                {monthNames.slice(1).map((month, index) => (
+                  <option key={month} value={index + 1}>
                     {month}
                   </option>
                 ))}
@@ -1651,11 +1134,11 @@ export default function ManpowerAnalyticsComponent() {
               </span>
               <select
                 value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
                 className="w-full rounded-lg border border-white/20 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none transition focus:border-indigo-300"
               >
-                {years.map((year) => (
-                  <option key={year} value={year.toString()}>
+                {yearOptions.map((year) => (
+                  <option key={year} value={year}>
                     {year}
                   </option>
                 ))}
@@ -1665,49 +1148,14 @@ export default function ManpowerAnalyticsComponent() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm">
-        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Data Source
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {uploadMessage}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading || isLoadingSavedData}
-              className="inline-flex items-center rounded-lg bg-indigo-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-800"
-            >
-              {isUploading
-                ? "Saving..."
-                : isLoadingSavedData
-                  ? "Loading..."
-                  : "Upload Excel File"}
-            </button>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-100 dark:border-gray-800 pt-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
-            Active Records
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-gray-100">
-            {employees.length}
-          </p>
-        </div>
-      </div>
+      <DataSourceCard
+        uploadMessage={uploadMessage}
+        isUploading={isUploading}
+        isLoadingSavedData={isLoadingSavedData}
+        employeeCount={employees.length}
+        fileInputRef={fileInputRef}
+        onFileChange={handleFileUpload}
+      />
 
       <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm">
         <div className="mb-4">
@@ -1866,7 +1314,7 @@ export default function ManpowerAnalyticsComponent() {
         })}
       </div>
 
-      {employees.length === 0 && (
+      {employees.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-10 text-center shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             No Data Loaded
@@ -1875,6 +1323,18 @@ export default function ManpowerAnalyticsComponent() {
             Upload an Excel workbook to populate the manpower dashboard.
           </p>
         </div>
+      ) : (
+        periodMatchedEmployees.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-10 text-center shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              No Data For {monthNames[selectedMonth]} {selectedYear}
+            </h2>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Pick a different month/year above, or upload a workbook for
+              this period.
+            </p>
+          </div>
+        )
       )}
     </section>
   );

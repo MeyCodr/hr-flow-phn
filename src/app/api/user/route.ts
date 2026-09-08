@@ -1,4 +1,6 @@
-import { requireAdmin } from "@/src/lib/admin-access";
+import { isAdminRole } from "@/src/lib/admin-access";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/src/lib/auth-options";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { hash } from "bcrypt";
@@ -87,8 +89,21 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const denied = await requireAdmin();
-    if (denied) return denied;
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Forms let any staff member pick a colleague (e.g. "Immediate Superior"),
+    // so any authenticated user gets a basic directory. Admin screens (user
+    // management, approval flow setup) get the full detail below.
+    if (!isAdminRole(session.user?.role)) {
+      const users = await prisma.user.findMany({
+        select: { id: true, fullname: true, staffid: true, role: true },
+      });
+      return NextResponse.json(users);
+    }
 
     const users = await prisma.user.findMany({
       include: {

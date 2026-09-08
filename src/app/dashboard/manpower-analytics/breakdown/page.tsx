@@ -1,9 +1,10 @@
 import { authOptions } from "@/src/lib/auth-options";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import ManpowerBreakdownComponent from "@/app/component/analytics/ManpowerBreakdownComponent";
 import { canViewAnalytics } from "@/lib/analytics-access";
 
-export default async function ManpowerAnalyticsPage() {
+export default async function ManpowerBreakdownPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -18,5 +19,5 @@ export default async function ManpowerAnalyticsPage() {
     );
   }
 
-  redirect("/dashboard/manpower-analytics/breakdown");
+  return <ManpowerBreakdownComponent />;
 }

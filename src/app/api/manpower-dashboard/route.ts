@@ -44,8 +44,10 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const latestUpload = await prisma.manpowerUpload.findFirst({
-      orderBy: { id: "desc" },
+    // Sorted in JS rather than via `orderBy`: MySQL's filesort has to buffer
+    // whole rows for a sort, and these rows carry a large `employeeData`
+    // JSON blob, which blows past the server's sort_buffer_size.
+    const unorderedUploads = await prisma.manpowerUpload.findMany({
       select: {
         id: true,
         fileName: true,
@@ -53,6 +55,8 @@ export async function GET() {
         fileSize: true,
         recordCount: true,
         createdAt: true,
+        snapshotMonth: true,
+        snapshotYear: true,
         employeeData: true,
         uploadedBy: {
           select: {
@@ -63,28 +67,30 @@ export async function GET() {
       },
     });
 
-    if (!latestUpload) {
+    if (unorderedUploads.length === 0) {
       return NextResponse.json({ data: null }, { status: 200 });
     }
 
-    if (!isEmployeeRecordArray(latestUpload.employeeData)) {
-      console.error(
-        "Latest manpower upload has invalid employeeData shape:",
-        latestUpload.id,
-      );
-      return NextResponse.json({ data: null }, { status: 200 });
-    }
+    const uploads = unorderedUploads.sort(
+      (a, b) => a.snapshotYear - b.snapshotYear || a.snapshotMonth - b.snapshotMonth,
+    );
+
+    const employees = uploads.flatMap((upload) => {
+      if (!isEmployeeRecordArray(upload.employeeData)) {
+        console.error(
+          "Manpower upload has invalid employeeData shape:",
+          upload.id,
+        );
+        return [];
+      }
+
+      return upload.employeeData;
+    });
 
     return NextResponse.json({
       data: {
-        id: latestUpload.id,
-        fileName: latestUpload.fileName,
-        fileType: latestUpload.fileType,
-        fileSize: latestUpload.fileSize,
-        recordCount: latestUpload.recordCount,
-        createdAt: latestUpload.createdAt,
-        uploadedBy: latestUpload.uploadedBy,
-        employees: latestUpload.employeeData,
+        employees,
+        uploads: uploads.map(({ employeeData: _employeeData, ...upload }) => upload),
       },
     });
   } catch (error) {
@@ -120,6 +126,8 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file");
     const rawEmployees = formData.get("employees");
+    const rawMonth = formData.get("month");
+    const rawYear = formData.get("year");
 
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "File is required" }, { status: 400 });
@@ -128,6 +136,23 @@ export async function POST(req: NextRequest) {
     if (typeof rawEmployees !== "string") {
       return NextResponse.json(
         { error: "Employee data is required" },
+        { status: 400 },
+      );
+    }
+
+    const snapshotMonth = Number(rawMonth);
+    const snapshotYear = Number(rawYear);
+
+    if (
+      !Number.isInteger(snapshotMonth) ||
+      snapshotMonth < 1 ||
+      snapshotMonth > 12 ||
+      !Number.isInteger(snapshotYear) ||
+      snapshotYear < 2000 ||
+      snapshotYear > 2100
+    ) {
+      return NextResponse.json(
+        { error: "A valid month and year are required" },
         { status: 400 },
       );
     }
@@ -141,17 +166,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // The chosen month/year is the source of truth for the whole upload,
+    // regardless of what the client-side sheet-name parsing guessed.
+    const employeesForPeriod = parsedEmployees.map((employee) => ({
+      ...employee,
+      snapshotMonth,
+      snapshotYear,
+    }));
+
     const arrayBuffer = await file.arrayBuffer();
     const fileBuffer = Buffer.from(arrayBuffer);
 
-    const upload = await prisma.manpowerUpload.create({
-      data: {
+    const upload = await prisma.manpowerUpload.upsert({
+      where: {
+        snapshotMonth_snapshotYear: { snapshotMonth, snapshotYear },
+      },
+      create: {
         fileName: file.name,
         fileType: file.type || "application/octet-stream",
         fileSize: file.size,
         fileContent: fileBuffer,
-        employeeData: parsedEmployees,
-        recordCount: parsedEmployees.length,
+        employeeData: employeesForPeriod,
+        recordCount: employeesForPeriod.length,
+        snapshotMonth,
+        snapshotYear,
+        uploadedById: user.id,
+      },
+      update: {
+        fileName: file.name,
+        fileType: file.type || "application/octet-stream",
+        fileSize: file.size,
+        fileContent: fileBuffer,
+        employeeData: employeesForPeriod,
+        recordCount: employeesForPeriod.length,
         uploadedById: user.id,
       },
     });
@@ -163,7 +210,9 @@ export async function POST(req: NextRequest) {
         fileName: upload.fileName,
         recordCount: upload.recordCount,
         createdAt: upload.createdAt,
-        employees: parsedEmployees,
+        snapshotMonth: upload.snapshotMonth,
+        snapshotYear: upload.snapshotYear,
+        employees: employeesForPeriod,
       },
     });
   } catch (error) {
