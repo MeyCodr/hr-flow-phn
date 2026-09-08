@@ -6,6 +6,9 @@ import {
   isScopedAdminRole,
 } from "@/src/lib/admin-access";
 import { getServerSession } from "next-auth";
+import { advancePastNotifySteps } from "@/lib/notifyStepCascade";
+
+const webLink = process.env.NEXTAUTH_URL;
 
 type FormDataType = Record<string, unknown> & {
   division?: string;
@@ -192,6 +195,7 @@ export async function PUT(
           include: {
             approvals: { orderBy: { stepOrder: "asc" } },
             formType: true,
+            createdBy: true,
           },
         },
       },
@@ -260,9 +264,29 @@ export async function PUT(
       const nextStep = await normalizeApprovalQueue(submissionId);
 
       if (nextStep) {
+        // Auto-resolve any leading run of NOTIFY-only steps — this admin
+        // override bypasses the normal approve/reject route, so nothing
+        // else would ever advance past them.
+        const requestor = submission.createdBy;
+        const requestorDepartment = requestor.departmentId
+          ? await prisma.department.findUnique({ where: { id: requestor.departmentId } })
+          : null;
+
+        const cascadeResult = await advancePastNotifySteps({
+          submissionId,
+          formTypeId: submission.formTypeId,
+          formTitle: submission.formType?.name ?? "",
+          requestorName: requestor.fullname,
+          requestorStaffId: requestor.staffid,
+          requestorEmail: requestor.email,
+          departmentName: requestorDepartment?.name ?? "-",
+          submittedAt: submission.createdAt.toLocaleString(),
+          requestLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${submission.formType?.name}`,
+        });
+
         await prisma.formSubmission.update({
           where: { id: submissionId },
-          data: { status: "PENDING" },
+          data: { status: cascadeResult.finalized ? "APPROVED" : "PENDING" },
         });
       } else {
         await prisma.formSubmission.update({

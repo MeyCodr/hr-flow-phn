@@ -212,6 +212,7 @@ export const ApprovalFlowStepScalarFieldEnum = {
   approverSource: 'approverSource',
   formFieldKey: 'formFieldKey',
   approvalMode: 'approvalMode',
+  stepType: 'stepType',
   createdAt: 'createdAt',
   userId: 'userId'
 } as const

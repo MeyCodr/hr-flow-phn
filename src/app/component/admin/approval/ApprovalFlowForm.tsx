@@ -37,6 +37,19 @@ const APPROVAL_MODE_OPTIONS = [
   { id: "ANY", name: "Any one approver" },
 ];
 
+const STEP_TYPE_OPTIONS = [
+  {
+    id: "APPROVER",
+    name: "Requires Approval",
+    description: "The assigned people must approve or reject before the flow continues.",
+  },
+  {
+    id: "NOTIFY",
+    name: "Notify Only",
+    description: "The assigned people are emailed for information; the flow continues automatically.",
+  },
+];
+
 interface ApprovalFlowFormProps {
   handleBack?: () => void;
   onUpdate?: () => void;
@@ -73,6 +86,7 @@ export default function ApprovalFlowForm({
     approverSource: "ROLE",
     formFieldKey: "",
     approvalMode: "ALL",
+    stepType: "APPROVER",
   });
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -101,6 +115,7 @@ export default function ApprovalFlowForm({
         approverSource: selectedStep.approverSource || "ROLE",
         formFieldKey: selectedStep.formFieldKey || "",
         approvalMode: selectedStep.approvalMode || "ALL",
+        stepType: selectedStep.stepType || "APPROVER",
       });
     }
   }, [selectedStep]);
@@ -133,7 +148,9 @@ export default function ApprovalFlowForm({
       // These form types ignore approvalMode server-side; keep the stored
       // value in sync with reality so the list view doesn't show a mode
       // that isn't actually in effect.
-      const payload = approvalModeLocked ? { ...data, approvalMode: "ALL" } : data;
+      const payload = approvalModeLocked
+        ? { ...data, approvalMode: "ALL", stepType: "APPROVER" }
+        : data;
       await method(url, payload);
       if (method === axios.put) {
         toast.success("Approval Flow Step updated successfully");
@@ -234,10 +251,54 @@ export default function ApprovalFlowForm({
 
           <div className="w-full border-t border-gray-200 dark:border-gray-700" />
 
+          {!approvalModeLocked && (
+            <>
+              {/* Step Type */}
+              <section className="flex flex-col gap-y-4">
+                <h3 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400">
+                  Step Type
+                </h3>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {STEP_TYPE_OPTIONS.map((option) => (
+                    <label
+                      key={option.id}
+                      className={`flex items-start gap-x-2 rounded-md border px-3 py-2 cursor-pointer transition-colors ${
+                        data.stepType === option.id
+                          ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40"
+                          : "border-gray-300 dark:border-gray-600 hover:border-indigo-400"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="stepType"
+                        value={option.id}
+                        checked={data.stepType === option.id}
+                        onChange={() =>
+                          setData((prev) => ({ ...prev, stepType: option.id }))
+                        }
+                        className="mt-0.5 accent-indigo-600"
+                      />
+                      <span className="flex flex-col">
+                        <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
+                          {option.name}
+                        </span>
+                        <span className="text-[0.7rem] text-gray-500 dark:text-gray-400">
+                          {option.description}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+            </>
+          )}
+
           {/* Who Approves */}
           <section className="flex flex-col gap-y-4">
             <h3 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400">
-              Who Approves
+              {data.stepType === "NOTIFY" ? "Who Gets Notified" : "Who Approves"}
             </h3>
 
             <div className={styleLink}>
@@ -438,7 +499,7 @@ export default function ApprovalFlowForm({
             )}
           </section>
 
-          {data.approverSource !== "FORM_FIELD" && (
+          {data.approverSource !== "FORM_FIELD" && data.stepType !== "NOTIFY" && (
             <>
               <div className="w-full border-t border-gray-200 dark:border-gray-700" />
 

@@ -6,6 +6,7 @@ import { authOptions } from "@/src/lib/auth-options";
 import { Prisma } from "@/generated/client";
 import { getGrievanceStepDeadline } from "../../../../../lib/grievance-deadline";
 import { isEmployeeReviewFormType, isGrievanceFormType } from "../../../../../lib/utils";
+import { advancePastNotifySteps } from "@/lib/notifyStepCascade";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -332,30 +333,48 @@ export async function POST(req: NextRequest) {
       const nextStepApprovers = await normalizeApprovalQueue(submissionId);
 
       if (nextStepApprovers && nextStepApprovers.length > 0) {
-        const [firstNext, ...otherNext] = nextStepApprovers;
-        const mailOptions = {
-          from: emailFrom,
-          to: firstNext.approver.email,
-          cc: otherNext.map((a) => a.approver.email),
-          subject: "Action Required: Request Pending Your Approval",
-          template: "nextApproval",
-          context: {
-            nextApproverName: firstNext.approver.fullname,
-            previousApproverName: approval.approver.fullname,
-            formTitle: formType.name,
-            requestorName: requestor.fullname,
-            requestorStaffId: requestor.staffid,
-            department: requestorDepartmentName,
-            submittedAt: submission.createdAt.toLocaleString(),
-            status: "Pending Approval",
-            approvalLink: `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`,
-          },
-        };
+        const requestLink = `${webLink}/dashboard/approval?id=${submissionId}&name=${formType.name}`;
 
-        try {
-          await transporter.sendMail(mailOptions);
-        } catch (mailErr) {
-          console.error("Failed to send next-approver email:", mailErr);
+        // Auto-resolve any leading run of NOTIFY-only steps before emailing
+        // whoever the flow actually lands on next.
+        const cascadeResult = await advancePastNotifySteps({
+          submissionId,
+          formTypeId: submission.formTypeId,
+          formTitle: formType.name,
+          requestorName: requestor.fullname,
+          requestorStaffId: requestor.staffid,
+          requestorEmail: requestor.email,
+          departmentName: requestorDepartmentName,
+          submittedAt: submission.createdAt.toLocaleString(),
+          requestLink,
+        });
+
+        if (!cascadeResult.finalized && cascadeResult.approvers.length > 0) {
+          const [firstNext, ...otherNext] = cascadeResult.approvers;
+          const mailOptions = {
+            from: emailFrom,
+            to: firstNext.approver.email,
+            cc: otherNext.map((a) => a.approver.email),
+            subject: "Action Required: Request Pending Your Approval",
+            template: "nextApproval",
+            context: {
+              nextApproverName: firstNext.approver.fullname,
+              previousApproverName: approval.approver.fullname,
+              formTitle: formType.name,
+              requestorName: requestor.fullname,
+              requestorStaffId: requestor.staffid,
+              department: requestorDepartmentName,
+              submittedAt: submission.createdAt.toLocaleString(),
+              status: "Pending Approval",
+              approvalLink: requestLink,
+            },
+          };
+
+          try {
+            await transporter.sendMail(mailOptions);
+          } catch (mailErr) {
+            console.error("Failed to send next-approver email:", mailErr);
+          }
         }
       } else {
         // ✅ Final approval

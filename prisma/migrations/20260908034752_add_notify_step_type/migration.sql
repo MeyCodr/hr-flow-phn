@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `ApprovalFlowStep` ADD COLUMN `stepType` ENUM('APPROVER', 'NOTIFY') NOT NULL DEFAULT 'APPROVER';

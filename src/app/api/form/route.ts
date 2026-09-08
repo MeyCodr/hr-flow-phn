@@ -16,6 +16,7 @@ import {
   buildRoleWhere,
   resolveFormFieldApprover,
 } from "@/lib/approverResolution";
+import { advancePastNotifySteps } from "@/lib/notifyStepCascade";
 
 const emailFrom = process.env.EMAIL;
 const webLink = process.env.NEXTAUTH_URL;
@@ -281,14 +282,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Fetch the first active approvers
-    const firstStepApprovers = await prisma.approval.findMany({
-      where: {
-        submissionId: formSubmission.id,
-        stepOrder: firstActiveStepOrder,
-      },
-      include: { approver: true },
+    const requestLink = `${webLink}/dashboard/approval?id=${formSubmission.id}&name=${formType.name}`;
+
+    // ✅ Fetch the first active approvers, auto-resolving any leading
+    // NOTIFY-only steps along the way.
+    const cascadeResult = await advancePastNotifySteps({
+      submissionId: formSubmission.id,
+      formTypeId: formId,
+      formTitle: formType.name,
+      requestorName: findUser.fullname,
+      requestorStaffId: findUser.staffid,
+      requestorEmail: findUser.email,
+      departmentName: findDepartment?.name ?? "-",
+      submittedAt: new Date(formSubmission.createdAt).toLocaleString(),
+      requestLink,
     });
+    const firstStepApprovers = cascadeResult.finalized ? [] : cascadeResult.approvers;
 
     const mailOptions = {
       from: emailFrom,

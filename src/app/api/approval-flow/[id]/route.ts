@@ -25,6 +25,7 @@ export async function PUT(
       approverSource,
       formFieldKey,
       approvalMode,
+      stepType,
     } = body;
 
     // Treat "0" or "" as null
@@ -49,6 +50,7 @@ export async function PUT(
         approverSource: approverSource || "ROLE",
         formFieldKey: formFieldKey || null,
         approvalMode: approvalMode || "ALL",
+        stepType: stepType === "NOTIFY" ? "NOTIFY" : "APPROVER",
       },
     });
 

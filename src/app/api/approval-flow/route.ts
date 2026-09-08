@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       approverSource,
       formFieldKey,
       approvalMode,
+      stepType,
     } = body;
 
     // Treat "0" or "" as null
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
         approverSource: approverSource || "ROLE",
         formFieldKey: formFieldKey || null,
         approvalMode: approvalMode || "ALL",
+        stepType: stepType === "NOTIFY" ? "NOTIFY" : "APPROVER",
       },
     });
 

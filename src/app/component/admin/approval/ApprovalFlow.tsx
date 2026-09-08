@@ -43,6 +43,7 @@ export interface ApprovalFlowStep {
   approverSource: string;
   formFieldKey: string | null;
   approvalMode: string;
+  stepType: string;
 }
 
 export interface ApprovalStepApprover {
@@ -422,7 +423,13 @@ export default function ApprovalFlow({
                                 <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[0.6rem] font-semibold uppercase tracking-wide">
                                   {SOURCE_LABELS[item.approverSource] ?? "Role"}
                                 </span>
+                                {item.stepType === "NOTIFY" && (
+                                  <span className="px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-400 text-[0.6rem] font-semibold uppercase tracking-wide">
+                                    Notify Only
+                                  </span>
+                                )}
                                 {item.approverSource !== "FORM_FIELD" &&
+                                  item.stepType !== "NOTIFY" &&
                                   (hasFixedApprovalMode(item.formType?.name) ? (
                                     <span
                                       className="px-2 py-0.5 rounded-full text-[0.6rem] font-semibold uppercase tracking-wide bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"

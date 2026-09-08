@@ -166,6 +166,7 @@ model ApprovalFlowStep {
   approverSource      ApproverSourceType @default(ROLE)
   formFieldKey        String?
   approvalMode        ApprovalMode       @default(ALL)
+  stepType            ApprovalStepType   @default(APPROVER)
   createdAt           DateTime           @default(now())
 
   // Relations
@@ -187,6 +188,11 @@ enum ApproverSourceType {
 enum ApprovalMode {
   ALL
   ANY
+}
+
+enum ApprovalStepType {
+  APPROVER
+  NOTIFY
 }
 
 model Approval {

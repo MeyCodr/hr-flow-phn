@@ -26,6 +26,14 @@ export const ApprovalMode = {
 export type ApprovalMode = (typeof ApprovalMode)[keyof typeof ApprovalMode]
 
 
+export const ApprovalStepType = {
+  APPROVER: 'APPROVER',
+  NOTIFY: 'NOTIFY'
+} as const
+
+export type ApprovalStepType = (typeof ApprovalStepType)[keyof typeof ApprovalStepType]
+
+
 export const SexualHarassmentReportStatus = {
   SUBMITTED: 'SUBMITTED',
   UNDER_REVIEW: 'UNDER_REVIEW',

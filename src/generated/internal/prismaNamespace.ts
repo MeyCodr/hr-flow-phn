@@ -1575,6 +1575,7 @@ export const ApprovalFlowStepScalarFieldEnum = {
   approverSource: 'approverSource',
   formFieldKey: 'formFieldKey',
   approvalMode: 'approvalMode',
+  stepType: 'stepType',
   createdAt: 'createdAt',
   userId: 'userId'
 } as const
@@ -1892,6 +1893,13 @@ export type EnumApproverSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputTyp
  * Reference to a field of type 'ApprovalMode'
  */
 export type EnumApprovalModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApprovalMode'>
+    
+
+
+/**
+ * Reference to a field of type 'ApprovalStepType'
+ */
+export type EnumApprovalStepTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApprovalStepType'>
     
 
 
