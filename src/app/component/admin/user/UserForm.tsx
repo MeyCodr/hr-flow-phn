@@ -94,7 +94,7 @@ function UserForm({
       formTypeScopes: isFormAdmin ? formTypeScopes.map(Number) : [],
     };
     try {
-      await axios.put(withBasePath(`/api/user/${data.staffid}`), formattedData);
+      await axios.put(withBasePath(`/api/user/${user.staffid}`), formattedData);
       toast.success("Successfully updated user");
       onUpdate(); // 👈 notify parent to refresh data
     } catch (error) {
