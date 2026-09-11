@@ -81,6 +81,17 @@ const PERFORMANCE_CRITERIA: {
 
 const REVIEW_MONTHS = ["1", "2", "3", "4", "5"];
 
+const REQUIRED_TEXT_FIELDS: {
+  field: keyof EmployeeReviewTypes;
+  label: string;
+}[] = [
+  { field: "staffId", label: "Staff ID" },
+  { field: "dateJoin", label: "Date Join" },
+  { field: "reviewPeriodFrom", label: "Review Period (From)" },
+  { field: "reviewPeriodTo", label: "Review Period (To)" },
+  { field: "monthReview", label: "Month" },
+];
+
 const INPUT_CLASS =
   "w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-xs text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
@@ -248,6 +259,29 @@ export default function EmployeeReview({
         return;
       }
 
+      // Initial submission — every field on the evaluator's side is required
+      for (const { field, label } of REQUIRED_TEXT_FIELDS) {
+        const value = data[field];
+        if (!value || !value.toString().trim()) {
+          toast.error(`${label} is required.`);
+          setLoading(false);
+          return;
+        }
+      }
+
+      for (const criterion of PERFORMANCE_CRITERIA) {
+        if (!data[criterion.field]) {
+          toast.error(`${criterion.label} rating is required.`);
+          setLoading(false);
+          return;
+        }
+        if (!data[criterion.commentField]?.trim()) {
+          toast.error(`${criterion.label} comments are required.`);
+          setLoading(false);
+          return;
+        }
+      }
+
       // Initial submission — auto-populate superior signature & date
       const today = new Date().toISOString().split("T")[0];
       const res = await axios.post(
@@ -360,13 +394,17 @@ export default function EmployeeReview({
             <div className="flex flex-col gap-y-6">
               <div className="flex flex-col space-y-2">
                 <Label
-                  name="Employee Name"
-                  htmlFor="staffName"
+                  name="Staff ID"
+                  htmlFor="staffId"
                   className={LABEL_CLASS}
+                  required={!readOnly && !fillInMode}
                 />
                 <ComboBox
-                  menu={userList}
-                  selectedValue={formData.staffName}
+                  menu={userList.map((u) => ({
+                    id: u.id,
+                    name: `${u.staffid} - ${u.name}`,
+                  }))}
+                  selectedValue={formData.staffId}
                   onSelect={(item) => {
                     const selected = userList.find((u) => u.id === item?.id);
                     if (!selected) return;
@@ -398,8 +436,8 @@ export default function EmployeeReview({
                   name="jobTitle"
                   type="text"
                   value={formData.jobTitle}
-                  onChange={readOnly || fillInMode ? () => { } : handleChange}
-                  disabled={readOnly || fillInMode}
+                  onChange={() => { }}
+                  disabled
                   placeholder="Job Title"
                   className={INPUT_CLASS}
                 />
@@ -427,7 +465,7 @@ export default function EmployeeReview({
                       sectionName: "",
                     }));
                   }}
-                  disabled={readOnly || fillInMode}
+                  disabled
                 />
               </div>
 
@@ -453,7 +491,7 @@ export default function EmployeeReview({
                       sectionName: "",
                     }));
                   }}
-                  disabled={readOnly || fillInMode}
+                  disabled
                 />
               </div>
 
@@ -474,7 +512,7 @@ export default function EmployeeReview({
                     setSelectedSection(id);
                     setData((prev) => ({ ...prev, sectionName: name }));
                   }}
-                  disabled={readOnly || fillInMode}
+                  disabled
                 />
               </div>
             </div>
@@ -483,18 +521,18 @@ export default function EmployeeReview({
             <div className="flex flex-col gap-y-6">
               <div className="flex flex-col space-y-2">
                 <Label
-                  name="Staff ID"
-                  htmlFor="staffId"
+                  name="Employee Name"
+                  htmlFor="staffName"
                   className={LABEL_CLASS}
                 />
                 <Input
-                  id="staffId"
-                  name="staffId"
+                  id="staffName"
+                  name="staffName"
                   type="text"
-                  value={formData.staffId}
-                  onChange={readOnly || fillInMode ? () => { } : handleChange}
-                  disabled={readOnly || fillInMode}
-                  placeholder="Employee ID"
+                  value={formData.staffName}
+                  onChange={() => { }}
+                  disabled
+                  placeholder="Employee Name"
                   className={INPUT_CLASS}
                 />
               </div>
@@ -504,6 +542,7 @@ export default function EmployeeReview({
                   name="Date Join"
                   htmlFor="dateJoin"
                   className={LABEL_CLASS}
+                  required={!readOnly && !fillInMode}
                 />
                 <DatePicker
                   value={formData.dateJoin}
@@ -536,6 +575,7 @@ export default function EmployeeReview({
                   name="Review Period"
                   htmlFor="reviewPeriodFrom"
                   className={LABEL_CLASS}
+                  required={!readOnly && !fillInMode}
                 />
                 <div className="flex items-center gap-2">
                   <DatePicker
@@ -563,6 +603,7 @@ export default function EmployeeReview({
                   name="Month"
                   htmlFor="monthReview"
                   className={LABEL_CLASS}
+                  required={!readOnly && !fillInMode}
                 />
                 <div className="flex items-center gap-x-4">
                   {REVIEW_MONTHS.map((month) => (
@@ -604,6 +645,7 @@ export default function EmployeeReview({
         <div>
           <h2 className="text-sm font-semibold text-indigo-800 dark:text-indigo-400 mb-4">
             Performance Review
+            {!readOnly && !fillInMode && <span className="text-red-500 ml-1">*</span>}
           </h2>
 
           <div className="overflow-x-auto">
