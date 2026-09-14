@@ -95,12 +95,26 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Forms let any staff member pick a colleague (e.g. "Immediate Superior"),
-    // so any authenticated user gets a basic directory. Admin screens (user
-    // management, approval flow setup) get the full detail below.
+    // Forms let any staff member pick a colleague (e.g. "Immediate Superior",
+    // or the staff-lookup on the Employee Monthly Performance Review form),
+    // so any authenticated user gets a basic directory including org-unit
+    // fields. Admin screens (user management, approval flow setup) get the
+    // full detail below.
     if (!isAdminRole(session.user?.role)) {
       const users = await prisma.user.findMany({
-        select: { id: true, fullname: true, staffid: true, role: true },
+        select: {
+          id: true,
+          fullname: true,
+          staffid: true,
+          role: true,
+          designation: true,
+          divisionId: true,
+          division: { select: { name: true } },
+          departmentId: true,
+          department: { select: { name: true } },
+          sectionId: true,
+          section: { select: { name: true } },
+        },
       });
       return NextResponse.json(users);
     }

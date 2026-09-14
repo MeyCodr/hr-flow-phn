@@ -6,15 +6,17 @@ export interface ApprovalTableColumn<T> {
   sortAccessor?: (item: T) => string | number | Date | null | undefined;
 }
 
+type SortDirection = "asc" | "desc";
+
 interface ApprovalTableProps<T> {
   items: T[];
   columns: ApprovalTableColumn<T>[];
   pageSize?: number;
   renderRow: (item: T, index: number) => React.ReactNode;
   emptyMessage?: string;
+  defaultSortLabel?: string;
+  defaultSortDirection?: SortDirection;
 }
-
-type SortDirection = "asc" | "desc";
 
 export default function ApprovalTable<T>({
   items,
@@ -22,10 +24,12 @@ export default function ApprovalTable<T>({
   pageSize = 20,
   renderRow,
   emptyMessage = "No records found.",
+  defaultSortLabel,
+  defaultSortDirection = "asc",
 }: ApprovalTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortLabel, setSortLabel] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [sortLabel, setSortLabel] = useState<string | null>(defaultSortLabel ?? null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(defaultSortDirection);
 
   const sortedItems = useMemo(() => {
     const column = columns.find((c) => c.label === sortLabel);

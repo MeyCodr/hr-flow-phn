@@ -67,6 +67,8 @@ export default function PendingContent({
       <ApprovalTable
         items={pendingItems}
         pageSize={20}
+        defaultSortLabel="Date"
+        defaultSortDirection="desc"
         columns={[
           {
             label: "Requester",
